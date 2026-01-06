@@ -1,0 +1,26 @@
+/* src/styles/global.css — VERSÃO FINAL QUE MATA O OLHO NATIVO EM 100% DOS PCs DO BRASIL */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input[type="password"]::-webkit-textfield-decoration-container,
+input[type="password"]::-webkit-caps-lock-indicator,
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-password-reveal-button,
+input::-webkit-password-reveal-button,
+input::-ms-reveal,
+input[type="password"] + button,
+input[type="password"] ~ button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  left: -99999px !important;
+  z-index: -99999 !important;
+}
+
+/* NOSSO OLHO DOMINA TUDO */
+.password-eye-btn {
+  z-index: 99999 !important;
+  pointer-events: auto !important;
+}

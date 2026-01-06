@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=210mm, initial-scale=1.0">
+  <title>Relatório Técnico</title>
+</head>
+
+<body>
+  <div class="cover-page">
+
+    <div class="grid-container" style="margin-top: 5px;">
+      <div class="grid-item main-title-cell" style="grid-row: span 4; grid-column: span 6;">RELATÓRIO TÉCNICO</div>
+      <div class="grid-item cell-label linha divisoria-vertical titulo-azul" style="grid-column-start: 7;">
+        <span style="color: #3b5998;">N.º:</span>
+        <span style="color: #000;">FRTE-01/14</span>
+      </div>
+      <div class="grid-item grid-item-span-1 cell-label linha titulo-azul">Data emissão:</div>
+      <div class="grid-item grid-item-span-1 linha divisoria-vertical">05/14</div>
+      <div class="grid-item grid-item-span-3 cell-label linha titulo-azul centralizar-texto">Rev.: {{rev}}</div>
+      <div class="grid-item cell-label grid-item-span-1 linha titulo-azul" style="grid-column-start: 7;">Data de emissão
+        relatório:</div>
+      <div class="grid-item grid-item-span-1 linha divisoria-vertical">{{data_emissao_formatado}}</div>
+      <div class="grid-item cell-label grid-item-span-1 linha">RTE:</div>
+      <div class="grid-item grid-item-span-3 linha">{{numero_rte}}</div>
+      <div class="grid-item cell-label grid-item-span-2 linha titulo-azul" style="grid-column-start: 7;">Início:</div>
+      <div class="grid-item grid-item-span-1 linha">{{data_inicio_formatado}}</div>
+      <div class="grid-item cell-label grid-item-span-1 linha titulo-azul">Fim:</div>
+      <div class="grid-item grid-item-span-3 linha">{{data_fim_formatado}}</div>
+      <div class="grid-item cell-label grid-item-span-1 titulo-azul" style="grid-column-start: 7;">CNPJ:</div>
+      <div class="grid-item grid-item-span-3 divisoria-vertical">{{empresa_cnpj}}</div>
+      <div class="grid-item cell-label grid-item-span-1 titulo-azul">CREA:</div>
+      <div class="grid-item grid-item-span-1">{{empresa_crea}}</div>
+    </div>
+
+    <table class="border-table" style="width: 100%; margin-top: 15px; font-size: 15px; border-collapse: collapse;">
+      <tbody>
+        <tr>
+          <td style="width: 10%; font-weight: bold; padding: 8px; border: 1px solid black; border-right: none;"><span
+              style="color: #3b5998;">Título:</span></td>
+
+          <td
+            style="width: 65%; padding: 8px; border: 1px solid black; border-left: none; border-right: none; text-align: center;">
+            {{titulo_relatorio}}</td>
+
+          <td
+            style="width: 10%; font-weight: bold; padding: 8px; border: 1px solid black; border-left: none; border-right: none;">
+            <span style="color: #3b5998;">O.S.:</span>
+          </td>
+
+          <td style="width: 15%; padding: 8px; border: 1px solid black; border-left: none; text-align: center;">
+            {{os_numero}}</td>
+        </tr>
+        <tr>
+          <td
+            style="width: 10%; font-weight: bold; padding: 8px; border: 1px solid black; border-right: none; border-top: none;">
+            <span style="color: #3b5998;">Cliente:</span>
+          </td>
+
+          <td colspan="3"
+            style="padding: 8px; border: 1px solid black; border-left: none; border-top: none; text-align: center;">
+            {{cliente_nome}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="grid-container" style="border-top: none; margin-top: 15px;">
+      <div class="grid-item cell-label grid-item-span-6 linha divisoria-vertical titulo-azul linha-top-border negrito">
+        Dados do Cliente:</div>
+      <div class="grid-item grid-item-span-3 linha linha-top-border negrito">ART:</div>
+      <div class="grid-item grid-item-span-3 linha linha-top-border">{{art}}</div>
+      <div class="grid-item cell-label grid-item-span-2 linha">CNPJ:</div>
+      <div class="grid-item grid-item-span-4 linha">{{cliente_cnpj}}</div>
+      <div class="grid-item cell-label grid-item-span-2 linha">Responsável:</div>
+      <div class="grid-item grid-item-span-4 linha">{{responsavel}}</div>
+      <div class="grid-item cell-label grid-item-span-2 linha">Endereço:</div>
+      <div class="grid-item grid-item-span-10 linha">{{cliente_endereco}}</div>
+      <div class="grid-item cell-label grid-item-span-2 linha">Cidade:</div>
+      <div class="grid-item grid-item-span-2 linha">{{cliente_cidade}}</div>
+      <div class="grid-item cell-label grid-item-span-2 linha">Estado:</div>
+      <div class="grid-item grid-item-span-2 linha">{{cliente_estado}}</div>
+      <div class="grid-item cell-label grid-item-span-2 linha">CEP:</div>
+      <div class="grid-item grid-item-span-2 linha">{{cliente_cep}}</div>
+      <div class="grid-item cell-label grid-item-span-2">Bairro:</div>
+      <div class="grid-item grid-item-span-2">{{cliente_bairro}}</div>
+    </div>
+
+    <div class="content-placeholder" style="margin-top: 15px; text-align: center;">
+      <img src="{{cliente_logo_base64}}" alt="Logo do Cliente">
+    </div>
+
+    <table class="assinaturas" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+      <thead>
+        <tr>
+          <th
+            style="width: 33.3%; background-color: #d9e1f2; font-weight: bold; text-align: center; border: 1px solid black; padding: 10px;">
+            Elaborado por:</th>
+          <th
+            style="width: 33.3%; background-color: #d9e1f2; font-weight: bold; text-align: center; border: 1px solid black; padding: 10px;">
+            Checado por:</th>
+          <th
+            style="width: 33.3%; background-color: #d9e1f2; font-weight: bold; text-align: center; border: 1px solid black; padding: 10px;">
+            Aprovado por:</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="border: 1px solid black; padding: 5px; height: 20px; text-align: center;">{{elaborado_por}}</td>
+          <td style="border: 1px solid black; padding: 5px; height: 20px; text-align: center;">{{checado_por}}</td>
+          <td style="border: 1px solid black; padding: 5px; height: 20px; text-align: center;">{{aprovado_por}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="content-section section-start">
+    <h1>SUMÁRIO</h1>
+    <div class="summary-list-container" style="font-size: 15px;">
+      {{sumario_html}}
+    </div>
+    <h2>ÍNDICE DE FOTOS</h2>
+    <div class="summary-list-container" style="font-size: 15px;">
+      {{indice_fotos_html}}
+    </div>
+  </div>
+  <div class="page-break"></div>
+  
+  <div class="content-section">
+    <h2 style="margin-top: 0px;">1. OBJETIVO</h2>
+    <p style="font-size: 15px; margin-bottom: 5px;">{{objetivo_text}}</p>
+    <h2 style="margin-top: 70px;">2. REFERÊNCIA NORMATIVA</h2>
+    <p style="font-size: 15px;">Toda a vistoria baseia-se nas normas:</p>
+    <ul class="normas-list" style="font-size: 15px;">
+      <li>ABNT NBR 5410:2008 – Instalações elétricas de baixa tensão;</li>
+      <li>ABNT NBR 17094-1:2018 Versão Corrigida:2018 – Máquinas elétricas girantes Parte 1: Motores de indução
+        trifásicos – Requisitos;</li>
+      <li>ABNT NBR 17094-2:2016 – Máquinas elétricas girantes Parte 2: Motores de indução monofásicos – Requisitos;</li>
+      <li>ABNT NBR 17094-3:2018 Versão Corrigida:2018 – Máquinas elétricas girantes Parte 3: Motores de indução
+        trifásicos – Métodos de ensaio;</li>
+      <li>ABNT NBR 17094-4:2016 – Máquinas elétricas girantes Parte 4: Motores de indução monofásicos – Métodos de
+        ensaio.</li>
+    </ul>
+
+    <h2 style="margin-top: 70px;">3. DESCRIÇÃO</h2>
+    <p style="font-size: 15px;">{{descricao}}</p>
+
+    <h2 style="color: #00566C; margin-top: 70px;">3.1. RESISTÊNCIA DA ISOLAÇÃO</h2>
+    <p style="font-size: 15px;">Os métodos de ensaio para medição da resistência do estator do motor são baseados nas
+      normas ABNT NBR 17094-3:2018 - Versão Corrigida: 2018 e ABNT NBR 17094-4:2016.</p>
+      <div class="page-break"></div>
+      <h2 style="margin-top: 20px;">3.2. MEDIDA ENTRE BOBINA E CARCAÇA</h2>
+      <p style="font-size: 15px;">
+        A medição da distância entre a bobina e a carcaça é realizada com o objetivo de verificar a integridade do isolamento e evitar curto-circuito.</p>
+      <div class="photo-gallery">
+        {{bobina_carcaca_html}}
+      </div>
+
+      <p style="font-size: 15px; margin-top: 90px !important;">Tabela 2 - VALORES OBTIDOS NA MEDIÇÃO</p>
+      <table class="border-table" styale="font-size: 9pt;">
+        <tbody>
+          {{medicoes_isolamento_html}}
+        </tbody>
+      </table>
+      <p style="margin-top: 15px;">{{conclusao_isolamento}}</p>
+    </div>
+
+    <h2 style="margin-top: -55px;">3.3. MEDIÇÃO DO BATIMENTO RADIAL</h2>
+    <p style="font-size: 15px; margin-top: -15px">A medição do batimento radial do eixo baseia-se nas normas EN-22768/2 – mK e ISO 2268/2.
+    </p>
+
+    <div class="eixo-ilustracao">
+      <img src="{{eixoIllustrationBase64}}" alt="Ilustração do Eixo" class="ilustracao-eixo-teste" />
+      <p style="font-size: 9pt; margin-top: -10px;">Figura 1 - Ilustração do eixo</p>
+    </div>
+    <div style="height: 15px;"></div>
+    <table class="border-table"
+      style="width: 100%; margin-bottom: 20px; margin-left: auto; margin-right: auto; font-size: 12pt;">
+      <thead>
+        <tr>
+          <th style="text-align: center;">CLASSE DE TOLERÂNCIA</th>
+          <th style="text-align: center;">TOLERÂNCIA PARA BATIMENTO CIRCULAR</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: center;">H</td>
+          <td style="text-align: center;">0,1</td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">K</td>
+          <td style="text-align: center;">0,2</td>
+        </tr>
+        <tr>
+          <td style="text-align: center;">L</td>
+          <td style="text-align: center;">0,5</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="font-size: 9pt; text-align: center; margin-bottom: 20px;">
+      Tabela 1 - Tolerâncias gerais para batimento circular (NBR ISO 2768-2:2001). Dimensões em milímetros
+    </p>
+
+    <div class="medicao-batimento-bloco"></div>
+  </div>
+  <div class="content-section" style="padding-top: 0;">
+    <h2 style="margin-top: 20px;">3.4. FOTOS MEDIÇÃO DO BATIMENTO RADIAL</h2>
+    <div class="photo-gallery">
+      {{batimento_html}}
+    </div>
+
+    <table class="border-table" style="font-size: 9pt; margin-top: 100px !important;">
+      <thead>
+        <tr>
+          <th>DESCRIÇÃO DA MEDIÇÃO</th>
+          <th>VALOR ENCONTRADO</th>
+          <th>UNID.</th>
+          <th>TOLERÂNCIA</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{medicoes_batimento_html}}
+      </tbody>
+    </table>
+    <p style="margin-top: 15px;">{{conclusao_batimento}}</p>
+  </div>
+  </div>
+  <h2 style="margin-top: -180px;">4. METODOLOGIA</h2>
+  <div class="photo-gallery" id="metodologia-gallery" style="margin-top: -30px !important;">
+    {{metodologia_html}}
+  </div>
+  <div class="page-break"></div>
+
+  <h2 style="margin-top: 50px !important;">5. PEÇAS ATUAIS</h2>
+  <p style="font-size: 15px; margin-top: 0px; margin-bottom: 0px !important; font-weight: bold;">O equipamento possui as seguintes peças:</p>
+  <ul style="margin-bottom: 0px !important; margin-top: -50px !important;">
+    {{pecas_atuais_html}}
+  </ul>
+
+  <div class="photo-gallery" id="pecas-atuais-gallery">
+        {{fotos_pecas_atuais_html}}
+  </div>
+  </div>
+  <div class="page-break"></div>
+
+  <div class="content-section">
+    <h2>6. CAUSAS DOS DANOS</h2>
+    <div style="font-size: 15px;">
+      {{causas_danos_list}}
+    </div>
+
+    <h2>7. CONCLUSÃO</h2>
+    <p style="font-size: 14px;">Será necessário realizar os seguintes trabalhos:</p>
+    <div style="font-size: 15px;">
+      {{conclusao_list}}
+    </div>
+    <p style="font-size: 14px;">Após a manutenção, o equipamento tem 12 meses de garantia...</p>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,156 @@
+/* src/components/CreateNF.css */
+.nf-container { padding: 20px; color: #ccc; }
+.header { margin-bottom: 30px; }
+.header h1 { color: #e67e22; margin: 0 0 8px 0; }
+.header p { color: #999; font-size: 0.95em; }
+
+.cliente-info {
+  background: #2c2c2c;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 20px 0;
+  border-left: 4px solid #4a90e2;
+}
+
+.itens-section { margin-top: 30px; }
+.itens-section h2 { color: #e67e22; margin-bottom: 15px; }
+
+.adicionar-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap; /* Responsivo */
+}
+
+.adicionar-item select,
+.adicionar-item button {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 1em;
+}
+
+.adicionar-item select {
+  flex: 1;
+  min-width: 120px;
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+.adicionar-item button {
+  background: #e67e22;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.adicionar-item button:hover {
+  background: #d35400;
+}
+
+.tabela-itens {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: #1e1e1e;
+}
+
+.tabela-itens th,
+.tabela-itens td {
+  border: 1px solid #444;
+  padding: 12px;
+  text-align: left;
+}
+
+.tabela-itens th {
+  background: #2c2c2c;
+  color: #4a90e2;
+  font-weight: 600;
+}
+
+.tabela-itens input {
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 6px 8px;
+  border-radius: 4px;
+  width: 70px;
+}
+
+.total-nf {
+  text-align: right;
+  font-size: 1.4em;
+  margin: 25px 0;
+  color: #4a90e2;
+  font-weight: 600;
+}
+
+.botoes {
+  text-align: right;
+  margin-top: 30px;
+}
+
+.btn-primary {
+  background: #27ae60;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #219653;
+}
+
+.btn-primary:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+/* Busca de Cliente */
+.search-section {
+  margin-bottom: 20px;
+}
+
+.search-section input {
+  width: 100%;
+  padding: 12px;
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 6px;
+  font-size: 1em;
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #2c2c2c;
+  border: 1px solid #4a90e2;
+  border-top: none;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+  border-radius: 0 0 6px 6px;
+}
+
+.suggestion-item {
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #444;
+  transition: background 0.2s;
+}
+
+.suggestion-item:hover {
+  background: #383838;
+}

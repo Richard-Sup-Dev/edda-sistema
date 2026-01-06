@@ -1,0 +1,211 @@
+# ============================================
+# DOCKER COMPOSE - FULL STACK PRODUCTION
+# Frontend (Nginx) + Backend (Node) + PostgreSQL
+# ============================================
+
+version: "3.8"
+
+# ============================================
+# VOLUMES - Persistência de Dados
+# ============================================
+volumes:
+  postgres_data:
+    driver: local
+  backend_uploads:
+    driver: local
+
+# ============================================
+# NETWORKS - Comunicação Entre Containers
+# ============================================
+networks:
+  edda_network:
+    driver: bridge
+
+# ============================================
+# SERVICES - APLICAÇÕES
+# ============================================
+services:
+  # ========================================
+  # PostgreSQL - Banco de Dados
+  # ========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: edda_postgres
+    restart: unless-stopped
+    
+    # Variáveis de Ambiente
+    environment:
+      POSTGRES_DB: edda_db
+      POSTGRES_USER: edda_user
+      POSTGRES_PASSWORD: edda_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=pt_BR.UTF-8"
+    
+    # Volumes para persistência
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/sql:/docker-entrypoint-initdb.d:ro
+    
+    # Network
+    networks:
+      - edda_network
+    
+    # Port (apenas internamente, não expor para o mundo)
+    expose:
+      - "5432"
+    
+    # Health Check
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U edda_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========================================
+  # BACKEND - Node.js / Express
+  # ========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: edda_backend
+    restart: always
+    
+    # Variáveis de Ambiente (CRÍTICO - EDITAR EM PRODUÇÃO!)
+    environment:
+      # Node
+      NODE_ENV: production
+      PORT: 3001
+      
+      # Banco de Dados
+      DATABASE_URL: "postgresql://edda_user:edda_password@postgres:5432/edda_db?sslmode=disable"
+      
+      # JWT (GERAR NOVO EM PRODUÇÃO!)
+      JWT_SECRET: ${JWT_SECRET:-change_this_in_production_use_openssl_rand_hex}
+      JWT_EXPIRY: ${JWT_EXPIRY:-8h}
+      
+      # URLs Dinâmicas (ALTERAR CONFORME DOMÍNIO)
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:80,http://localhost:5173}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:80}
+      SERVER_BASE_URL: ${SERVER_BASE_URL:-http://localhost:3001}
+      
+      # Email (Nodemailer)
+      EMAIL_USER: ${EMAIL_USER:-seu-email@gmail.com}
+      EMAIL_APP_PASS: ${EMAIL_APP_PASS:-sua-senha-app}
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@seu-dominio.com}
+      
+      # Debug
+      DEBUG_MODE: ${DEBUG_MODE:-false}
+    
+    # Volumes
+    volumes:
+      - ./backend/src:/app/src
+      - backend_uploads:/app/uploads
+    
+    # Network
+    networks:
+      - edda_network
+    
+    # Port (apenas internamente)
+    # Port - expor para host para permitir acesso do navegador local (ajuste para produção conforme necessário)
+    ports:
+      - "3001:3001"
+    # Expose também para comunicação interna entre containers
+    expose:
+      - "3001"
+    
+    # Dependências
+    depends_on:
+      postgres:
+        condition: service_healthy
+    
+    # Health Check
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ========================================
+  # HEALTH MONITOR - Observador que reinicia o backend se ficar unhealthy
+  # Usa o Docker CLI montado no socket para reiniciar o container quando /api/health falhar
+  # ========================================
+  health-monitor:
+    image: docker:24-cli
+    container_name: edda_health_monitor
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - edda_network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: ["sh","-c"]
+    # Use one-line sh -c command array to avoid YAML multiline parsing issues
+    command: [
+      "sh",
+      "-c",
+      "while true; do STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://backend:3001/api/health || echo '000'); if [ \"$STATUS\" != \"200\" ]; then echo \"[$(date)] Backend unhealthy (status=$STATUS) - attempting restart\"; docker restart edda_backend || true; fi; sleep 10; done"
+    ]
+
+  # ========================================
+  # FRONTEND - React + Vite via Nginx
+  # ========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: edda_frontend
+    restart: unless-stopped
+    
+    # Variáveis de Ambiente (se necessário)
+    environment:
+      # Nginx não precisa de variáveis, mas pode ser útil para documentação
+      NODE_ENV: production
+    
+    # Network
+    networks:
+      - edda_network
+    
+    # Port - EXPOR PARA O MUNDO (usuários acessam aqui)
+    ports:
+      - "80:80"
+    
+    # Dependências
+    depends_on:
+      - backend
+
+# ============================================
+# INSTRUÇÕES DE USO
+# ============================================
+# 1. Criar arquivo .env na raiz do projeto (ou na pasta do docker-compose)
+#    Exemplo:
+#    DB_NAME=edda_db
+#    DB_USER=edda_user
+#    DB_PASSWORD=sua_senha_super_segura
+#    JWT_SECRET=resultado_do_comando_abaixo
+#    ALLOWED_ORIGINS=https://seu-dominio.com,https://www.seu-dominio.com
+#    FRONTEND_URL=https://seu-dominio.com
+#    SERVER_BASE_URL=https://api.seu-dominio.com
+#    EMAIL_USER=seu-email@gmail.com
+#    EMAIL_APP_PASS=sua-senha-app-gmail
+#
+# 2. Gerar JWT_SECRET novo:
+#    openssl rand -hex 32
+#
+# 3. Build:
+#    docker-compose build
+#
+# 4. Iniciar:
+#    docker-compose up -d
+#
+# 5. Verificar logs:
+#    docker-compose logs -f backend
+#    docker-compose logs -f frontend
+#    docker-compose logs -f postgres
+#
+# 6. Parar:
+#    docker-compose down
+#
+# 7. Remover volumes (CUIDADO!):
+#    docker-compose down -v
