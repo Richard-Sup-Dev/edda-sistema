@@ -20,6 +20,8 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@sentry/node": "^7.96.0",
+    "@sentry/profiling-node": "^7.96.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
@@ -40,6 +42,8 @@
     "pg-format": "^1.0.4",
     "playwright": "^1.55.1",
     "puppeteer": "^24.33.0",
+    "rate-limit-redis": "^4.2.0",
+    "redis": "^4.6.13",
     "sequelize": "^6.37.7",
     "sharp": "^0.34.4",
     "uuid": "^9.0.1",

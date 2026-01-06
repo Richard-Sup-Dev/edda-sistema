@@ -1,0 +1,346 @@
+/* src/styles/mobile-optimized.css */
+/* Otimizações de Mobile First */
+
+:root {
+  --mobile-padding: 1rem;
+  --mobile-gap: 0.75rem;
+  --mobile-font-base: 16px;
+  --mobile-input-height: 48px;
+  --mobile-button-height: 48px;
+}
+
+/* ========================================
+   Mobile First - Base (até 640px)
+   ======================================== */
+
+@media (max-width: 640px) {
+  * {
+    font-size: var(--mobile-font-base);
+  }
+
+  body {
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Inputs e Buttons - Touch Friendly */
+  input,
+  select,
+  textarea,
+  button {
+    min-height: var(--mobile-input-height);
+    padding: 12px 16px;
+    font-size: 16px; /* Evita zoom do iOS */
+    border-radius: 8px;
+  }
+
+  /* Forms - Stack vertical */
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mobile-gap);
+  }
+
+  .form-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  /* Grid responsivo */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--mobile-gap);
+  }
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Containers com padding adequado */
+  .container,
+  .card,
+  .panel {
+    padding: var(--mobile-padding);
+    border-radius: 8px;
+  }
+
+  /* Modal mobile-friendly */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-content {
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    border-radius: 12px;
+  }
+
+  /* Menu mobile */
+  .sidebar,
+  .menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.open,
+  .menu.open {
+    transform: translateX(0);
+  }
+
+  /* Hamburger menu */
+  .menu-toggle {
+    display: block;
+    width: 44px;
+    height: 44px;
+    padding: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 999;
+  }
+
+  .menu-toggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: currentColor;
+    margin: 4px 0;
+    transition: 0.3s;
+  }
+
+  /* Tabelas mobile */
+  table {
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+    border-collapse: collapse;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    display: block;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 12px;
+  }
+
+  tbody td {
+    display: block;
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+    border: none;
+  }
+
+  tbody td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 12px;
+    font-weight: bold;
+    text-align: left;
+  }
+
+  /* Bottom sheet para ações */
+  .action-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 12px 12px 0 0;
+    padding: 16px;
+    max-height: 50vh;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  /* Flex - responsive */
+  .flex {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .flex-row {
+    flex-direction: column;
+  }
+
+  /* Spacing */
+  .m-0 { margin: 0; }
+  .m-1 { margin: 0.25rem; }
+  .m-2 { margin: 0.5rem; }
+  .p-1 { padding: 0.25rem; }
+  .p-2 { padding: 0.5rem; }
+
+  /* Typography */
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+  h3 { font-size: 18px; }
+  h4 { font-size: 16px; }
+
+  /* Buttons - Full width */
+  button,
+  .btn {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Lists mobile */
+  .list-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .list-item.clickable {
+    cursor: pointer;
+    padding-right: 8px;
+  }
+
+  .list-item.clickable:after {
+    content: '›';
+    font-size: 20px;
+    color: #999;
+  }
+
+  /* Alerts/Notifications */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  /* Loading states */
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+  }
+
+  @keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Safe areas (notch handling) */
+  .container {
+    padding: max(16px, env(safe-area-inset-top)) 
+             max(16px, env(safe-area-inset-right))
+             max(16px, env(safe-area-inset-bottom))
+             max(16px, env(safe-area-inset-left));
+  }
+}
+
+/* ========================================
+   Tablet (641px - 1024px)
+   ======================================== */
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sidebar {
+    position: relative;
+    transform: translateX(0) !important;
+    width: 240px;
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  input,
+  button {
+    min-height: 40px;
+  }
+}
+
+/* ========================================
+   Desktop (1025px+)
+   ======================================== */
+
+@media (min-width: 1025px) {
+  .grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  .sidebar {
+    position: relative;
+    width: 280px;
+  }
+}
+
+/* ========================================
+   Impressão
+   ======================================== */
+
+@media print {
+  .no-print,
+  .menu-toggle,
+  .sidebar {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+}
