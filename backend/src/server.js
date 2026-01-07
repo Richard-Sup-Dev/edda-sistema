@@ -18,6 +18,17 @@ import {
   setupGlobalErrorHandlers 
 } from './config/errorHandler.js';
 
+// Swagger (quando instalado)
+let swaggerUi, swaggerJsdoc, swaggerSpec;
+try {
+  swaggerUi = await import('swagger-ui-express').then(m => m.default);
+  swaggerJsdoc = await import('swagger-jsdoc').then(m => m.default);
+  const swaggerConfig = await import('./swagger.config.js').then(m => m.default);
+  swaggerSpec = swaggerJsdoc(swaggerConfig);
+} catch (err) {
+  logger.info('Swagger não disponível - instale com: npm install swagger-jsdoc swagger-ui-express');
+}
+
 const { sequelize, User } = models;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -140,7 +151,38 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// === SWAGGER API DOCUMENTATION ===
+if (swaggerUi && swaggerSpec) {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'EDDA Sistema API Docs'
+  }));
+  logger.info('📚 Swagger docs disponível em: /api-docs');
+}
+
 // === ROTAS ===
+/**
+ * @swagger
+ * /api/test:
+ *   get:
+ *     summary: Verifica se a API está funcionando
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: API está funcionando corretamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensagem:
+ *                   type: string
+ *                 data:
+ *                   type: string
+ *                   format: date-time
+ *                 status:
+ *                   type: string
+ */
 app.use('/api/relatorios', relatoriosRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/financeiro', financeiroRoutes);

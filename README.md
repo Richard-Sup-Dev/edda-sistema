@@ -103,6 +103,24 @@ npm run test:watch
 npm run test:coverage
 ```
 
+### CI/CD
+
+O projeto possui pipeline automático de CI/CD com GitHub Actions que:
+- Executa testes automaticamente em cada push/PR
+- Verifica qualidade de código (linting)
+- Testa build do Docker
+- Executa auditoria de segurança
+- Gera relatórios de cobertura de testes
+
+## Documentação da API
+
+A API é documentada com Swagger/OpenAPI. Após iniciar o servidor:
+
+- **Docs interativa**: `http://localhost:3001/api-docs`
+- **Especificação OpenAPI**: `http://localhost:3001/api-docs/swagger.json`
+
+Você pode testar todos os endpoints diretamente pelo navegador!
+
 ## Documentação
 
 Para documentação completa e detalhada, consulte a [pasta docs/](./docs/).

@@ -12,6 +12,29 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Exportação de relatórios em PDF
 - Integração com sistemas de pagamento
 - Dashboard customizável por usuário
+- Migração para TypeScript (frontend e backend)
+
+## [1.1.0] - 2026-01-06
+
+### Adicionado
+- 🚀 **CI/CD Pipeline** com GitHub Actions
+  - Testes automatizados em cada push/PR
+  - Verificação de qualidade de código (linting)
+  - Build e teste de imagens Docker
+  - Auditoria de segurança automática
+  - Relatórios de cobertura de testes
+- 📚 **Documentação da API** com Swagger/OpenAPI
+  - Interface interativa em `/api-docs`
+  - Especificação completa de todos os endpoints
+  - Modelos de dados documentados
+  - Autenticação JWT documentada
+  - Exemplos de requisições e respostas
+- Badges no README (License, Node, React, PostgreSQL, Docker)
+
+### Modificado
+- README melhorado com links para documentação
+- URLs do repositório corrigidas
+- Estrutura de documentação reorganizada
 
 ## [1.0.0] - 2026-01-06
 
