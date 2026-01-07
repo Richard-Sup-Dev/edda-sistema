@@ -1,10 +1,13 @@
 # EDDA Sistema - Gestão de Relatórios Técnicos
 
-![License](https://img.shields.io/badge/license-ISC-blue)
+![License](https://img.shields.io/badge/license-MIT-blue)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-green)
 ![React](https://img.shields.io/badge/react-19-blue)
 ![PostgreSQL](https://img.shields.io/badge/postgresql-14%2B-blue)
 ![Docker](https://img.shields.io/badge/docker-ready-brightgreen)
+![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?logo=github-actions&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-passing-success)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
 
 Um sistema web completo para gerenciar relatórios técnicos, clientes, peças e serviços. Desenvolvido com React, Node.js e PostgreSQL, pronto para produção.
 
@@ -23,6 +26,31 @@ O projeto surgiu da necessidade real de organizar documentos, rastrear peças e 
 - **Autenticação segura** - Acesso protegido com JWT e roles
 - **Validação de dados** - Todos os campos são validados no servidor
 - **Interface moderna** - Design responsivo e intuitivo
+
+## 📸 Screenshots
+
+> 💡 **Em breve**: Adicione capturas de tela do sistema rodando aqui!
+
+<details>
+<summary>Ver exemplos de telas (clique para expandir)</summary>
+
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+*Visão geral com métricas e gráficos em tempo real*
+
+### Gestão de Clientes
+![Clientes](docs/screenshots/clientes.png)
+*CRUD completo para gerenciar sua base de clientes*
+
+### Login e Autenticação
+![Login](docs/screenshots/login.png)
+*Tela de login com autenticação JWT*
+
+### Catálogo de Peças
+![Peças](docs/screenshots/pecas.png)
+*Organize e controle seu inventário*
+
+</details>
 
 ## Stack Tecnológico
 
@@ -169,6 +197,41 @@ edda-sistema/
 └── docker-compose.yml      # Orquestração dos containers
 ```
 
+## 🗺️ Roadmap
+
+### ✅ Versão 1.0 (Atual)
+- Sistema completo de gestão de relatórios
+- Dashboard com métricas
+- CRUD de clientes, peças e serviços
+- Autenticação JWT
+- Testes automatizados (34+)
+- CI/CD com GitHub Actions
+- Documentação Swagger
+
+### 🚧 Versão 1.2 (Próximos 2 meses)
+- [ ] **Exportação de Relatórios em PDF**
+  - Geração automática com templates
+  - Logo e marca d'água personalizados
+  - Anexar fotos e documentos
+- [ ] **Sistema de Notificações**
+  - Email automático para clientes
+  - Notificações in-app
+  - Webhooks para integrações
+- [ ] **Métricas Avançadas**
+  - Gráficos de lucratividade
+  - Previsão de estoque
+  - Análise de performance
+
+### 🔮 Versão 2.0 (Futuro)
+- [ ] **Multi-tenant** (suporte a múltiplas empresas)
+- [ ] **App Mobile** (React Native)
+- [ ] **Integração com WhatsApp** (envio de relatórios)
+- [ ] **Sistema de Pagamentos** (Stripe/PagSeguro)
+- [ ] **IA para análise preditiva** de manutenções
+- [ ] **Migração para TypeScript** (backend e frontend)
+
+**Sugestões?** [Abra uma issue](https://github.com/Richard-Sup-Dev/edda-sistema/issues/new) com sua ideia!
+
 ## Contribuindo
 
 Se você encontrar bugs ou tiver sugestões de melhorias, fique à vontade para abrir uma issue ou fazer um pull request.
@@ -185,7 +248,17 @@ Alguns pontos importantes:
 
 ## Licença
 
-ISC License - veja [LICENSE](./LICENSE) para detalhes
+MIT License - veja [LICENSE](./LICENSE) para detalhes
+
+## Deploy em Produção
+
+Quer colocar o sistema no ar? Confira nosso [Guia de Deploy em VPS](./docs/GUIA_DEPLOY_VPS.md) com instruções para:
+
+- 🚀 **DigitalOcean** (recomendado)
+- 💰 **Hetzner** (melhor custo-benefício)
+- ⚡ **Railway** (deploy em 5 minutos)
+- 🎯 **Render** (plano gratuito disponível)
+- ☁️ **AWS EC2** (enterprise)
 
 ## Contato
 

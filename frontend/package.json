@@ -13,6 +13,7 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "license": "MIT",
   "keywords": ["react", "vite", "dashboard"],
   "dependencies": {
     "@react-pdf/renderer": "^4.3.1",

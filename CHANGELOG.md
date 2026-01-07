@@ -14,6 +14,27 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - Dashboard customizável por usuário
 - Migração para TypeScript (frontend e backend)
 
+## [1.2.0] - 2026-01-06
+
+### Adicionado
+- 📄 **Licença MIT** (mais amigável para open source)
+- 🏷️ **Badges adicionais** no README (CI/CD, Tests, PRs Welcome)
+- 📸 **Seção de Screenshots** no README (com placeholders)
+- 🚀 **Guia Completo de Deploy em VPS** ([GUIA_DEPLOY_VPS.md](./docs/GUIA_DEPLOY_VPS.md))
+  - Instruções para DigitalOcean, Hetzner, Railway, Render, AWS
+  - Configuração de SSL/HTTPS
+  - Backup automático
+  - Monitoramento e troubleshooting
+  - Comparação de custos
+- 🗺️ **Roadmap de Features** públicas no README
+  - Versões planejadas 1.2 e 2.0
+  - Exportação PDF, Notificações, Multi-tenant, etc.
+
+### Modificado
+- Licença alterada de ISC para MIT em todos os arquivos
+- README reorganizado com seção de deploy
+- Links para documentação melhorados
+
 ## [1.1.0] - 2026-01-06
 
 ### Adicionado
