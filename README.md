@@ -1,5 +1,11 @@
 # EDDA Sistema - Gestão de Relatórios Técnicos
 
+![License](https://img.shields.io/badge/license-ISC-blue)
+![Node](https://img.shields.io/badge/node-%3E%3D18-green)
+![React](https://img.shields.io/badge/react-19-blue)
+![PostgreSQL](https://img.shields.io/badge/postgresql-14%2B-blue)
+![Docker](https://img.shields.io/badge/docker-ready-brightgreen)
+
 Um sistema web completo para gerenciar relatórios técnicos, clientes, peças e serviços. Desenvolvido com React, Node.js e PostgreSQL, pronto para produção.
 
 ## O que é o EDDA?
@@ -43,7 +49,7 @@ O projeto surgiu da necessidade real de organizar documentos, rastrear peças e 
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/edda-sistema.git
+git clone https://github.com/Richard-Sup-Dev/edda-sistema.git
 cd edda-sistema
 
 # Inicie os containers
@@ -99,9 +105,15 @@ npm run test:coverage
 
 ## Documentação
 
-- [Guia de Implementação](./GUIA_IMPLEMENTACAO.md) - Detalhes técnicos do projeto
+Para documentação completa e detalhada, consulte a [pasta docs/](./docs/).
+
+### Principais Guias:
+
+- [Guia de Implementação](./backend/README_IMPLEMENTACAO.md) - Detalhes técnicos do projeto
 - [Guia de Segurança](./backend/GUIA_SEGURANCA_PRODUCAO.md) - Práticas de segurança
-- [Guia de Deploy](./GUIA_DEPLOYMENT_PRODUCAO.md) - Como fazer deploy em produção
+- [Guia de Deploy](./docs/GUIA_DEPLOYMENT_PRODUCAO.md) - Como fazer deploy em produção
+- [Quick Start](./docs/QUICK_START.md) - Começar rapidamente
+- [Documentação Completa](./docs/INDICE_COMPLETO_DOCUMENTACAO.md) - Índice de toda documentação
 
 ## Deploy em Produção
 
