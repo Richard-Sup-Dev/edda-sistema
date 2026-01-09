@@ -12,8 +12,7 @@
     "test:coverage": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "test:setup-db": "node setup-test-db.js",
     "lint": "echo 'Linting...'",
-    "validate": "npm test && npm run lint",
-    "prepare": "husky"
+    "validate": "npm test && npm run lint"
   },
   "keywords": [
     "api",
