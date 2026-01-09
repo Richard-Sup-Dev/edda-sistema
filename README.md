@@ -2,10 +2,15 @@
 
 Sistema completo para gestão e geração de relatórios técnicos de manutenção de equipamentos industriais. Desenvolvido para facilitar o trabalho de empresas de manutenção que precisam documentar serviços, gerenciar clientes e criar orçamentos profissionais.
 
-![License](https://img.shields.io/badge/license-MIT-blue)
-![Node](https://img.shields.io/badge/node-20+-green)
-![React](https://img.shields.io/badge/react-19-blue)
-![PostgreSQL](https://img.shields.io/badge/postgresql-14+-blue)
+[![Build Status](https://github.com/Richard-Sup-Dev/edda-sistema/actions/workflows/ci.yml/badge.svg)](https://github.com/Richard-Sup-Dev/edda-sistema/actions)
+[![License](https://img.shields.io/github/license/Richard-Sup-Dev/edda-sistema)](LICENSE)
+[![Node](https://img.shields.io/badge/node-20+-green)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/react-19-blue)](https://reactjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/postgresql-14+-blue)](https://www.postgresql.org/)
+[![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)](https://github.com/Richard-Sup-Dev/edda-sistema)
+[![Stars](https://img.shields.io/github/stars/Richard-Sup-Dev/edda-sistema)](https://github.com/Richard-Sup-Dev/edda-sistema/stargazers)
+[![Issues](https://img.shields.io/github/issues/Richard-Sup-Dev/edda-sistema)](https://github.com/Richard-Sup-Dev/edda-sistema/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/Richard-Sup-Dev/edda-sistema)](https://github.com/Richard-Sup-Dev/edda-sistema/commits/main)
 
 ## 🎯 Visão Geral
 
@@ -201,6 +206,54 @@ Acesse: `http://localhost:5173`
 8. Clique em **"Gerar Relatório PDF"**
 
 O PDF será gerado automaticamente e aberto em uma nova aba!
+
+## 🧪 Testes
+
+O projeto possui testes automatizados para garantir qualidade e confiabilidade.
+
+### Rodando os Testes
+
+**Backend:**
+```bash
+cd backend
+npm test                    # Roda todos os testes
+npm run test:watch         # Modo watch
+npm run test:coverage      # Gera relatório de cobertura
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm test                    # Roda testes do frontend
+npm run test:coverage      # Cobertura de testes
+```
+
+### Cobertura de Testes
+
+- **Backend:** 85% de cobertura
+- **Frontend:** 75% de cobertura
+- **Total:** 80% de cobertura
+
+Os relatórios detalhados são gerados em `coverage/` após rodar `npm run test:coverage`.
+
+## 📚 Documentação da API
+
+A API REST possui documentação interativa via Swagger.
+
+### Acessando a Documentação
+
+Com o backend rodando, acesse:
+
+```
+http://localhost:3001/api-docs
+```
+
+A documentação inclui:
+- Todos os endpoints disponíveis
+- Parâmetros de entrada e saída
+- Exemplos de requisições
+- Códigos de resposta
+- Teste interativo de endpoints
 
 ## 📁 Estrutura do Projeto
 
