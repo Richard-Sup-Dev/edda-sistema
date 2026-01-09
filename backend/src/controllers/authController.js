@@ -151,6 +151,68 @@ class AuthController {
     });
   }
 
+  // ==================== ALTERAR SENHA (USUÁRIO LOGADO) ====================
+  async changePassword(req, res) {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    // Validações
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ 
+        erro: 'Senha atual, nova senha e confirmação são obrigatórias' 
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ erro: 'As senhas não coincidem' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ 
+        erro: 'A nova senha deve ter no mínimo 6 caracteres' 
+      });
+    }
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ 
+        erro: 'A nova senha deve ser diferente da senha atual' 
+      });
+    }
+
+    try {
+      // Busca usuário completo no banco
+      const user = await User.findByPk(req.user.id);
+      
+      if (!user) {
+        return res.status(404).json({ erro: 'Usuário não encontrado' });
+      }
+
+      // Verifica se a senha atual está correta
+      const senhaValida = await bcrypt.compare(currentPassword, user.senha);
+      
+      if (!senhaValida) {
+        return res.status(401).json({ erro: 'Senha atual incorreta' });
+      }
+
+      // Hash da nova senha
+      const hash = await bcrypt.hash(newPassword, 12);
+
+      // Atualiza senha e reseta contadores de segurança
+      await user.update({
+        senha: hash,
+        loginAttempts: 0,
+        lockUntil: null
+      });
+
+      return res.json({ 
+        sucesso: 'Senha alterada com sucesso!' 
+      });
+
+    } catch (error) {
+      console.error('Erro no changePassword:', error);
+      return res.status(500).json({ erro: 'Erro ao alterar senha' });
+    }
+  }
+
   // ==================== ESQUECI A SENHA → ENVIA EMAIL ====================
   async forgotPassword(req, res) {
     const { email } = req.body;

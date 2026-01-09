@@ -30,6 +30,9 @@ router.post('/reset-password/:token', authController.resetPassword);
 // Verificar dados do usuário logado
 router.get('/me', authMiddleware, authController.me);
 
+// Alterar senha do usuário logado
+router.put('/change-password', authMiddleware, authController.changePassword);
+
 // ============================================
 // ROTAS RESTRITAS APENAS PARA ADMIN
 // ============================================

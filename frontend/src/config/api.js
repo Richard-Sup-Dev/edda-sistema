@@ -12,9 +12,11 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
  */
 export const API_ENDPOINTS = {
   // Auth
+  AUTH: `${API_BASE_URL}/api/auth`,
   AUTH_LOGIN: `${API_BASE_URL}/api/auth/login`,
   AUTH_REGISTER: `${API_BASE_URL}/api/auth/register`,
   AUTH_ME: `${API_BASE_URL}/api/auth/me`,
+  AUTH_CHANGE_PASSWORD: `${API_BASE_URL}/api/auth/change-password`,
 
   // Clientes
   CLIENTES: `${API_BASE_URL}/api/clientes`,

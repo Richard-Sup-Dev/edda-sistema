@@ -827,6 +827,7 @@ export default function DashboardLayoutNew() {
     { label: 'Peças', path: '/dashboard/pecas', icon: Package, badge: null },
     { label: 'Serviços', path: '/dashboard/servicos', icon: Wrench, badge: null },
     { label: 'Relatórios', path: '/dashboard/relatorios', icon: FileText, badge: null },
+    { label: 'Nova NF', path: '/dashboard/nf/nova', icon: FileCode, badge: null },
     { label: 'Financeiro', path: '/dashboard/financeiro', icon: DollarSign, badge: null },
     { label: 'Análises', path: '/dashboard/analises', icon: BarChart3, badge: 'NEW' },
   ];

@@ -172,150 +172,92 @@ function CreateNF() {
   };
 
   return (
-    <div className="container" style={{ paddingBottom: '120px', position: 'relative' }}>
-      <h1 style={{
-        color: '#7B2E24',
-        fontSize: '2.6em',
-        margin: '0 0 40px 0',
-        textAlign: 'center',
-        fontWeight: 'bold',
-        textShadow: '0 0 15px rgba(230, 126, 34, 0.4)'
-      }}>
-        Gerar Nota Fiscal
-      </h1>
+    <div className="p-8 space-y-8">
+      {/* Seção 1: Buscar Cliente */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+            <span className="text-blue-600 font-bold text-sm">1</span>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900">Selecione o Cliente</h2>
+        </div>
 
-      <div style={{ marginBottom: '15px' }}>
-        <p style={{ color: '#27ae60', fontWeight: 'bold', fontSize: '1.25em', margin: 0 }}>
-          1. Digite o cliente (nome, CNPJ ou O.S.)
-        </p>
-      </div>
+        <div className="relative">
+          <input
+            type="text"
+            value={buscaCliente}
+            onChange={(e) => setBuscaCliente(e.target.value)}
+            placeholder="Digite nome, CNPJ ou número da O.S..."
+            className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-gray-900 placeholder-gray-400"
+          />
+          
+          {sugestoes.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-xl max-h-80 overflow-y-auto z-50">
+              {sugestoes.map(c => (
+                <div
+                  key={c.id}
+                  onClick={() => selecionarCliente(c)}
+                  className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors"
+                >
+                  <div className="font-semibold text-gray-900">{c.nome_fantasia}</div>
+                  <div className="text-sm text-gray-600">
+                    CNPJ: {c.cnpj}
+                    {c.os_numero && <span className="ml-3 text-orange-600 font-medium">O.S.: {c.os_numero}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-      <div style={{ position: 'relative', marginBottom: '25px' }}>
-        <input
-          type="text"
-          value={buscaCliente}
-          onChange={(e) => setBuscaCliente(e.target.value)}
-          placeholder="Digite nome, O.S. ou CNPJ..."
-          style={{
-            width: '100%',
-            padding: '16px 18px',
-            background: '#2d3748',
-            color: '#e2e8f0',
-            border: '2px solid #4a5568',
-            borderRadius: '12px',
-            fontSize: '1.1em',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-            transition: 'all 0.3s'
-          }}
-          onFocus={(e) => e.target.style.borderColor = '#27ae60'}
-          onBlur={(e) => e.target.style.borderColor = '#4a5568'}
-        />
-        {sugestoes.length > 0 && (
-          <div style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
-            background: '#2c2c2c',
-            border: '1px solid #444',
-            borderTop: 'none',
-            maxHeight: '240px',
-            overflowY: 'auto',
-            zIndex: 1000,
-            borderRadius: '0 0 12px 12px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
-          }}>
-            {sugestoes.map(c => (
-              <div
-                key={c.id}
-                onClick={() => selecionarCliente(c)}
-                style={{
-                  padding: '16px',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid #444',
-                  transition: 'background 0.2s'
-                }}
-                onMouseOver={e => e.target.style.background = '#333'}
-                onMouseOut={e => e.target.style.background = '#2c2c2c'}
-              >
-                <strong style={{ color: '#e2e8f0' }}>{c.nome_fantasia}</strong>
-                <span style={{ color: '#94a3b8', marginLeft: '10px' }}>({c.cnpj})</span>
-                {c.os_numero && <span style={{ color: '#f39c12', marginLeft: '10px' }}>• O.S.: {c.os_numero}</span>}
+        {cliente && (
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-blue-600 font-semibold mb-1">Cliente Selecionado</p>
+                <p className="text-lg font-bold text-gray-900">{cliente.nome_fantasia}</p>
               </div>
-            ))}
+              <div>
+                <p className="text-sm text-blue-600 font-semibold mb-1">CNPJ</p>
+                <p className="text-lg font-bold text-gray-900">{cliente.cnpj}</p>
+              </div>
+              {cliente.os_numero && (
+                <div>
+                  <p className="text-sm text-blue-600 font-semibold mb-1">Ordem de Serviço</p>
+                  <p className="text-lg font-bold text-orange-600">{cliente.os_numero}</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
 
-      {cliente && (
-        <div style={{
-          background: 'linear-gradient(135deg, #2c3e50, #1a2530)',
-          padding: '20px',
-          borderRadius: '14px',
-          marginBottom: '35px',
-          border: '2px solid #34495e',
-          boxShadow: '0 8px 25px rgba(0,0,0,0.4)'
-        }}>
-          <p style={{ margin: '8px 0', fontSize: '1.2em', color: '#e2e8f0' }}>
-            <strong>Cliente:</strong> {cliente.nome_fantasia}
-          </p>
-          <p style={{ margin: '8px 0', color: '#94a3b8' }}>
-            <strong>CNPJ:</strong> {cliente.cnpj}
-          </p>
-          {cliente.os_numero && (
-            <p style={{ margin: '8px 0', color: '#f39c12', fontWeight: 'bold' }}>
-              <strong>O.S.:</strong> {cliente.os_numero}
-            </p>
-          )}
+      {/* Seção 2: Adicionar Itens */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+            <span className="text-orange-600 font-bold text-sm">2</span>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900">Adicione os Itens</h2>
         </div>
-      )}
 
-      <div style={{ margin: '40px 0 15px' }}>
-        <p style={{ color: '#e67e22', fontWeight: 'bold', fontSize: '1.25em', margin: 0 }}>
-          2. Adicione os itens da NF
-        </p>
-      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div className="lg:col-span-3">
+            <select
+              value={tipo}
+              onChange={(e) => {
+                setTipo(e.target.value);
+                setItemId('');
+                setBuscaItem('');
+              }}
+              className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all text-gray-900 font-medium"
+            >
+              <option value="peca">Peça</option>
+              <option value="servico">Serviço</option>
+            </select>
+          </div>
 
-      <div style={{
-        display: 'flex',
-        gap: '14px',
-        marginBottom: '30px',
-        flexWrap: 'wrap',
-        alignItems: 'center'
-      }}>
-        <select
-          value={tipo}
-          onChange={(e) => {
-            setTipo(e.target.value);
-            setItemId('');
-            setBuscaItem('');
-          }}
-          style={{
-            padding: '14px 18px',
-            background: '#2d3748',
-            color: '#e2e8f0',
-            border: '2px solid #4a5568',
-            borderRadius: '12px',
-            fontSize: '1.1em',
-            appearance: 'none',
-            backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%236b7280' viewBox='0 0 20 20'%3e%3cpath d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'/%3e%3c/svg%3e")`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'right 16px center',
-            backgroundSize: '14px',
-            minWidth: '160px'
-          }}
-        >
-          <option value="peca">Peça</option>
-          <option value="servico">Serviço</option>
-        </select>
-
-        <div style={{ position: 'relative', flex: 1, minWidth: '340px' }}>
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            flexWrap: 'wrap',
-            alignItems: 'flex-end'
-          }}>
+          <div className="lg:col-span-9 relative">
             <input
               type="text"
               placeholder="Digite para buscar peça ou serviço..."
@@ -324,13 +266,9 @@ function CreateNF() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && buscaItem.trim().length >= 2) {
                   const item = listaItens.find(i =>
-                    (
-                      i.nome_peca ||
-                      i.nome_servico ||
-                      i.nome ||
-                      i.descricao ||
-                      ''
-                    ).toLowerCase().includes(buscaItem.toLowerCase())
+                    (i.nome_peca || i.nome_servico || i.nome || i.descricao || '')
+                      .toLowerCase()
+                      .includes(buscaItem.toLowerCase())
                   );
                   if (item) {
                     e.preventDefault();
@@ -348,244 +286,152 @@ function CreateNF() {
                   }
                 }
               }}
-              style={{
-                flex: 1,
-                minWidth: '260px',
-                padding: '16px 18px',
-                background: '#2d3748',
-                color: '#e2e8f0',
-                border: '2px solid #4a5568',
-                borderRadius: '12px',
-                fontSize: '1.1em',
-                transition: 'all 0.3s'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#e67e22'}
-              onBlur={(e) => e.target.style.borderColor = '#4a5568'}
+              className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all text-gray-900 placeholder-gray-400"
             />
-          </div>
 
-          {buscaItem.length >= 2 && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              background: '#2d3748',
-              border: '2px solid #e67e22',
-              borderTop: 'none',
-              maxHeight: '340px',
-              overflowY: 'auto',
-              zIndex: 1000,
-              borderRadius: '0 0 12px 12px',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
-              marginTop: '8px'
-            }}>
-              {listaItens
-                .filter(item => {
-                  const texto = (
-                    item.nome_peca ||
-                    item.nome_servico ||
-                    item.nome ||
-                    item.descricao ||
-                    ''
-                  ).toLowerCase();
+            {buscaItem.length >= 2 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-orange-200 rounded-xl shadow-xl max-h-96 overflow-y-auto z-50">
+                {listaItens
+                  .filter(item => {
+                    const texto = (item.nome_peca || item.nome_servico || item.nome || item.descricao || '').toLowerCase();
+                    return texto.includes(buscaItem.toLowerCase());
+                  })
+                  .slice(0, 25)
+                  .map(item => {
+                    const precoLista = Number(tipo === 'peca' ? item.valor_venda || item.valor || 0 : item.valor_unitario || item.valor || 0);
+                    return (
+                      <div
+                        key={item.id}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          const preco = Number(tipo === 'peca' ? item.valor_venda || item.valor || 0 : item.valor_unitario || item.valor || 0);
+                          setItens(prev => [...prev, {
+                            id: Date.now(),
+                            tipo,
+                            item_id: item.id,
+                            descricao: item.nome || item.nome_servico || item.nome_peca || item.descricao || `Item ${item.id}`,
+                            quantidade: 1,
+                            valor_unitario: preco,
+                            valor_total: preco
+                          }]);
+                          setBuscaItem('');
+                        }}
+                        className="px-4 py-3 hover:bg-orange-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors"
+                      >
+                        <div className="font-semibold text-gray-900">
+                          {(item.nome || item.nome_servico || item.nome_peca || item.descricao || '').trim() || `Item sem nome (ID: ${item.id})`}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          R$ {precoLista.toFixed(2)} • Código: {item.id}
+                        </div>
+                      </div>
+                    );
+                  })}
+                {listaItens.filter(item => {
+                  const texto = (item.nome_peca || item.nome_servico || item.nome || item.descricao || '').toLowerCase();
                   return texto.includes(buscaItem.toLowerCase());
-                })
-                .slice(0, 25)
-                .map(item => {
-                  const precoLista = Number(
-                    tipo === 'peca'
-                      ? item.valor_venda || item.valor || 0
-                      : item.valor_unitario || item.valor || 0
-                  );
-
-                  return (
-                    <div
-                      key={item.id}
-                      onMouseDown={(e) => {
-                        e.preventDefault(); // evita perder foco
-                        const preco = Number(tipo === 'peca' ? item.valor_venda || item.valor || 0 : item.valor_unitario || item.valor || 0);
-                        setItens(prev => [...prev, {
-                          id: Date.now(),
-                          tipo,
-                          item_id: item.id,
-                          descricao: item.nome || item.nome_servico || item.nome_peca || item.descricao || `Item ${item.id}`,
-                          quantidade: 1,
-                          valor_unitario: preco,
-                          valor_total: preco
-                        }]);
-                        setBuscaItem(''); // limpa pra digitar o próximo rapidinho
-                      }}
-                      style={{
-                        padding: '14px 18px',
-                        cursor: 'pointer',
-                        borderBottom: '1px solid #3a4556',
-                        background: itemId === item.id.toString() ? '#e67e22' : 'transparent',
-                        transition: 'background 0.2s'
-                      }}
-                      onMouseEnter={e => e.target.style.background = '#3a4556'}
-                      onMouseLeave={e => e.target.style.background = itemId === item.id.toString() ? '#e67e22' : 'transparent'}
-                    >
-                      <div style={{ fontWeight: '600', color: '#e2e8f0' }}>
-                        {(item.nome || item.nome_servico || item.nome_peca || item.descricao || '').trim() || 'Item sem nome (ID: ' + item.id + ')'}
-                      </div>
-                      <div style={{ fontSize: '0.92em', color: '#94a3b8' }}>
-                        R$ {precoLista.toFixed(2)} • Código: {item.id}
-                      </div>
-                    </div>
-                  );
-                })}
-
-              {listaItens.filter(item => {
-                const texto = (
-                  item.nome_peca ||
-                  item.nome_servico ||
-                  item.nome ||
-                  item.descricao ||
-                  ''
-                ).toLowerCase();
-                return texto.includes(buscaItem.toLowerCase());
-              }).length === 0 && (
-                  <div style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>
+                }).length === 0 && (
+                  <div className="px-4 py-8 text-center text-gray-500">
                     Nenhum item encontrado
                   </div>
                 )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', background: '#1e1e1e', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-        <thead>
-          <tr style={{ background: '#2c3e50' }}>
-            <th style={{ padding: '16px', textAlign: 'left', color: '#4a90e2' }}>Tipo</th>
-            <th style={{ padding: '16px', textAlign: 'left', color: '#4a90e2' }}>Descrição</th>
-            <th style={{ padding: '16px', textAlign: 'center', color: '#4a90e2' }}>Qtd</th>
-            <th style={{ padding: '16px', textAlign: 'right', color: '#4a90e2' }}>Unitário</th>
-            <th style={{ padding: '16px', textAlign: 'right', color: '#4a90e2' }}>Total</th>
-            <th style={{ padding: '16px', textAlign: 'center', color: '#4a90e2' }}>Ação</th>
-          </tr>
-        </thead>
-        <tbody>
-          {itens.length === 0 ? (
-            <tr>
-              <td colSpan="6" style={{ textAlign: 'center', padding: '60px', color: '#888', fontSize: '1.3em', fontStyle: 'italic' }}>
-                Nenhum item adicionado ainda
-              </td>
-            </tr>
-          ) : (
-            itens.map(item => (
-              <tr key={item.id} style={{ borderBottom: '1px solid #333' }}>
-                <td style={{ padding: '14px', color: '#94a3b8' }}>
-                  {item.tipo === 'peca' ? 'Peça' : 'Serviço'}
-                </td>
-                <td style={{ padding: '14px', fontWeight: '600', color: '#e2e8f0' }}>
-                  {item.descricao}
-                </td>
-                <td style={{ padding: '14px', textAlign: 'center' }}>
-                  <input
-                    type="number"
-                    min="1"
-                    value={item.quantidade}
-                    onChange={(e) => atualizarQuantidade(item.id, parseInt(e.target.value) || 1)}
-                    style={{
-                      width: '80px',
-                      padding: '10px',
-                      textAlign: 'center',
-                      background: '#2c3e50',
-                      color: '#fff',
-                      border: '1px solid #555',
-                      borderRadius: '8px',
-                      fontSize: '1em'
-                    }}
-                  />
-                </td>
-                <td style={{ padding: '14px', textAlign: 'right', color: '#94a3b8' }}>
-                  R$ {(item.valor_unitario || 0).toFixed(2)}
-                </td>
-                <td style={{ padding: '14px', textAlign: 'right', fontWeight: 'bold', color: '#27ae60', fontSize: '1.1em' }}>
-                  R$ {(item.valor_total || 0).toFixed(2)}
-                </td>
-                <td style={{ padding: '14px', textAlign: 'center' }}>
-                  <button
-                    onClick={() => removerItem(item.id)}
-                    style={{
-                      background: '#e74c3c',
-                      color: 'white',
-                      border: 'none',
-                      padding: '10px 18px',
-                      borderRadius: '8px',
-                      fontSize: '0.9em',
-                      cursor: 'pointer',
-                      transition: '0.3s'
-                    }}
-                    onMouseOver={e => e.target.style.background = '#c0392b'}
-                  >
-                    Remover
-                  </button>
-                </td>
+      {/* Tabela de Itens */}
+      <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b-2 border-gray-200">
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Tipo</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Descrição</th>
+                <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">Qtd</th>
+                <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">Unitário</th>
+                <th className="px-6 py-4 text-right text-sm font-bold text-gray-700">Total</th>
+                <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">Ação</th>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {itens.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="px-6 py-16 text-center text-gray-400 italic">
+                    Nenhum item adicionado ainda
+                  </td>
+                </tr>
+              ) : (
+                itens.map(item => (
+                  <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-gray-600">
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                        item.tipo === 'peca' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                      }`}>
+                        {item.tipo === 'peca' ? 'Peça' : 'Serviço'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 font-medium text-gray-900">{item.descricao}</td>
+                    <td className="px-6 py-4 text-center">
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantidade}
+                        onChange={(e) => atualizarQuantidade(item.id, parseInt(e.target.value) || 1)}
+                        className="w-20 px-3 py-2 text-center bg-gray-50 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                      />
+                    </td>
+                    <td className="px-6 py-4 text-right text-gray-600">
+                      R$ {(item.valor_unitario || 0).toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 text-right font-bold text-green-600 text-lg">
+                      R$ {(item.valor_total || 0).toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => removerItem(item.id)}
+                        className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium transition-colors"
+                      >
+                        Remover
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      <div style={{
-        textAlign: 'right',
-        margin: '40px 0',
-        fontSize: '2em',
-        color: '#27ae60',
-        fontWeight: 'bold',
-        textShadow: '0 0 20px rgba(39, 174, 96, 0.5)'
-      }}>
-        Total: R$ {total.toFixed(2)}
+        {/* Total */}
+        {itens.length > 0 && (
+          <div className="bg-gradient-to-br from-green-50 to-green-100 border-t-2 border-green-200 px-6 py-6">
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-bold text-gray-700">Valor Total da Nota Fiscal</span>
+              <span className="text-3xl font-black text-green-600">
+                R$ {total.toFixed(2)}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* Botão Gerar NF */}
       {cliente && itens.length > 0 && (
-        <div style={{
-          margin: '60px auto 40px',
-          maxWidth: '1200px',
-          padding: '0 20px',
-          textAlign: 'center'
-        }}>
+        <div className="flex justify-center pt-4">
           <button
-            onClick={handleSubmitNF} // <--- NOVO: Chama a função que envia para o BACKEND
+            onClick={handleSubmitNF}
             disabled={loading}
-            style={{
-              background: loading ? '#555' : '#27ae60',
-              color: 'white',
-              padding: '22px 80px',
-              fontSize: '1.8em',
-              fontWeight: 'bold',
-              border: 'none',
-              borderRadius: '70px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 15px 40px rgba(39,174,96,0.6)',
-              transition: 'all 0.4s',
-              minWidth: '420px',
-              animation: loading ? 'none' : 'pulse 3s infinite'
-            }}
-            onMouseOver={e => {
-              if (!loading) e.target.style.transform = 'translateY(-4px)';
-              if (!loading) e.target.style.boxShadow = '0 25px 60px rgba(39,174,96,0.8)';
-            }}
-            onMouseOut={e => {
-              if (!loading) e.target.style.transform = 'translateY(0)';
-              if (!loading) e.target.style.boxShadow = '0 15px 40px rgba(39,174,96,0.6)';
-            }}
+            className={`px-12 py-4 rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-105 ${
+              loading
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-500/50'
+            } text-white`}
           >
-            {loading ? 'GERANDO PDF...' : 'GERAR NOTA FISCAL E SALVAR NO BACKEND'}
+            {loading ? 'GERANDO NOTA FISCAL...' : 'GERAR NOTA FISCAL'}
           </button>
         </div>
       )}
-
-      <style>{`
-        @keyframes pulse {
-          0% { box-shadow: 0 20px 60px rgba(39, 174, 96, 0.8); }
-          50% { box-shadow: 0 20px 80px rgba(39, 174, 96, 1); }
-          100% { box-shadow: 0 20px 60px rgba(39, 174, 96, 0.8); }
-        }
-      `}</style>
     </div>
   );
 }

@@ -19,7 +19,7 @@ const uploadFields = uploadInstance.fields([
 // Rota principal: criação completa com upload, processamento, PDF e meta.json
 // Protegida: apenas admin ou técnico pode criar relatórios
 router.post(
-  '/relatorios',
+  '/',
   authMiddleware,
   roleMiddleware('admin', 'tecnico'),
   uploadFields,
@@ -30,7 +30,7 @@ router.post(
 // ====================== BUSCA AVANÇADA ======================
 // Todos logados podem buscar (útil para listagem no frontend)
 router.get(
-  '/relatorios/search',
+  '/search',
   authMiddleware,
   relatoriosController.buscarRelatorios
 );
@@ -38,7 +38,7 @@ router.get(
 // ====================== METADADOS (meta.json) ======================
 // Todos logados podem acessar metadados de um relatório
 router.get(
-  '/relatorios/:id/meta',
+  '/:id/meta',
   authMiddleware,
   relatoriosController.getRelatorioMeta
 );
@@ -46,15 +46,30 @@ router.get(
 // ====================== DETALHES COMPLETOS ======================
 // Todos logados podem ver detalhes completos de um relatório
 router.get(
-  '/relatorios/:id/detalhes',
+  '/:id/full',
+  authMiddleware,
+  relatoriosController.buscarDetalhesCompletos
+);
+
+// Rota alternativa (compatibilidade)
+router.get(
+  '/:id/detalhes',
   authMiddleware,
   relatoriosController.buscarDetalhesCompletos
 );
 
 // ====================== SALVAR ORÇAMENTO ======================
 // Apenas admin ou técnico pode salvar orçamento
+router.post(
+  '/:id/orcamento',
+  authMiddleware,
+  roleMiddleware('admin', 'tecnico'),
+  relatoriosController.salvarOrcamento
+);
+
+// Rota alternativa PATCH (compatibilidade)
 router.patch(
-  '/relatorios/:id/orcamento',
+  '/:id/orcamento',
   authMiddleware,
   roleMiddleware('admin', 'tecnico'),
   relatoriosController.salvarOrcamento
@@ -66,11 +81,11 @@ router.post('/upload-fotos', (req, res) => {
   return res.status(410).json({ erro: 'Rota desativada. Use POST /api/relatorios para criar relatório completo.' });
 });
 
-router.get('/relatorios/link/:id', (req, res) => {
+router.get('/link/:id', (req, res) => {
   return res.status(410).json({ erro: 'Rota desativada. Use GET /api/relatorios/:id/meta.' });
 });
 
-router.get('/relatorios/pdf/:id', (req, res) => {
+router.get('/pdf/:id', (req, res) => {
   return res.status(410).json({ erro: 'Rota desativada. PDF é gerado automaticamente na criação.' });
 });
 

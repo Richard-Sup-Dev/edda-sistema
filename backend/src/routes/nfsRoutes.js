@@ -16,4 +16,12 @@ router.post(
   nfsController.generateNF
 );
 
+// Rota alternativa em português (compatibilidade)
+router.post(
+  '/gerar',
+  authMiddleware,
+  roleMiddleware('admin', 'emissor'),
+  nfsController.generateNF
+);
+
 export default router;

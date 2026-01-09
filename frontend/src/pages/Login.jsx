@@ -1,11 +1,11 @@
 import useForm from '@/hooks/useForm';
 import useToggle from '@/hooks/useToggle';
 import usePasswordStrength from '@/hooks/usePasswordStrength';
-import useRipple from '@/hooks/useRipple';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, UserPlus, ArrowLeft } from 'lucide-react';
+import { AlertCircle, UserPlus, ArrowLeft, Eye, EyeOff, Mail, Lock, User, Sparkles, Shield, Zap } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
+import { motion, AnimatePresence } from 'framer-motion';
 
 
 export default function Login() {
@@ -16,26 +16,15 @@ export default function Login() {
   const [erro, setErro] = useState(''); 
   const navigate = useNavigate();
 
-  // Hooks de Formulário e UI
   const form = useForm({ nome: '', email: '', senha: '', confirmarSenha: '' });
   const [mostrarSenha, toggleMostrarSenha] = useToggle(false);
   const { strength: forcaSenha, color: corForca, label: textoForca } = usePasswordStrength(form.values.senha);
-  const handleRipple = useRipple();
-
-
-  const endpoints = {
-    login: '/api/auth/login',
-    register: '/api/auth/register',
-    forgot: '/api/auth/forgot-password'
-  };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErro(''); // Limpa erros do useAuth
+    setErro('');
     setMensagem('');
 
-    // Validações de interface (UI)
     if (mode === 'register') {
       if (form.values.senha !== form.values.confirmarSenha) {
         setErro('As senhas não coincidem.');
@@ -47,7 +36,6 @@ export default function Login() {
       }
     }
 
-    // Chamada da lógica que está no Contexto
     const sucesso = mode === 'login'
       ? await login(form.values.email, form.values.senha)
       : await register(form.values);
@@ -55,7 +43,7 @@ export default function Login() {
     if (sucesso) {
       if (mode === 'login') {
         setMensagem('Login realizado! Redirecionando...');
-        setTimeout(() => navigate('/dashboard', { replace: true }), 2000);
+        setTimeout(() => navigate('/dashboard', { replace: true }), 1500);
       } else {
         setMensagem('Conta criada com sucesso! Agora faça login.');
         setMode('login');
@@ -64,378 +52,303 @@ export default function Login() {
     }
   };
 
-
   return (
     <>
-      <Particles />
+      <AnimatedBackground />
 
-      <div style={{
-        minHeight: '100vh',
-        background: '#000',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 py-8">
+        {/* Grid de fundo */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-orange-950/20 to-gray-950" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1a1a1a_1px,transparent_1px),linear-gradient(to_bottom,#1a1a1a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)] opacity-20" />
 
-        {/* Logo grande no fundo */}
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          fontSize: '420px',
-          fontWeight: 900,
-          color: 'rgba(139,33,22,0.07)',
-          pointerEvents: 'none',
-          animation: 'slowRotate 80s linear infinite',
-          letterSpacing: '20px'
-        }}>EDDA</div>
+        {/* Logo EDDA gigante no fundo */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[280px] md:text-[420px] font-black text-orange-900/5 pointer-events-none select-none"
+          style={{ letterSpacing: '20px' }}
+        >
+          EDDA
+        </motion.div>
 
-        <div style={{
-          background: 'rgba(20,20,20,0.92)',
-          backdropFilter: 'blur(20px)',
-          padding: '4rem 2.5rem',
-          borderRadius: '32px',
-          boxShadow: '0 30px 100px rgba(0,0,0,0.95), 0 0 0 1px rgba(123,46,36,0.4)',
-          maxWidth: '460px',
-          width: '100%',
-          border: '1px solid rgba(123,46,36,0.3)',
-          position: 'relative',
-          zIndex: 10
-        }}>
+        {/* Container Principal */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="relative z-10 w-full max-w-md"
+        >
+          {/* Card Glassmorphism */}
+          <div className="relative backdrop-blur-xl bg-gradient-to-br from-gray-900/95 via-gray-900/90 to-gray-950/95 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] border border-orange-500/20 overflow-hidden will-change-transform">
+            {/* Glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-orange-600/10 opacity-50" />
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-500/15 rounded-full blur-2xl" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-600/10 rounded-full blur-2xl" />
 
-          {/* Logo + Título */}
-          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <div style={{
-              width: '96px',
-              height: '96px',
-              background: 'linear-gradient(135deg, #7B2E24, #e67e22)',
-              borderRadius: '24px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '3.5rem',
-              fontWeight: 'bold',
-              color: '#fff',
-              boxShadow: '0 16px 50px rgba(123,46,36,0.6)',
-              marginBottom: '1rem'
-            }}>E</div>
+            <div className="relative p-8 md:p-10">
+              {/* Logo e Título */}
+              <motion.div 
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.2, type: "spring" }}
+                className="text-center mb-8"
+              >
+                <motion.div 
+                  whileHover={{ scale: 1.05, rotate: [0, -5, 5, -5, 0] }}
+                  transition={{ duration: 0.5 }}
+                  className="relative inline-block"
+                >
+                  <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 rounded-2xl flex items-center justify-center text-5xl font-black text-white shadow-lg shadow-orange-500/40 mb-4 mx-auto relative overflow-hidden will-change-transform">
+                    <span className="relative z-10">E</span>
+                  </div>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg"
+                  >
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </motion.div>
+                </motion.div>
 
-            <h1 style={{
-              fontSize: '3.2rem',
-              fontWeight: 900,
-              background: 'linear-gradient(90deg, #e67e22, #f39c12)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              margin: '0.5rem 0'
-            }}>EDDA</h1>
+                <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent mb-2 tracking-tight">
+                  EDDA
+                </h1>
+                <p className="text-gray-400 text-sm md:text-base flex items-center justify-center gap-2">
+                  <Shield className="w-4 h-4 text-orange-500" />
+                  {mode === 'login' ? 'Bem-vindo de volta' : mode === 'register' ? 'Crie sua conta' : 'Recupere seu acesso'}
+                </p>
+              </motion.div>
 
-            <p style={{ color: '#aaa', fontSize: '1.1rem', marginTop: '0.5rem' }}>
-              {mode === 'login' ? 'Acesse sua conta' : mode === 'register' ? 'Crie sua conta' : 'Recupere seu acesso'}
-            </p>
-          </div>
+              {/* Mensagens */}
+              <AnimatePresence>
+                {mensagem && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="bg-green-500/10 backdrop-blur-sm border border-green-500/30 text-green-400 px-4 py-3 rounded-xl mb-4 text-center font-semibold flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    {mensagem}
+                  </motion.div>
+                )}
 
-          {/* Mensagens */}
-          {mensagem && (
-            <div style={{
-              background: 'rgba(52,199,89,0.2)',
-              border: '1px solid #34c759',
-              color: '#34c759',
-              padding: '14px',
-              borderRadius: '14px',
-              marginBottom: '1.5rem',
-              textAlign: 'center',
-              fontWeight: 600
-            }}>{mensagem}</div>
-          )}
+                {erro && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="bg-red-500/10 backdrop-blur-sm border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mb-4 flex items-center gap-3"
+                  >
+                    <AlertCircle size={20} className="shrink-0" />
+                    <span className="text-sm">{erro}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-          {erro && (
-            <div style={{
-              background: 'rgba(255,59,48,0.2)',
-              border: '1px solid #ff3b30',
-              color: '#ff3b30',
-              padding: '14px',
-              borderRadius: '14px',
-              marginBottom: '1.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              fontSize: '0.95rem'
-            }}>
-              <AlertCircle size={20} /> {erro}
-            </div>
-          )}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Nome (apenas no register) */}
+                <AnimatePresence>
+                  {mode === 'register' && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="relative group">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                        <input
+                          name="nome"
+                          type="text"
+                          value={form.values.nome}
+                          onChange={form.handleChange}
+                          placeholder="Nome completo"
+                          required
+                          className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {mode === 'register' && (
-              <input
-                name="nome"
-                type="text"
-                value={form.values.nome}
-                onChange={form.handleChange}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#e67e22';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(230, 126, 34, 0.3)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(123,46,36,0.5)';
-                  e.target.style.boxShadow = 'none';
-                }}
-                placeholder="Nome completo"
-                required
-                style={inputStyle}
-              />
-            )}
+                {/* Email */}
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                  <input
+                    name="email"
+                    type="email"
+                    value={form.values.email}
+                    onChange={form.handleChange}
+                    placeholder="Email corporativo"
+                    required
+                    className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
+                  />
+                </div>
 
-            <input
-              name="email"
-              type="email"
-              value={form.values.email}
-              onChange={form.handleChange}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#e67e22';
-                e.target.style.boxShadow = '0 0 0 3px rgba(230, 126, 34, 0.3)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(123,46,36,0.5)';
-                e.target.style.boxShadow = 'none';
-              }}
-              placeholder="Email corporativo"
-              required
-              style={inputStyle}
-            />
-
-            {mode !== 'forgot' && (
-              <>
-                <input
-                  name="senha"
-                  type={mostrarSenha ? 'text' : 'password'}
-                  value={form.values.senha}
-                  onChange={form.handleChange}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#e67e22';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(230, 126, 34, 0.3)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(123,46,36,0.5)';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                  placeholder="Senha segura"
-                  required
-                  style={inputStyle}
-                />
-
-                {mode === 'register' && (
+                {mode !== 'forgot' && (
                   <>
-                    <input
-                      name="confirmarSenha"
-                      type={mostrarSenha ? 'text' : 'password'}
-                      value={form.values.confirmarSenha}
-                      onChange={form.handleChange}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = '#e67e22';
-                        e.target.style.boxShadow = '0 0 0 3px rgba(230, 126, 34, 0.3)';
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = 'rgba(123,46,36,0.5)';
-                        e.target.style.boxShadow = 'none';
-                      }}
-                      placeholder="Confirmar senha"
-                      required
-                      style={inputStyle}
-                    />
-
-                    <div style={{ marginTop: '0.5rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.9rem', color: '#aaa' }}>
-                        <span>Força da senha</span>
-                        <span style={{ color: corForca, fontWeight: 700 }}>{textoForca || '—'}</span>
-                      </div>
-                      <div style={{ height: '8px', background: '#333', borderRadius: '4px', overflow: 'hidden' }}>
-                        <div style={{
-                          height: '100%',
-                          width: `${forcaSenha}%`,
-                          background: corForca,
-                          borderRadius: '4px',
-                          transition: 'width 0.4s ease'
-                        }}></div>
-                      </div>
+                    {/* Senha */}
+                    <div className="relative group">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                      <input
+                        name="senha"
+                        type={mostrarSenha ? 'text' : 'password'}
+                        value={form.values.senha}
+                        onChange={form.handleChange}
+                        placeholder="Senha segura"
+                        required
+                        className="w-full pl-12 pr-12 py-3.5 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={toggleMostrarSenha}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500 transition-colors"
+                      >
+                        {mostrarSenha ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
                     </div>
+
+                    {/* Confirmar Senha (apenas no register) */}
+                    <AnimatePresence>
+                      {mode === 'register' && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="space-y-4"
+                        >
+                          <div className="relative group">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                            <input
+                              name="confirmarSenha"
+                              type={mostrarSenha ? 'text' : 'password'}
+                              value={form.values.confirmarSenha}
+                              onChange={form.handleChange}
+                              placeholder="Confirmar senha"
+                              required
+                              className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
+                            />
+                          </div>
+
+                          {/* Indicador de força */}
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-400">Força da senha</span>
+                              <span className="font-bold" style={{ color: corForca }}>{textoForca || '—'}</span>
+                            </div>
+                            <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${forcaSenha}%` }}
+                                transition={{ duration: 0.3 }}
+                                className="h-full rounded-full"
+                                style={{ backgroundColor: corForca }}
+                              />
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </>
                 )}
 
-                {(mode === 'login' || mode === 'register') && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#ccc', fontSize: '0.95rem', marginTop: '8px' }}>
-                    <input
-                      type="checkbox"
-                      checked={mostrarSenha}
-                      onChange={toggleMostrarSenha}
-                      id="show-pass"
-                      style={{ width: '16px', height: '16px', accentColor: '#e67e22', cursor: 'pointer' }}
-                    />
-                    <label htmlFor="show-pass" style={{ cursor: 'pointer', userSelect: 'none' }}>
-                      Mostrar senha
-                    </label>
-                  </div>
-                )}
-              </>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              onMouseDown={handleRipple}
-              onMouseEnter={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.transform = 'translateY(-3px)';
-                  e.currentTarget.style.boxShadow = '0 12px 35px rgba(230, 126, 34, 0.5)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(230, 126, 34, 0.3)';
-              }}
-              style={{
-                position: 'relative',
-                overflow: 'hidden',
-                width: '100%',
-                maxWidth: '420px',  // limita largura no desktop
-                margin: '0 auto',   // centraliza e dá respiro nas laterais
-                padding: '18px 24px',
-                background: 'linear-gradient(135deg, #e67e22, #c0392b)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '16px',
-                fontSize: '1.1rem',
-                fontWeight: 700,
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.7 : 1,
-                transition: 'all 0.3s ease',
-                boxShadow: '0 8px 25px rgba(230, 126, 34, 0.3)',
-                transform: 'translateY(0)',
-                display: 'block'  // necessário pro margin auto funcionar
-              }}
-            >
-              {loading ? (
-                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-                  <div className="spinner"></div> Processando...
-                </span>
-              ) : mode === 'login' ? 'Entrar no Sistema' :
-                mode === 'register' ? 'Criar Minha Conta' : 'Enviar Link de Recuperação'}
-            </button>
-          </form>
-
-          {/* Links */}
-          <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
-            {mode === 'login' && (
-              <>
-                <button
-                  onClick={() => setMode('register')}
-                  style={linkStyle}
-                  onMouseEnter={(e) => Object.assign(e.currentTarget.style, linkHover)}
-                  onMouseLeave={(e) => Object.assign(e.currentTarget.style, { color: '#e67e22', textShadow: 'none', transform: 'none' })}
+                {/* Botão Submit */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={loading}
+                  className="relative w-full py-4 mt-6 bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <UserPlus size={18} /> Criar nova conta
-                </button>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {loading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-5 h-5" />
+                        {mode === 'login' ? 'Entrar no Sistema' : mode === 'register' ? 'Criar Conta' : 'Enviar Link'}
+                      </>
+                    )}
+                  </span>
+                </motion.button>
+              </form>
 
-                <button
-                  onClick={() => setMode('forgot')}
-                  style={linkStyle}
-                  onMouseEnter={(e) => Object.assign(e.currentTarget.style, linkHover)}
-                  onMouseLeave={(e) => Object.assign(e.currentTarget.style, { color: '#e67e22', textShadow: 'none', transform: 'none' })}
-                >
-                  Esqueceu a senha?
-                </button>
-              </>
-            )}
+              {/* Links */}
+              <div className="mt-8 space-y-3 text-center">
+                <AnimatePresence mode="wait">
+                  {mode === 'login' && (
+                    <motion.div
+                      key="login-links"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="space-y-3"
+                    >
+                      <button
+                        onClick={() => setMode('register')}
+                        className="flex items-center justify-center gap-2 w-full px-4 py-3 text-orange-400 hover:text-orange-300 hover:bg-orange-500/10 rounded-xl transition-all font-medium"
+                      >
+                        <UserPlus size={18} />
+                        Criar nova conta
+                      </button>
+                      <button
+                        onClick={() => setMode('forgot')}
+                        className="text-gray-400 hover:text-orange-400 transition-colors text-sm"
+                      >
+                        Esqueceu a senha?
+                      </button>
+                    </motion.div>
+                  )}
 
-            {(mode === 'register' || mode === 'forgot') && (
-              <button
-                onClick={() => setMode('login')}
-                style={linkStyle}
-                onMouseEnter={(e) => Object.assign(e.currentTarget.style, linkHover)}
-                onMouseLeave={(e) => Object.assign(e.currentTarget.style, { color: '#e67e22', textShadow: 'none', transform: 'none' })}
-              >
-                <ArrowLeft size={18} /> Voltar ao login
-              </button>
-            )}
+                  {(mode === 'register' || mode === 'forgot') && (
+                    <motion.button
+                      key="back-link"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setMode('login')}
+                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-orange-400 hover:text-orange-300 hover:bg-orange-500/10 rounded-xl transition-all font-medium"
+                    >
+                      <ArrowLeft size={18} />
+                      Voltar ao login
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Footer */}
+              <p className="text-center mt-8 text-gray-500 text-xs">
+                Sistema Relatórios Técnicos © 2025 • EDDA Energia
+              </p>
+            </div>
           </div>
 
-          <p style={{ textAlign: 'center', marginTop: '3rem', color: '#666', fontSize: '0.8rem' }}>
-            Sistema Relatórios Técnicos © 2025 • EDDA Energia
-          </p>
-        </div>
+          {/* Floating elements */}
+          <motion.div
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-8 -right-8 w-20 h-20 bg-gradient-to-br from-orange-500/15 to-orange-600/15 rounded-full blur-xl will-change-transform"
+          />
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-br from-orange-600/15 to-orange-700/15 rounded-full blur-xl will-change-transform"
+          />
+        </motion.div>
       </div>
-
-      <style>{`
-  @keyframes ripple {to { transform: scale(4); opacity: 0; }}
-  @keyframes spin {to { transform: rotate(360deg); }}
-  @keyframes slowRotate {from { transform: translate(-50%, -50%) rotate(0deg); }to { transform: translate(-50%, -50%) rotate(360deg); }}
-  .ripple {position: absolute;border-radius: 50%;background: rgba(255,255,255,0.5);transform: scale(0);animation: ripple 0.8s ease-out;pointer-events: none;}
-  .spinner {width: 22px;height: 22px;border: 3px solid #fff;border-top-color: transparent;border-radius: 50%;animation: spin 1s linear infinite;}
-
-  /* === CORREÇÃO AUTOFILL === */
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover, 
-  input:-webkit-autofill:focus,
-  input:-webkit-autofill:active {
-    -webkit-text-fill-color: #fff !important;
-    -webkit-box-shadow: 0 0 0 1000px rgba(35,35,35,0.95) inset !important;
-    box-shadow: 0 0 0 1000px rgba(35,35,35,0.95) inset !important;
-    border: 1px solid rgba(123,46,36,0.5) !important;
-    border-radius: 16px !important;
-    transition: background-color 5000s ease-in-out 0s !important;
-  }
-  input:-webkit-autofill:focus {
-    border-color: #e67e22 !important;
-    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.3), 0 0 0 1000px rgba(35,35,35,0.95) inset !important;
-  }
-`}</style>
     </>
   );
 }
 
-
-const inputStyle = {
-  width: '100%',
-  padding: '18px 20px',
-  backgroundColor: 'rgba(35,35,35,0.95)',
-  border: '1px solid rgba(123,46,36,0.5)',
-  borderRadius: '16px',
-  color: '#fff',
-  fontSize: '1.05rem',
-  transition: 'all 0.3s ease',
-  boxSizing: 'border-box',
-  outline: 'none'
-};
-
-const linkStyle = {
-  background: 'none',
-  border: 'none',
-  color: '#e67e22',
-  fontSize: '1rem',
-  fontWeight: 600,
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: '10px',
-  padding: '14px 20px',
-  borderRadius: '12px',
-  transition: 'all 0.4s ease',
-  width: 'fit-content',
-  margin: '10px auto'  // centraliza e separa verticalmente
-};
-
-const linkHover = {
-  color: '#ff9500',  // laranja mais brilhante
-  textShadow: '0 0 12px rgba(255, 149, 0, 0.8)',  // glow laranja suave
-  transform: 'translateY(-1px)'
-};
-
-// Partículas (inalteradas)
-function Particles() {
+// Background animado
+function AnimatedBackground() {
   useEffect(() => {
     const canvas = document.createElement('canvas');
     Object.assign(canvas.style, {
@@ -457,33 +370,52 @@ function Particles() {
     resize();
     window.addEventListener('resize', resize);
 
-    const particles = Array.from({ length: 100 }, () => ({
+    const particles = Array.from({ length: 35 }, () => ({
       x: Math.random() * canvas.width,
-      y: canvas.height + 50,
-      size: Math.random() * 5 + 2,
-      speedY: -(Math.random() * 2 + 0.8),
-      color: Math.random() > 0.5 ? '#ff4000' : '#ff8c00',
-      opacity: Math.random() * 0.6 + 0.3
+      y: Math.random() * canvas.height,
+      size: Math.random() * 2.5 + 1,
+      speedX: (Math.random() - 0.5) * 0.4,
+      speedY: (Math.random() - 0.5) * 0.4,
+      color: Math.random() > 0.5 ? '#ff6b00' : '#ff9500',
+      opacity: Math.random() * 0.4 + 0.2
     }));
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
+      
+      particles.forEach((p, i) => {
+        // Conexões
+        particles.slice(i + 1).forEach(p2 => {
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < 100) {
+            ctx.strokeStyle = `rgba(255, 107, 0, ${0.1 * (1 - distance / 100)})`;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        });
+
+        // Partículas
         ctx.globalAlpha = p.opacity;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = p.color;
-        ctx.shadowBlur = 25;
+        ctx.shadowBlur = 10;
         ctx.shadowColor = p.color;
         ctx.fill();
 
+        p.x += p.speedX;
         p.y += p.speedY;
-        p.x += Math.sin(p.y * 0.01) * 0.6;
-        if (p.y < -50) {
-          p.y = canvas.height + 50;
-          p.x = Math.random() * canvas.width;
-        }
+
+        if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
       });
+      
       requestAnimationFrame(animate);
     };
     animate();
