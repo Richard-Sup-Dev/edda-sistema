@@ -1,53 +1,154 @@
 # Sistema de Relatórios Técnicos
 
-Sistema completo para gestão e geração de relatórios técnicos de manutenção de equipamentos industriais. Desenvolvido para facilitar o trabalho de empresas de manutenção que precisam documentar serviços, gerenciar clientes e criar orçamentos profissionais.
+Sistema completo para gestão e geração de relatórios técnicos de manutenção industrial, desenvolvido com React, Node.js e PostgreSQL.
 
-[![Build Status](https://github.com/Richard-Sup-Dev/edda-sistema/actions/workflows/ci.yml/badge.svg)](https://github.com/Richard-Sup-Dev/edda-sistema/actions)
-[![License](https://img.shields.io/github/license/Richard-Sup-Dev/edda-sistema)](LICENSE)
-[![Node](https://img.shields.io/badge/node-20+-green)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/react-19-blue)](https://reactjs.org/)
-[![PostgreSQL](https://img.shields.io/badge/postgresql-14+-blue)](https://www.postgresql.org/)
-[![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)](https://github.com/Richard-Sup-Dev/edda-sistema)
-[![Stars](https://img.shields.io/github/stars/Richard-Sup-Dev/edda-sistema)](https://github.com/Richard-Sup-Dev/edda-sistema/stargazers)
-[![Issues](https://img.shields.io/github/issues/Richard-Sup-Dev/edda-sistema)](https://github.com/Richard-Sup-Dev/edda-sistema/issues)
-[![Last Commit](https://img.shields.io/github/last-commit/Richard-Sup-Dev/edda-sistema)](https://github.com/Richard-Sup-Dev/edda-sistema/commits/main)
+## Funcionalidades
 
-## 🎯 Visão Geral
-
-Este sistema foi criado para resolver problemas reais enfrentados por empresas de manutenção:
-- Dificuldade em organizar relatórios técnicos
-- Necessidade de gerar PDFs profissionais rapidamente
-- Controle de peças e serviços cotados
-- Histórico completo de atendimentos por cliente
-
-Com uma interface moderna e intuitiva, o sistema permite criar relatórios completos em minutos, incluindo fotos, medições técnicas e orçamentos detalhados.
-
-## ✨ Funcionalidades Principais
-
-### 📋 Gestão de Relatórios
-- Criação de relatórios técnicos para motores e bombas
-- Upload de múltiplas fotos com legendas
-- Registro de medições técnicas (resistência, batimento, etc.)
+### Gestão de Relatórios
+- Criação de relatórios técnicos com múltiplas fotos
+- Registro de medições técnicas (resistência, batimento)
 - Geração automática de PDF formatado
-- Histórico completo de relatórios por cliente
+- Histórico completo por cliente
 
-### 👥 Gestão de Clientes
-- Cadastro completo com CNPJ, endereço e contatos
-- Busca rápida por nome ou CNPJ
+### Gestão de Clientes
+- Cadastro com CNPJ, endereço e contatos
+- Upload de logo para personalização
 - Histórico de atendimentos
-- Upload de logo do cliente para personalização
 
-### 💰 Orçamentos
-- Catálogo de peças com preços
-- Catálogo de serviços
-- Geração de orçamentos integrados ao relatório
+### Orçamentos
+- Catálogo de peças e serviços
+- Geração de orçamentos integrados
 - Cálculo automático de totais
 
-### 🔐 Segurança
-- Autenticação JWT com roles (admin/user)
-- Proteção de rotas
-- Rate limiting para prevenir abusos
-- Validação de dados no backend e frontend
+### Segurança
+- Autenticação JWT com roles
+- Rate limiting
+- Validação de dados
+- Logs estruturados
+
+## Tecnologias
+
+### Backend
+- Node.js 20+
+- Express 4.18
+- PostgreSQL 14+
+- JWT para autenticação
+- Sequelize ORM
+- Jest para testes
+
+### Frontend
+- React 19
+- Vite 7
+- Tailwind CSS 4
+- React Router 7
+- Axios
+- Vitest para testes
+
+## Instalação
+
+### Pré-requisitos
+- Node.js 20 ou superior
+- PostgreSQL 14 ou superior
+- npm ou yarn
+
+### Backend
+
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Configurar variáveis no .env
+npm start
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+cp .env.example .env.local
+# Configurar VITE_API_URL
+npm run dev
+```
+
+## Configuração
+
+### Variáveis de Ambiente
+
+**Backend (.env)**
+```env
+NODE_ENV=development
+PORT=3001
+DATABASE_URL=postgresql://user:password@host:5432/database
+JWT_SECRET=sua_chave_secreta
+ALLOWED_ORIGINS=http://localhost:5173
+EMAIL_SERVICE=gmail
+EMAIL_USER=seu_email@gmail.com
+EMAIL_APP_PASS=senha_app
+```
+
+**Frontend (.env.local)**
+```env
+VITE_API_URL=http://localhost:3001
+VITE_ENV=development
+```
+
+## Testes
+
+```bash
+# Backend
+cd backend
+npm test
+
+# Frontend
+cd frontend
+npm test
+```
+
+## Deploy
+
+Ver [CHECKLIST_PRODUCAO.md](CHECKLIST_PRODUCAO.md) para instruções detalhadas.
+
+### Backend (Render)
+1. Criar conta em render.com
+2. New Web Service → Connect GitHub
+3. Build: `cd backend && npm install`
+4. Start: `cd backend && npm start`
+5. Adicionar variáveis de ambiente
+
+### Frontend (Vercel)
+```bash
+npm i -g vercel
+cd frontend
+vercel --prod
+```
+
+## API Endpoints
+
+### Autenticação
+- POST /api/auth/login
+- POST /api/auth/register
+- POST /api/auth/forgot-password
+- POST /api/auth/reset-password
+
+### Relatórios
+- GET /api/relatorios
+- GET /api/relatorios/:id
+- POST /api/relatorios
+- PUT /api/relatorios/:id
+- DELETE /api/relatorios/:id
+- GET /api/relatorios/:id/pdf
+
+### Clientes
+- GET /api/clientes
+- POST /api/clientes
+- PUT /api/clientes/:id
+- DELETE /api/clientes/:id
+
+## Licença
+
+MIT
+
 
 ### 📊 Dashboard
 - Visão geral de estatísticas
