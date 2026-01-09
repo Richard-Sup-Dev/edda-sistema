@@ -3,11 +3,16 @@ import axios from 'axios';
 import "@/styles/App.css";
 import { API_ENDPOINTS, logger } from "@/config/api";
 import { notifySuccess, notifyError } from "@/utils/notifications";
+import { 
+    FileText, Calendar, User, MapPin, Building2, 
+    Camera, Upload, CheckCircle2, AlertCircle,
+    ClipboardList, DollarSign, FileCheck
+} from 'lucide-react';
 import MedicoesResistencia from "@/features/reports/components/MedicoesResistencia";
 import MedicoesBatimento from "@/features/reports/components/MedicoesBatimento";
 import PecasAtuais from "@/features/reports/components/PecasAtuais";
 import DynamicPhotoSection from "@/components/ui/DynamicPhotoSection";
-// import BudgetSection from './BudgetSection'; // REMOVIDO
+import BudgetSection from '@/features/finance/components/BudgetSection';
 
 const FIXED_PHOTO_SLOTS = {
     metodologia: [
@@ -59,8 +64,9 @@ function CreateReportForm() {
     const [selectedClientId, setSelectedClientId] = useState(null);
     const [isSearchingClients, setIsSearchingClients] = useState(false);
     
-    // 🚨 ESTADOS pecasCotadas e servicosCotados REMOVIDOS
-    // ------------------------------------------
+    // Estados para Orçamento (Peças e Serviços Cotados)
+    const [pecasCotadas, setPecasCotadas] = useState([]);
+    const [servicosCotados, setServicosCotados] = useState([]);
 
     const [tipoRelatorio, setTipoRelatorio] = useState('');
     const [clienteLogo, setClienteLogo] = useState(null);
@@ -177,6 +183,10 @@ function CreateReportForm() {
     const handlePecasChange = useCallback((newPecas) => { setFormData(prevState => ({ ...prevState, pecas_atuais: newPecas })); }, []);
     const handleClienteLogoUpload = useCallback((e) => { const file = e.target.files[0]; setClienteLogo(file); }, []);
     
+    // Handlers para Orçamento
+    const handlePecasCotadasChange = useCallback((pecas) => { setPecasCotadas(pecas); }, []);
+    const handleServicosCotadosChange = useCallback((servicos) => { setServicosCotados(servicos); }, []);
+    
     const handleNextStep = useCallback(() => {
         if (!tipoRelatorio) { notifyError('Por favor, selecione o Tipo de Relatório.'); return; }
         if (!formData.os_numero) { notifyError('Por favor, preencha o campo "Número da O.S." (Obrigatório).'); return; }
@@ -220,7 +230,9 @@ function CreateReportForm() {
             data.append('tipo_relatorio', tipoRelatorio);
             data.append('cliente_id', selectedClientId || ''); 
 
-            // 🚨 REMOVIDA A ADIÇÃO DE pecas_cotadas e servicos_cotados AQUI
+            // Adiciona Orçamento (Peças e Serviços Cotados)
+            data.append('pecas_cotadas', JSON.stringify(pecasCotadas));
+            data.append('servicos_cotados', JSON.stringify(servicosCotados));
 
             // 2. ADICIONA O LOGO E FOTOS
             if (clienteLogo) {
@@ -283,32 +295,114 @@ function CreateReportForm() {
 
 
     return (
-        <div className="container">
-            <div className="header">
-                <h1>Criar Novo Relatório Técnico</h1>
-                <p>Preencha os dados abaixo para gerar o relatório.</p>
+        <div className="max-w-6xl mx-auto">
+            {/* Header Profissional */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 bg-orange-100 rounded-lg">
+                        <FileText className="w-6 h-6 text-orange-600" />
+                    </div>
+                    <h1 className="text-2xl font-bold text-gray-900">Criar Novo Relatório Técnico</h1>
+                </div>
+                <p className="text-gray-600 ml-14">Preencha os dados abaixo para gerar o relatório profissional em PDF</p>
+                
+                {/* Indicador de Progresso */}
+                <div className="mt-6 flex items-center gap-4">
+                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
+                        step === 1 ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
+                    }`}>
+                        {step === 1 ? (
+                            <><ClipboardList className="w-4 h-4" /> <span className="font-semibold">Etapa 1: Dados Gerais</span></>
+                        ) : (
+                            <><CheckCircle2 className="w-4 h-4" /> <span className="font-semibold">Etapa 1 Concluída</span></>
+                        )}
+                    </div>
+                    <div className="h-px flex-1 bg-gray-300" />
+                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
+                        step === 2 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-400'
+                    }`}>
+                        <Camera className="w-4 h-4" />
+                        <span className="font-semibold">Etapa 2: Detalhes Técnicos</span>
+                    </div>
+                </div>
             </div>
 
             <form onSubmit={handleFinalSubmit}>
                 {step === 1 && (
-                    <div id="step-one">
-                        <div className="section">
-                            <h2>1. Dados do Cliente e da O.S.</h2>
-                            <div className="form-group"><label htmlFor="os_numero">Número da O.S.:</label><input type="text" id="os_numero" value={formData.os_numero} onChange={handleChange} required /></div>
-                            <div className="form-group"><label htmlFor="numero_rte">Número RTE:</label><input type="text" id="numero_rte" value={formData.numero_rte} onChange={handleChange} /></div>
-                            <div className="form-group"><label htmlFor="titulo_relatorio">Título do Relatório:</label><input type="text" id="titulo_relatorio" value={formData.titulo_relatorio} onChange={handleChange} /></div>
+                    <div id="step-one" className="space-y-6">
+                        {/* Card: Dados da O.S. */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                <FileText className="w-5 h-5 text-orange-600" />
+                                <h2 className="text-lg font-semibold text-gray-900">Identificação da Ordem de Serviço</h2>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="form-group">
+                                    <label htmlFor="os_numero" className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                        <FileCheck className="w-4 h-4 text-orange-500" />
+                                        Número da O.S. <span className="text-red-500">*</span>
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="os_numero" 
+                                        value={formData.os_numero} 
+                                        onChange={handleChange} 
+                                        required 
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                        placeholder="Ex: OS-2024-001"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="numero_rte" className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                        <FileText className="w-4 h-4 text-gray-500" />
+                                        Número RTE
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="numero_rte" 
+                                        value={formData.numero_rte} 
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                        placeholder="Ex: RTE-001"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="titulo_relatorio" className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                                        <ClipboardList className="w-4 h-4 text-gray-500" />
+                                        Título do Relatório
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="titulo_relatorio" 
+                                        value={formData.titulo_relatorio} 
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                        placeholder="Ex: Inspeção Preventiva"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Card: Busca de Cliente */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                <Building2 className="w-5 h-5 text-orange-600" />
+                                <h2 className="text-lg font-semibold text-gray-900">Informações do Cliente</h2>
+                            </div>
                             
-                            
-                            {/* === BLOCO DE BUSCA DE CLIENTE === */}
-                            <div className="form-group" style={{ marginBottom: clientList.length > 0 ? '150px' : '15px' }}>
-                                <label htmlFor="search_client">Buscar Cliente Cadastrado (Nome/CNPJ):</label>
+                            {/* Busca de Cliente */}
+                            <div className="form-group mb-6" style={{ marginBottom: clientList.length > 0 ? '150px' : '24px' }}>
+                                <label htmlFor="search_client" className="text-sm font-medium text-gray-700 mb-2 block">
+                                    🔍 Buscar Cliente Cadastrado (Nome ou CNPJ)
+                                </label>
                                 <div style={{ position: 'relative' }}>
                                     <input
                                         type="text"
                                         id="search_client"
                                         value={searchClientQuery}
                                         onChange={(e) => setSearchClientQuery(e.target.value)}
-                                        placeholder="Comece a digitar o nome ou CNPJ"
+                                        placeholder="Digite pelo menos 3 caracteres para buscar..."
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     />
                                     {isSearchingClients && <p style={{ color: '#4a90e2', fontSize: '10px', margin: '5px 0 0 0' }}>Buscando...</p>}
                                     
@@ -355,66 +449,307 @@ function CreateReportForm() {
                                 <input type="text" id="responsavel" value={formData.responsavel} onChange={handleChange} />
                             </div>
                             
-                            {/* --- Restante do seu bloco step 1 --- */}
-
-                            <div className="form-group"><label htmlFor="art">ART:</label><input type="text" id="art" value={formData.art} onChange={handleChange} /></div>
-                            
-                            <h3>1.1. Endereço do Cliente</h3>
-                            <div className="form-row">
-                                <div className="form-group"><label htmlFor="cliente_endereco">Endereço:</label><input type="text" id="cliente_endereco" value={formData.cliente_endereco} onChange={handleChange} /></div>
-                                <div className="form-group"><label htmlFor="cliente_bairro">Bairro:</label><input type="text" id="cliente_bairro" value={formData.cliente_bairro} onChange={handleChange} /></div>
+                            {/* Dados preenchidos automaticamente */}
+                            <div className="space-y-4">
+                                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                                    <p className="text-sm text-blue-800 mb-3 flex items-center gap-2">
+                                        <AlertCircle className="w-4 h-4" />
+                                        <span>Os campos abaixo são preenchidos automaticamente quando você seleciona um cliente acima</span>
+                                    </p>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="form-group">
+                                        <label htmlFor="cliente_nome" className="text-sm font-medium text-gray-700 mb-2 block">
+                                            Nome/Razão Social <span className="text-red-500">*</span>
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            id="cliente_nome" 
+                                            value={formData.cliente_nome} 
+                                            onChange={handleChange} 
+                                            required 
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                            placeholder="Nome do cliente"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="cliente_cnpj" className="text-sm font-medium text-gray-700 mb-2 block">
+                                            CNPJ <span className="text-red-500">*</span>
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            id="cliente_cnpj" 
+                                            value={formData.cliente_cnpj} 
+                                            onChange={handleChange} 
+                                            required 
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                            placeholder="00.000.000/0000-00"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="responsavel" className="text-sm font-medium text-gray-700 mb-2 block">
+                                            Responsável
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            id="responsavel" 
+                                            value={formData.responsavel} 
+                                            onChange={handleChange} 
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                            placeholder="Nome do responsável"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="art" className="text-sm font-medium text-gray-700 mb-2 block">
+                                            ART
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            id="art" 
+                                            value={formData.art} 
+                                            onChange={handleChange} 
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                            placeholder="Número da ART"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                {/* Endereço do Cliente */}
+                                <div className="mt-6">
+                                    <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                                        <MapPin className="w-4 h-4 text-orange-600" />
+                                        Endereço do Cliente
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="form-group md:col-span-2">
+                                            <label htmlFor="cliente_endereco" className="text-sm font-medium text-gray-700 mb-2 block">
+                                                Endereço
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                id="cliente_endereco" 
+                                                value={formData.cliente_endereco} 
+                                                onChange={handleChange} 
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                                placeholder="Logradouro"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="cliente_bairro" className="text-sm font-medium text-gray-700 mb-2 block">
+                                                Bairro
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                id="cliente_bairro" 
+                                                value={formData.cliente_bairro} 
+                                                onChange={handleChange} 
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                                placeholder="Bairro"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="cliente_cidade" className="text-sm font-medium text-gray-700 mb-2 block">
+                                                Cidade
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                id="cliente_cidade" 
+                                                value={formData.cliente_cidade} 
+                                                onChange={handleChange} 
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                                placeholder="Cidade"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="cliente_estado" className="text-sm font-medium text-gray-700 mb-2 block">
+                                                Estado (UF)
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                id="cliente_estado" 
+                                                value={formData.cliente_estado} 
+                                                onChange={handleChange} 
+                                                maxLength={2}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                                placeholder="SP"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="cliente_cep" className="text-sm font-medium text-gray-700 mb-2 block">
+                                                CEP
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                id="cliente_cep" 
+                                                value={formData.cliente_cep} 
+                                                onChange={handleChange} 
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                                placeholder="00000-000"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="form-row">
-                                <div className="form-group"><label htmlFor="cliente_cidade">Cidade:</label><input type="text" id="cliente_cidade" value={formData.cliente_cidade} onChange={handleChange} /></div>
-                                <div className="form-group"><label htmlFor="cliente_estado">Estado:</label><input type="text" id="cliente_estado" value={formData.cliente_estado} onChange={handleChange} /></div>
-                                <div className="form-group"><label htmlFor="cliente_cep">CEP:</label><input type="text" id="cliente_cep" value={formData.cliente_cep} onChange={handleChange} /></div>
+                        </div>
+                        
+                        {/* Card: Logo do Cliente */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                <Upload className="w-5 h-5 text-orange-600" />
+                                <h2 className="text-lg font-semibold text-gray-900">Logo do Cliente</h2>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <label htmlFor="cliente_logo" className="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg cursor-pointer transition-colors flex items-center gap-2">
+                                    <Upload className="w-4 h-4" />
+                                    Escolher Arquivo
+                                </label>
+                                <input 
+                                    type="file" 
+                                    id="cliente_logo" 
+                                    accept="image/*" 
+                                    onChange={handleClienteLogoUpload} 
+                                    className="hidden"
+                                />
+                                <span className="text-sm text-gray-600">
+                                    {clienteLogo ? `✓ ${clienteLogo.name}` : 'Nenhum arquivo escolhido'}
+                                </span>
                             </div>
                         </div>
-                        <div className="section">
-                            <h2>1.2. Logo do Cliente</h2>
-                            <div className="form-group file-upload-wrapper"><label htmlFor="cliente_logo" className="file-upload-label">Escolher arquivo</label><input type="file" id="cliente_logo" accept="image/*" onChange={handleClienteLogoUpload} /><span className="file-upload-filename">{clienteLogo ? clienteLogo.name : 'Nenhum arquivo escolhido'}</span></div>
-                        </div>
-                        <div className="section">
-                            <h2>2. Datas do Serviço</h2>
-                            <div className="form-row">
-                                <div className="form-group"><label htmlFor="data_inicio">Início:</label><input type="date" id="data_inicio" value={formData.data_inicio} onChange={handleChange} /></div>
-                                <div className="form-group"><label htmlFor="data_fim">Fim:</label><input type="date" id="data_fim" value={formData.data_fim} onChange={handleChange} /></div>
-                                <div className="form-group"><label htmlFor="data_emissao">Data de Emissão:</label><input type="date" id="data_emissao" value={formData.data_emissao} onChange={handleChange} /></div>
+                        
+                        {/* Card: Datas do Serviço */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                <Calendar className="w-5 h-5 text-orange-600" />
+                                <h2 className="text-lg font-semibold text-gray-900">Datas do Serviço</h2>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="form-group">
+                                    <label htmlFor="data_inicio" className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                        <Calendar className="w-4 h-4 text-orange-500" />
+                                        Data de Início
+                                    </label>
+                                    <input 
+                                        type="date" 
+                                        id="data_inicio" 
+                                        value={formData.data_inicio} 
+                                        onChange={handleChange}
+                                        onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                                        min="2020-01-01"
+                                        max="2030-12-31"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent cursor-pointer"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="data_fim" className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                        <Calendar className="w-4 h-4 text-orange-500" />
+                                        Data de Término
+                                    </label>
+                                    <input 
+                                        type="date" 
+                                        id="data_fim" 
+                                        value={formData.data_fim} 
+                                        onChange={handleChange}
+                                        onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                                        min="2020-01-01"
+                                        max="2030-12-31"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent cursor-pointer"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="data_emissao" className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                        <Calendar className="w-4 h-4 text-orange-500" />
+                                        Data de Emissão
+                                    </label>
+                                    <input 
+                                        type="date" 
+                                        id="data_emissao" 
+                                        value={formData.data_emissao} 
+                                        onChange={handleChange}
+                                        onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                                        min="2020-01-01"
+                                        max="2030-12-31"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent cursor-pointer"
+                                    />
+                                </div>
                             </div>
                         </div>
-                        <div className="section">
-                            <h2>3. Tipo de Relatório</h2>
-                            <div className="form-group"><label htmlFor="tipo_relatorio">Tipo de Relatório:</label><select id="tipo_relatorio" value={tipoRelatorio} onChange={handleTipoRelatorioChange} required><option value="">Selecione...</option><option value="Motor">Motor</option><option value="Bomba">Bomba</option></select></div>
+                        
+                        {/* Card: Tipo de Relatório */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                <FileText className="w-5 h-5 text-orange-600" />
+                                <h2 className="text-lg font-semibold text-gray-900">Tipo de Relatório</h2>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="tipo_relatorio" className="text-sm font-medium text-gray-700 mb-2 block">
+                                    Selecione o tipo <span className="text-red-500">*</span>
+                                </label>
+                                <select 
+                                    id="tipo_relatorio" 
+                                    value={tipoRelatorio} 
+                                    onChange={handleTipoRelatorioChange} 
+                                    required
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                >
+                                    <option value="">Selecione...</option>
+                                    <option value="Motor">Motor</option>
+                                    <option value="Bomba">Bomba</option>
+                                </select>
+                            </div>
                         </div>
-                        <button type="button" onClick={handleNextStep} disabled={!tipoRelatorio || !formData.os_numero}>Próximo</button>
+                        
+                        {/* Botão Próximo */}
+                        <div className="flex justify-end">
+                            <button 
+                                type="button" 
+                                onClick={handleNextStep} 
+                                disabled={!tipoRelatorio || !formData.os_numero}
+                                className="px-8 py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                            >
+                                Próximo <CheckCircle2 className="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
                 )}
 
                 {step === 2 && (
-                    <div id="step-two">
-                        {/* === CONTADOR GLOBAL DE FOTOS === */}
-                        <div style={{
-                            backgroundColor: '#2c2c2c',
-                            padding: '16px',
-                            borderRadius: '8px',
-                            marginBottom: '24px',
-                            textAlign: 'center',
-                            border: '1px solid #444',
-                            boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
-                        }}>
-                            <p style={{
-                                margin: 0,
-                                fontSize: '1.1em',
-                                fontWeight: '600',
-                                color: getTotalPhotosTaken() === getTotalExpectedPhotos() ? '#28a745' : '#4a90e2'
-                            }}>
-                                {getTotalPhotosTaken()} de {getTotalExpectedPhotos()} fotos tiradas
-                            </p>
-                            {getTotalPhotosTaken() === getTotalExpectedPhotos() && (
-                                <p style={{ margin: '8px 0 0', fontSize: '0.9em', color: '#aaa' }}>
-                                    Todas as fotos obrigatórias foram adicionadas!
-                                </p>
-                            )}
+                    <div id="step-two" className="space-y-6">
+                        {/* Contador Global de Fotos - Card Melhorado */}
+                        <div className="bg-gradient-to-r from-orange-50 to-orange-100 border-2 border-orange-300 rounded-lg shadow-md p-6">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <Camera className="w-8 h-8 text-orange-600" />
+                                    <div>
+                                        <p className="text-lg font-bold text-gray-900">
+                                            {getTotalPhotosTaken()} de {getTotalExpectedPhotos()} fotos obrigatórias
+                                        </p>
+                                        {getTotalPhotosTaken() === getTotalExpectedPhotos() ? (
+                                            <p className="text-sm text-green-600 flex items-center gap-1 mt-1">
+                                                <CheckCircle2 className="w-4 h-4" />
+                                                Todas as fotos foram adicionadas!
+                                            </p>
+                                        ) : (
+                                            <p className="text-sm text-orange-700 mt-1">
+                                                Faltam {getTotalExpectedPhotos() - getTotalPhotosTaken()} foto(s)
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-3xl font-bold text-orange-600">
+                                        {Math.round((getTotalPhotosTaken() / getTotalExpectedPhotos()) * 100)}%
+                                    </div>
+                                    <div className="text-xs text-gray-600">Completo</div>
+                                </div>
+                            </div>
+                            {/* Barra de Progresso */}
+                            <div className="mt-4 h-2 bg-white rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-300"
+                                    style={{ width: `${(getTotalPhotosTaken() / getTotalExpectedPhotos()) * 100}%` }}
+                                />
+                            </div>
                         </div>
 
                         {tipoRelatorio === 'Motor' && (
@@ -443,12 +778,21 @@ function CreateReportForm() {
                                     section="pecas_atuais"
                                     fixedSlots={FIXED_PHOTO_SLOTS.pecas_atuais}
                                 />
-                                <div className="section">
-                                    <h2>8. Medições</h2>
-                                    <h3>Medições de Resistência da Isolação</h3>
-                                    <MedicoesResistencia onMedicoesChange={handleMedicoesIsolamentoChange} />
-                                    <h3>Medições de Batimento Radial</h3>
-                                    <MedicoesBatimento onMedicoesChange={handleMedicoesBatimentoChange} />
+                                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                        <ClipboardList className="w-5 h-5 text-orange-600" />
+                                        <h2 className="text-lg font-semibold text-gray-900">8. Medições</h2>
+                                    </div>
+                                    <div className="space-y-6">
+                                        <div>
+                                            <h3 className="font-medium text-gray-900 mb-3">Medições de Resistência da Isolação</h3>
+                                            <MedicoesResistencia onMedicoesChange={handleMedicoesIsolamentoChange} />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-medium text-gray-900 mb-3">Medições de Batimento Radial</h3>
+                                            <MedicoesBatimento onMedicoesChange={handleMedicoesBatimentoChange} />
+                                        </div>
+                                    </div>
                                 </div>
                             </>
                         )}
@@ -467,103 +811,168 @@ function CreateReportForm() {
                                     section="pecas_atuais"
                                     fixedSlots={FIXED_PHOTO_SLOTS.pecas_atuais}
                                 />
-                                <div className="section">
-                                    <h2>6. Medições</h2>
-                                    <h3>Peças Atuais</h3>
-                                    <PecasAtuais onPecasChange={handlePecasChange} />
+                                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                        <ClipboardList className="w-5 h-5 text-orange-600" />
+                                        <h2 className="text-lg font-semibold text-gray-900">6. Medições</h2>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-medium text-gray-900 mb-3">Peças Atuais</h3>
+                                        <PecasAtuais onPecasChange={handlePecasChange} />
+                                    </div>
                                 </div>
                             </>
                         )}
                         
-                        {/* 🚨 SEÇÃO DE ORÇAMENTO (BudgetSection) REMOVIDA DAQUI 🚨 */}
+                        {/* === SEÇÃO DE ORÇAMENTO === */}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                <DollarSign className="w-5 h-5 text-orange-600" />
+                                <h2 className="text-lg font-semibold text-gray-900">9. Orçamento</h2>
+                            </div>
+                            <BudgetSection 
+                                onPecasCotadasChange={handlePecasCotadasChange}
+                                onServicosCotadosChange={handleServicosCotadosChange}
+                                initialPecas={[]}
+                                initialServicos={[]}
+                            />
+                        </div>
 
                         {/* === SEÇÃO COMUM A AMBOS (Descrições) === */}
-                        <div className="section">
-                            {/* Renumerado de 11 para 9 */}
-                            <h2 style={{marginTop: '40px'}}>9. Descrição Técnica</h2>
-                            <div className="form-group">
-                                <label htmlFor="descricao">Descrição:</label>
-                                <textarea
-                                    id="descricao"
-                                    value={formData.descricao}
-                                    onChange={handleChange}
-                                    rows="4"
-                                    placeholder="Descreva o serviço realizado..."
-                                />
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                <FileText className="w-5 h-5 text-orange-600" />
+                                <h2 className="text-lg font-semibold text-gray-900">10. Descrição Técnica</h2>
                             </div>
-                            <div className="form-group">
-                                <label htmlFor="objetivo">Objetivo:</label>
-                                <textarea
-                                    id="objetivo"
-                                    value={formData.objetivo}
-                                    onChange={handleChange}
-                                    rows="4"
-                                    placeholder="Qual era o objetivo do serviço?"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="causas_danos">Causas dos Danos:</label>
-                                <textarea
-                                    id="causas_danos"
-                                    value={formData.causas_danos}
-                                    onChange={handleChange}
-                                    rows="4"
-                                    placeholder="Descreva as causas identificadas..."
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="conclusao">Conclusão:</label>
-                                <textarea
-                                    id="conclusao"
-                                    value={formData.conclusao}
-                                    onChange={handleChange}
-                                    rows="4"
-                                    placeholder="Conclusão final do relatório..."
-                                />
+                            <div className="space-y-4">
+                                <div className="form-group">
+                                    <label htmlFor="descricao" className="text-sm font-medium text-gray-700 mb-2 block">
+                                        Descrição do Serviço
+                                    </label>
+                                    <textarea
+                                        id="descricao"
+                                        value={formData.descricao}
+                                        onChange={handleChange}
+                                        rows="4"
+                                        placeholder="Descreva o serviço realizado..."
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="objetivo" className="text-sm font-medium text-gray-700 mb-2 block">
+                                        Objetivo
+                                    </label>
+                                    <textarea
+                                        id="objetivo"
+                                        value={formData.objetivo}
+                                        onChange={handleChange}
+                                        rows="4"
+                                        placeholder="Qual era o objetivo do serviço?"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="causas_danos" className="text-sm font-medium text-gray-700 mb-2 block">
+                                        Causas dos Danos
+                                    </label>
+                                    <textarea
+                                        id="causas_danos"
+                                        value={formData.causas_danos}
+                                        onChange={handleChange}
+                                        rows="4"
+                                        placeholder="Descreva as causas identificadas..."
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="conclusao" className="text-sm font-medium text-gray-700 mb-2 block">
+                                        Conclusão
+                                    </label>
+                                    <textarea
+                                        id="conclusao"
+                                        value={formData.conclusao}
+                                        onChange={handleChange}
+                                        rows="4"
+                                        placeholder="Conclusão final do relatório..."
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="section">
-                            {/* Renumerado de 12 para 10 */}
-                            <h2>10. Aprovação</h2>
-                            <div className="form-row">
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                <User className="w-5 h-5 text-orange-600" />
+                                <h2 className="text-lg font-semibold text-gray-900">11. Aprovação</h2>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="form-group">
-                                    <label htmlFor="elaborado_por">Elaborado por:</label>
+                                    <label htmlFor="elaborado_por" className="text-sm font-medium text-gray-700 mb-2 block">
+                                        Elaborado por
+                                    </label>
                                     <input
                                         type="text"
                                         id="elaborado_por"
                                         value={formData.elaborado_por}
                                         onChange={handleChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                        placeholder="Nome do elaborador"
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="checado_por">Checado por:</label>
+                                    <label htmlFor="checado_por" className="text-sm font-medium text-gray-700 mb-2 block">
+                                        Checado por
+                                    </label>
                                     <input
                                         type="text"
                                         id="checado_por"
                                         value={formData.checado_por}
                                         onChange={handleChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                        placeholder="Nome do revisor"
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="aprovado_por">Aprovado por:</label>
+                                    <label htmlFor="aprovado_por" className="text-sm font-medium text-gray-700 mb-2 block">
+                                        Aprovado por
+                                    </label>
                                     <input
                                         type="text"
                                         id="aprovado_por"
                                         value={formData.aprovado_por}
                                         onChange={handleChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                        placeholder="Nome do aprovador"
                                     />
                                 </div>
                             </div>
                         </div>
 
                         {/* === BOTÕES DE NAVEGAÇÃO E SUBMISSÃO === */}
-                        <div className="form-group" style={{ marginTop: '30px', display: 'flex', gap: '12px', justifyContent: 'space-between' }}>
-                            <button type="button" onClick={handlePreviousStep} className="btn-secondary">
-                                Voltar
+                        <div className="flex items-center justify-between pt-6">
+                            <button 
+                                type="button" 
+                                onClick={handlePreviousStep} 
+                                className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors flex items-center gap-2"
+                            >
+                                ← Voltar
                             </button>
-                            <button type="submit" disabled={isLoading} className="btn-primary">
-                                {isLoading ? 'Gerando Relatório...' : 'Gerar Relatório e Abrir PDF'}
+                            <button 
+                                type="submit" 
+                                disabled={isLoading} 
+                                className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        Gerando Relatório...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FileCheck className="w-5 h-5" />
+                                        Gerar Relatório PDF
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>

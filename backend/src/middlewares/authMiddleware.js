@@ -2,6 +2,7 @@
 
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
+import logger from '../config/logger.js';
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -15,7 +16,7 @@ const authMiddleware = (req, res, next) => {
 
   // Garante que o JWT_SECRET esteja configurado
   if (!process.env.JWT_SECRET) {
-    console.error('JWT_SECRET não está definido no .env');
+    logger.error('JWT_SECRET não está definido no .env');
     return res.status(500).json({ erro: 'Erro de configuração do servidor.' });
   }
 
@@ -39,7 +40,7 @@ const authMiddleware = (req, res, next) => {
       return res.status(401).json({ erro: 'Token inválido ou corrompido.' });
     }
 
-    console.error('Erro na verificação do token:', error);
+    logger.error('Erro na verificação do token:', error);
     return res.status(401).json({ erro: 'Falha na autenticação.' });
   }
 };

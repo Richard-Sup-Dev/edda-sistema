@@ -2,6 +2,8 @@
 // Sistema robusto de tratamento de erros
 
 import logger from './logger.js';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
 /**
  * Tipos de erros customizados

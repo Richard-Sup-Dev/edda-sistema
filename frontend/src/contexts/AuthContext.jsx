@@ -1,8 +1,8 @@
 // src/contexts/AuthContext.jsx
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import { API_ENDPOINTS, logger } from '@/config/api';
+import apiClient from '@/services/apiClient';
+import { logger } from '@/config/api';
 
 // Cria o contexto
 const AuthContext = createContext({});
@@ -21,11 +21,8 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    // Configura o header padrão para todas as requisições futuras
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
     // Valida o token com /api/auth/me
-    axios.get(API_ENDPOINTS.AUTH_ME)
+    apiClient.get('/auth/me')
       .then((response) => {
         const userData = response.data.user || response.data;
         setUser(userData);
@@ -33,7 +30,6 @@ export const AuthProvider = ({ children }) => {
       .catch((error) => {
         logger.error('Token validation failed:', error.response?.data || error.message);
         localStorage.removeItem('token');
-        delete axios.defaults.headers.common['Authorization'];
         setUser(null);
       })
       .finally(() => {
@@ -44,7 +40,7 @@ export const AuthProvider = ({ children }) => {
   // Função de login
   const login = async (email, senha) => {
     try {
-      const response = await axios.post(API_ENDPOINTS.AUTH_LOGIN, {
+      const response = await apiClient.post('/auth/login', {
         email,
         senha
       });
@@ -52,7 +48,6 @@ export const AuthProvider = ({ children }) => {
       const { token, user: userData } = response.data;
 
       localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(userData);
 
       return { success: true };
@@ -65,7 +60,6 @@ export const AuthProvider = ({ children }) => {
   // Função de logout
   const logout = () => {
     localStorage.removeItem('token');
-    delete axios.defaults.headers.common['Authorization'];
     setUser(null);
     window.location.href = '/login'; // redireciona para login
   };

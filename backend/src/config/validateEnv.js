@@ -1,6 +1,9 @@
 // backend/src/config/validateEnv.js
 // Validação de variáveis de ambiente obrigatórias
 
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
 /**
  * Lista de variáveis de ambiente obrigatórias
  * Será validada no startup do servidor

@@ -149,17 +149,10 @@ async function gerarPdf({ id, caminhoSalvarPdf, caminhoEncontrarFotos }) {
 
             // Agora a verificação funciona
             if (!relatorioData) {
-
-                // 🚨 REMOVA ou comente esta linha, ela causaria um novo erro!
-                // console.log(`[DEBUG-DATAS] Início DB: ${relatorioData.data_inicio_servico} | Fim DB: ${relatorioData.data_fim_servico}`);
-
-                console.error(`[ERRO] - Relatório com ID ${id} não encontrado.`);
                 return null;
             }
 
             // O resto do seu código agora funcionará, pois 'relatorioData' existe
-            console.log('>>> DIAGNÓSTICO RTE BRUTO DO DB:', relatorioData?.numero_rte);
-
             const { medicoesIsolamento, medicoesBatimento, pecasAtuais, fotosRelatorio } =
                 await relatoriosRepository.buscarDadosRelacionados(relatorioData.id, client);
 
@@ -178,11 +171,8 @@ async function gerarPdf({ id, caminhoSalvarPdf, caminhoEncontrarFotos }) {
             relatorioData.data_inicio_formatado = relatorioData.data_inicio_formatado;
             relatorioData.data_fim_formatado = relatorioData.data_fim_formatado;
 
-            console.log(`[DEBUG-TemplateKeys] Início formatado: ${relatorioData.data_inicio_formatado} | Fim formatado: ${relatorioData.data_fim_formatado}`);
-
             // Tratamento de fotos_com_caminho (que é uma string JSON no DB)
             relatorioData.fotos_com_caminho = relatorioData.fotos_com_caminho || '';
-            console.log('[DEBUG-DB] Fotos RAW do DB (JSON String):', relatorioData.fotos_com_caminho);
             // ---------------------------------------------------------------------------------
 
             // Tratamento dos outros campos com a mesma lógica segura
@@ -192,7 +182,6 @@ async function gerarPdf({ id, caminhoSalvarPdf, caminhoEncontrarFotos }) {
             // 🌟 CORREÇÃO: MAPEAR TÍTULO, O.S. E CLIENTE PARA A NOVA TABELA
             relatorioData.titulo_relatorio = relatorioData.titulo_relatorio || 'Não informado';// Mapeia o campo do DB para o novo placeholder
             relatorioData.os_numero = relatorioData.os_numero || 'Não preenchido';
-            console.log('[DEBUG-SALVAR] Dados para salvar:', relatorioData);
             relatorioData.cliente_nome = relatorioData.cliente_nome || 'Não preenchido';
 
             // relatorioData.cliente_cnpj = relatorioData.cliente_cnpj || 'Não preenchido'; // LINHA ORIGINAL
@@ -420,8 +409,6 @@ async function gerarPdf({ id, caminhoSalvarPdf, caminhoEncontrarFotos }) {
             relatorioData.indice_fotos_html = textToHtmlList(photoIndexLiTags);
 
             // ====================================================================
-
-            console.log('[DEBUG] - Dados prontos para pdfGenerator.');
 
             return relatorioData;
         });

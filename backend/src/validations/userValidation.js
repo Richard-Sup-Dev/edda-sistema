@@ -37,7 +37,7 @@ const userSchema = Joi.object({
     .valid('user', 'admin')
     .default('user')
     .messages({
-      'any.only': 'Role deve ser "user" ou "admin"'
+      'any.only': 'Role deve ser: user, admin, tecnico ou emissor'
     })
 }).unknown(false);
 

@@ -9,6 +9,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Instalar dependências de build necessárias para pacotes nativos
+RUN apk add --no-cache python3 make g++
+
 # Copiar apenas package.json e package-lock.json (se houver)
 COPY package*.json ./
 
@@ -40,9 +43,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY src ./src
 COPY package*.json ./
 
-# Criar diretório para uploads
-RUN mkdir -p /app/uploads/nfs && \
-    chmod -R 755 /app/uploads
+# Criar diretório para uploads e logs
+RUN mkdir -p /app/uploads/nfs /app/logs && \
+    chmod -R 777 /app/uploads /app/logs
 
 # Expor porta (referência, não abre porta automaticamente)
 EXPOSE 3001

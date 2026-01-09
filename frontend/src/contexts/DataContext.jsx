@@ -1,6 +1,6 @@
 // src/contexts/DataContext.jsx
 import { createContext, useContext, useState, useCallback } from 'react';
-import { api } from '@/services/api';
+import apiClient from '@/services/apiClient';
 
 const DataContext = createContext();
 
@@ -16,7 +16,7 @@ export const DataProvider = ({ children }) => {
   const loadClientes = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get('/clientes');
+      const response = await apiClient.get('/clientes');
       setClientes(response.data);
       setError(null);
     } catch (err) {
@@ -29,7 +29,7 @@ export const DataProvider = ({ children }) => {
 
   const createCliente = useCallback(async (data) => {
     try {
-      const response = await api.post('/clientes', data);
+      const response = await apiClient.post('/clientes', data);
       setClientes(prev => [...prev, response.data]);
       setError(null);
       return response.data;
@@ -41,7 +41,7 @@ export const DataProvider = ({ children }) => {
 
   const updateCliente = useCallback(async (id, data) => {
     try {
-      const response = await api.put(`/clientes/${id}`, data);
+      const response = await apiClient.put(`/clientes/${id}`, data);
       setClientes(prev => prev.map(c => c.id === id ? response.data : c));
       setError(null);
       return response.data;
@@ -53,7 +53,7 @@ export const DataProvider = ({ children }) => {
 
   const deleteCliente = useCallback(async (id) => {
     try {
-      await api.delete(`/clientes/${id}`);
+      await apiClient.delete(`/clientes/${id}`);
       setClientes(prev => prev.filter(c => c.id !== id));
       setError(null);
     } catch (err) {
@@ -66,7 +66,7 @@ export const DataProvider = ({ children }) => {
   const loadPecas = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get('/pecas');
+      const response = await apiClient.get('/pecas');
       setPecas(response.data);
       setError(null);
     } catch (err) {
@@ -79,7 +79,7 @@ export const DataProvider = ({ children }) => {
 
   const createPeca = useCallback(async (data) => {
     try {
-      const response = await api.post('/pecas', data);
+      const response = await apiClient.post('/pecas', data);
       setPecas(prev => [...prev, response.data]);
       setError(null);
       return response.data;
@@ -91,7 +91,7 @@ export const DataProvider = ({ children }) => {
 
   const updatePeca = useCallback(async (id, data) => {
     try {
-      const response = await api.put(`/pecas/${id}`, data);
+      const response = await apiClient.put(`/pecas/${id}`, data);
       setPecas(prev => prev.map(p => p.id === id ? response.data : p));
       setError(null);
       return response.data;
@@ -103,7 +103,7 @@ export const DataProvider = ({ children }) => {
 
   const deletePeca = useCallback(async (id) => {
     try {
-      await api.delete(`/pecas/${id}`);
+      await apiClient.delete(`/pecas/${id}`);
       setPecas(prev => prev.filter(p => p.id !== id));
       setError(null);
     } catch (err) {
@@ -116,7 +116,7 @@ export const DataProvider = ({ children }) => {
   const loadServicos = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get('/servicos');
+      const response = await apiClient.get('/servicos');
       setServicos(response.data);
       setError(null);
     } catch (err) {
@@ -129,7 +129,7 @@ export const DataProvider = ({ children }) => {
 
   const createServico = useCallback(async (data) => {
     try {
-      const response = await api.post('/servicos', data);
+      const response = await apiClient.post('/servicos', data);
       setServicos(prev => [...prev, response.data]);
       setError(null);
       return response.data;
@@ -141,7 +141,7 @@ export const DataProvider = ({ children }) => {
 
   const updateServico = useCallback(async (id, data) => {
     try {
-      const response = await api.put(`/servicos/${id}`, data);
+      const response = await apiClient.put(`/servicos/${id}`, data);
       setServicos(prev => prev.map(s => s.id === id ? response.data : s));
       setError(null);
       return response.data;
@@ -153,7 +153,7 @@ export const DataProvider = ({ children }) => {
 
   const deleteServico = useCallback(async (id) => {
     try {
-      await api.delete(`/servicos/${id}`);
+      await apiClient.delete(`/servicos/${id}`);
       setServicos(prev => prev.filter(s => s.id !== id));
       setError(null);
     } catch (err) {
@@ -166,7 +166,7 @@ export const DataProvider = ({ children }) => {
   const loadRelatorios = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get('/relatorios');
+      const response = await apiClient.get('/relatorios');
       setRelatorios(response.data);
       setError(null);
     } catch (err) {

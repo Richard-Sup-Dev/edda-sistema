@@ -1,7 +1,8 @@
 // backend/src/utils/email.js
 import nodemailer from 'nodemailer';
+import logger from '../config/logger.js';
 
-console.log('CARREGANDO E-MAIL REAL — VAI CHEGAR NO GMAIL DE VERDADE!');
+logger.info('CARREGANDO E-MAIL REAL — VAI CHEGAR NO GMAIL DE VERDADE!');
 
 // GMAIL REAL — FUNCIONANDO PERFEITO EM 2025
 const transporter = nodemailer.createTransport({
@@ -16,9 +17,9 @@ const transporter = nodemailer.createTransport({
 // Verifica conexão com o Gmail
 transporter.verify((error, success) => {
   if (error) {
-    console.error('ERRO AO CONECTAR NO GMAIL:', error.message);
+    logger.error('ERRO AO CONECTAR NO GMAIL:', error.message);
   } else {
-    console.log('GMAIL CONECTADO COM SUCESSO! PRONTO PRA ENVIAR E-MAILS REAIS!');
+    logger.info('GMAIL CONECTADO COM SUCESSO! PRONTO PRA ENVIAR E-MAILS REAIS!');
   }
 });
 
@@ -108,12 +109,12 @@ const sendResetPasswordEmail = async (email, token) => {
       `
     });
 
-    console.log('E-MAIL REAL ENVIADO COM SUCESSO PARA:', email);
-    console.log('ID da mensagem:', info.messageId);
+    logger.info('E-MAIL REAL ENVIADO COM SUCESSO PARA:', email);
+    logger.info('ID da mensagem:', info.messageId);
 
     return info;
   } catch (error) {
-    console.error('ERRO AO ENVIAR E-MAIL:', error.message);
+    logger.error('ERRO AO ENVIAR E-MAIL:', error.message);
     throw error;
   }
 };

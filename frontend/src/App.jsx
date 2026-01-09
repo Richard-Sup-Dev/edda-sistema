@@ -6,7 +6,17 @@ import Dashboard from "@/pages/Dashboard.jsx";
 import Clientes from "@/pages/Clientes.jsx";
 import Pecas from "@/pages/Pecas.jsx";
 import Servicos from "@/pages/Servicos.jsx";
-import DashboardLayout from '@/components/layout/DashboardLayoutNew';
+import Relatorios from "@/pages/Relatorios.jsx";
+import CriarRelatorio from "@/pages/CriarRelatorio.jsx";
+import DetalhesRelatorio from "@/pages/DetalhesRelatorio.jsx";
+import NovaNotaFiscal from "@/pages/NovaNotaFiscal.jsx";
+import Financeiro from "@/pages/Financeiro.jsx";
+import Analises from "@/pages/Analises.jsx";
+import Usuarios from "@/pages/Admin/Usuarios.jsx";
+import Configuracoes from "@/pages/Admin/Configuracoes.jsx";
+import Logs from "@/pages/Admin/Logs.jsx";
+import Seguranca from "@/pages/Admin/Seguranca.jsx";
+import DashboardLayout from '@/components/layout/DashboardLayout';
 import ConfigPanel from "@/features/admin/ConfigPanel";
 import ProfileSettings from "@/pages/Users/ProfileSettings.jsx"; 
 
@@ -82,6 +92,8 @@ function AdminPanelWrapper() {
 // 5. Página 404 Personalizada
 // ===============================================
 function NotFoundPage() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
       <h1 className="text-8xl font-bold text-orange-600 mb-8 animate-pulse">404</h1>
@@ -90,13 +102,13 @@ function NotFoundPage() {
       
       <div className="flex gap-6">
         <button
-          onClick={() => window.history.back()}
+          onClick={() => navigate(-1)}
           className="px-8 py-4 bg-orange-600 hover:bg-orange-700 rounded-xl text-xl font-semibold transition transform hover:scale-105 shadow-lg"
         >
           ← Voltar
         </button>
         <button
-          onClick={() => window.location.href = '/dashboard'}
+          onClick={() => navigate('/dashboard')}
           className="px-8 py-4 bg-gray-700 hover:bg-gray-600 rounded-xl text-xl font-semibold transition transform hover:scale-105 shadow-lg"
         >
           Ir para Dashboard
@@ -121,7 +133,7 @@ function App() {
         />
 
         {/* ========== DASHBOARD COM LAYOUT (rotas aninhadas) ========== */}
-        <Route element={<ProtectedRoute><DataProvider><DashboardLayout /></DataProvider></ProtectedRoute>}>
+        <Route path="/dashboard" element={<ProtectedRoute><DataProvider><DashboardLayout /></DataProvider></ProtectedRoute>}>
           {/* Dashboard principal com gráficos */}
           <Route
             index
@@ -146,8 +158,59 @@ function App() {
             element={<Servicos />}
           />
 
-          {/* Caso alguém digite /dashboard/dashboard (evita loop) */}
-          <Route path="dashboard" element={<Navigate to="/dashboard" replace />} />
+          {/* Relatórios */}
+          <Route
+            path="relatorios"
+            element={<Relatorios />}
+          />
+
+          {/* Criar Novo Relatório */}
+          <Route
+            path="relatorios/novo"
+            element={<CriarRelatorio />}
+          />
+
+          {/* Ver Detalhes do Relatório */}
+          <Route
+            path="relatorios/:id"
+            element={<DetalhesRelatorio />}
+          />
+
+          {/* Nova Nota Fiscal */}
+          <Route
+            path="nf/nova"
+            element={<NovaNotaFiscal />}
+          />
+
+          {/* Financeiro */}
+          <Route
+            path="financeiro"
+            element={<Financeiro />}
+          />
+
+          {/* Análises */}
+          <Route
+            path="analises"
+            element={<Analises />}
+          />
+
+          {/* Páginas Administrativas (somente admins) */}
+          <Route
+            path="usuarios"
+            element={<AdminRoute><Usuarios /></AdminRoute>}
+          />
+          <Route
+            path="configuracoes"
+            element={<AdminRoute><Configuracoes /></AdminRoute>}
+          />
+          <Route
+            path="logs"
+            element={<AdminRoute><Logs /></AdminRoute>}
+          />
+          <Route
+            path="seguranca"
+            element={<AdminRoute><Seguranca /></AdminRoute>}
+          />
         </Route>
 
         {/* ========== CONFIGURAÇÕES DE PERFIL (tela cheia) ========== */}

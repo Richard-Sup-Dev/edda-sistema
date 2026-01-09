@@ -9,14 +9,6 @@ const pool = new Pool({
     }
 });
 
-pool.query('SELECT NOW()', (err, res) => {
-    if (err) {
-        console.error('[POSTGRES] Erro ao conectar com o Neon:', err);
-    } else {
-        console.log(`[POSTGRES] Conectado ao Neon (PostgreSQL) com sucesso: ${res.rows[0].now}`);
-    }
-});
-
 async function executarTransacao(callback) {
     const client = await pool.connect();
     try {

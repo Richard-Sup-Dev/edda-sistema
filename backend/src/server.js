@@ -66,6 +66,30 @@ allowedOriginsRaw.forEach(o => {
   }
 });
 
+// === CORS - DEVE VIR ANTES DE TUDO ===
+app.use(cors({
+  origin: (origin, callback) => {
+    // Permitir requests sem origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Em desenvolvimento, aceita tudo
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    // Em produção, verifica lista de origens permitidas
+    if (allowedOriginsSet.has(origin)) {
+      callback(null, true);
+    } else {
+      logger.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error('Origem não permitida pelo CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
 // === MIDDLEWARES ===
 // Adicionar ID único a cada requisição
 app.use(requestIdMiddleware());
@@ -95,25 +119,20 @@ const limiterAuth = rateLimit({
   skip: (req) => req.method !== 'POST'
 });
 
+// Rate limiting específico para login (ainda mais restritivo)
+const limiterLogin = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 3, // Apenas 3 tentativas de login por IP em 15 minutos
+  message: 'Muitas tentativas de login. Tente novamente em 15 minutos.',
+  standardHeaders: true,
+  skipSuccessfulRequests: true // Não conta requisições bem-sucedidas
+});
+
 // Aplicar rate limit geral
 app.use(limiterGeral);
 
 // Aplicar rate limit restritivo para auth
 app.use('/api/auth', limiterAuth);
-
-// CORS com validação de origem
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOriginsSet.has(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('CORS não permitido para: ' + origin));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
 
 // Capture raw body for debugging (verify) while still parsing JSON
 app.use(express.json({
@@ -185,6 +204,7 @@ if (swaggerUi && swaggerSpec) {
  */
 app.use('/api/relatorios', relatoriosRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/auth/login', limiterLogin); // Rate limiter específico para login
 app.use('/api/financeiro', financeiroRoutes);
 app.use('/api/pecas', pecasRoutes);
 app.use('/api/servicos', servicosRoutes);
@@ -221,8 +241,13 @@ app.use(errorHandler());
     await sequelize.authenticate();
     logger.info('✅ Conectado ao PostgreSQL com sucesso!');
 
-    await sequelize.sync({ alter: true });
-    logger.info('✅ Modelos Sequelize sincronizados.');
+    // Sincronizar models sem alterar estrutura em produção
+    if (process.env.NODE_ENV !== 'production') {
+      await sequelize.sync({ alter: false });
+      logger.info('✅ Modelos Sequelize sincronizados.');
+    } else {
+      logger.info('⚠️ Modo produção - sync desabilitado (use migrations)');
+    }
 
     const adminExiste = await User.findOne({ where: { email: 'admin@edda.com' } });
 

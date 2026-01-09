@@ -9,13 +9,6 @@ import { sendResetPasswordEmail } from '../utils/email.js';
 class AuthController {
   // ==================== LOGIN (COM PROTEÇÃO BRUTE FORCE) ====================
   async login(req, res) {
-    // Debug: log raw body if parsing failed upstream
-    if (req.rawBody) {
-      console.log('Debug - raw request body:', req.rawBody);
-    } else {
-      console.log('Debug - parsed req.body:', req.body);
-    }
-
     const { email, senha } = req.body;
 
     if (!email || !senha) {

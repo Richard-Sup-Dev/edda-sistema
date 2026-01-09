@@ -1,96 +1,42 @@
-/* --- Estilos Gerais --- */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Apenas estilos específicos para componentes legados */
+/* Não aplica estilos globais que conflitam com Tailwind */
 
-html, body, #root {
-  height: 100%;
-}
-
-body {
-  background-color: #121212;
-  color: #f1f1f1;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.container {
-  background-color: #1e1e1e;
-  padding: 40px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: 90%;
-  max-width: 1200px;
-  margin: 20px auto;
-  box-sizing: border-box;
-}
-
-@media (max-width: 600px) {
-  .container {
-    width: 95%;
-    padding: 20px;
-  }
-}
-
-h1 {
-  color: #4a90e2;
-  font-size: 2.5em;
-  margin-bottom: 10px;
-}
-
-h2 {
-  border-bottom: 2px solid #4a90e2;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-  font-size: 1.5em;
-}
-
-h3 {
-  font-size: 1.2em;
-  margin-top: 30px;
-  margin-bottom: 15px;
-  color: #4a90e2;
-}
-
-.form-group {
+/* Estilos específicos para formulários de relatórios legados */
+.legacy-form-group {
   display: flex;
   flex-direction: column;
   margin-bottom: 15px;
 }
 
-.form-row {
+.legacy-form-row {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
 }
 
 @media (max-width: 600px) {
-  .form-row {
+  .legacy-form-row {
     flex-direction: column;
   }
 }
 
-.form-row .form-group {
+.legacy-form-row .legacy-form-group {
   flex: 1;
 }
 
-label {
+/* Labels apenas para forms legados */
+.legacy-form-group label {
   font-weight: bold;
   margin-bottom: 5px;
   color: #ccc;
 }
 
-input[type="text"],
-input[type="date"],
-input[type="file"],
-select,
-textarea {
+/* Inputs específicos para formulários de relatórios */
+.legacy-form-group input[type="text"],
+.legacy-form-group input[type="date"],
+.legacy-form-group input[type="file"],
+.legacy-form-group select,
+.legacy-form-group textarea {
   background-color: #2c2c2c;
   border: 1px solid #444;
   color: #fff;
@@ -109,26 +55,26 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
-input[type="text"]:focus,
-input[type="date"]:focus,
-select:focus,
-textarea:focus {
+.legacy-form-group input[type="text"]:focus,
+.legacy-form-group input[type="date"]:focus,
+.legacy-form-group select:focus,
+.legacy-form-group textarea:focus {
   background-color: #2c2c2c;
   border-color: #4a90e2;
   outline: none;
   box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
 }
 
-input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
-input:-webkit-autofill:active {
+.legacy-form-group input:-webkit-autofill,
+.legacy-form-group input:-webkit-autofill:hover, 
+.legacy-form-group input:-webkit-autofill:focus, 
+.legacy-form-group input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0px 1000px #2c2c2c inset;
   -webkit-text-fill-color: #fff !important;
   font-weight: normal;
 }
 
-::placeholder {
+.legacy-form-group ::placeholder {
   color: #888;
 }
 
@@ -164,7 +110,8 @@ input:-webkit-autofill:active {
   color: #aaa;
 }
 
-button {
+/* Botão específico para formulário de relatório - NÃO afeta outros botões */
+.legacy-form-button {
   background-color: #4a90e2;
   color: white;
   padding: 12px 20px;
@@ -177,7 +124,7 @@ button {
   width: 100%;
 }
 
-button:hover {
+.legacy-form-button:hover {
   background-color: #357ABD;
 }
 
@@ -351,13 +298,12 @@ button:hover {
   }
 }
 
-/* === CORREÇÃO FINAL - LAYOUT PERFEITO === */
-body {
-  padding-top: 0 !important;
-}
+/* === CORREÇÃO PARA LAYOUT DASHBOARD === */
+/* Remove estilos que afetam o DashboardLayout */
 
+/* Estilos de impressão */
 h2 {
-  margin: 20px 0 12px 0 !important;
+  margin: 20px 0 12px 0;
   page-break-after: avoid;
 }
 
@@ -389,7 +335,10 @@ table.border-table {
   page-break-inside: auto;
 }
 
-button {
+/* Estilos específicos para botões do formulário - não afeta dashboard */
+.content-section button,
+.legacy-form-button,
+.report-form button {
   padding: 10px 20px;
   margin: 5px;
   background-color: #007bff;
@@ -399,12 +348,14 @@ button {
   cursor: pointer;
 }
 
-button:disabled {
+.content-section button:disabled,
+.report-form button:disabled {
   background-color: #007bff;
   cursor: not-allowed;
 }
 
-button[type="button"] {
+.content-section button[type="button"],
+.report-form button[type="button"] {
   background-color: #007bff;
 }
 

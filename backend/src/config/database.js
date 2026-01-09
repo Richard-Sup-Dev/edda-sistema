@@ -55,17 +55,5 @@ if (process.env.DATABASE_URL) {
   );
 }
 
-// Teste de conexão ao iniciar (não roda em testes automatizados)
-if (process.env.NODE_ENV !== 'test') {
-  sequelize
-    .authenticate()
-    .then(() => {
-      console.log('✅ Conexão com o banco de dados estabelecida com sucesso.');
-    })
-    .catch((err) => {
-      console.error('❌ Erro ao conectar ao banco de dados:', err.message);
-    });
-}
-
 // Exporta a instância única
 export default sequelize;

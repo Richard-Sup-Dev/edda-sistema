@@ -4,6 +4,7 @@ import express from 'express';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import { roleMiddleware } from '../middlewares/roleMiddleware.js';
 import relatoriosRepository from '../repositories/relatoriosRepository.js';
+import logger from '../config/logger.js';
 
 const router = express.Router();
 
@@ -76,7 +77,7 @@ router.get(
       });
 
     } catch (error) {
-      console.error('Erro ao gerar resumo financeiro:', error);
+      logger.error('Erro ao gerar resumo financeiro:', error);
       return res.status(500).json({ erro: 'Erro interno ao gerar resumo financeiro.' });
     }
   }

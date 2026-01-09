@@ -1,172 +1,255 @@
 // src/pages/Dashboard.jsx
-import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
 import { useData } from '@/contexts/DataContext';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Users, FileText, Wrench, DollarSign } from 'lucide-react';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { useEffect, useState } from 'react';
+import { Users, Package, Wrench, FileText, DollarSign, TrendingUp, Clock, AlertCircle } from 'lucide-react';
+import apiClient from '@/services/apiClient';
 
 export default function Dashboard() {
-  const { clientes, pecas, servicos, relatorios, loadClientes, loadPecas, loadServicos, loadRelatorios, loading } = useData();
-  const [stats, setStats] = useState({
-    totalClientes: 0,
-    totalPecas: 0,
-    totalServicos: 0,
-    totalRelatorios: 0,
-    receitaMes: 0
-  });
+  const { user } = useAuth();
+  const { clientes, pecas, servicos, relatorios, loadClientes, loadPecas, loadServicos, loadRelatorios } = useData();
+  const [financeiro, setFinanceiro] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      loadClientes(),
-      loadPecas(),
-      loadServicos(),
-      loadRelatorios()
-    ]).then(() => {
-      setStats({
-        totalClientes: clientes.length,
-        totalPecas: pecas.length,
-        totalServicos: servicos.length,
-        totalRelatorios: relatorios.length,
-        receitaMes: Math.random() * 50000 // Placeholder
-      });
-    });
+    const loadData = async () => {
+      try {
+        await Promise.all([
+          loadClientes(),
+          loadPecas(),
+          loadServicos(),
+          loadRelatorios(),
+        ]);
+
+        // Buscar dados financeiros
+        const resFinanceiro = await apiClient.get('/financeiro/resumo');
+        setFinanceiro(resFinanceiro.data);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
-  const chartData = [
-    { mes: 'Jan', relatorios: 12, receita: 15000 },
-    { mes: 'Feb', relatorios: 19, receita: 22000 },
-    { mes: 'Mar', relatorios: 25, receita: 28000 },
-    { mes: 'Apr', relatorios: 22, receita: 24000 },
-    { mes: 'May', relatorios: 28, receita: 32000 },
-    { mes: 'Jun', relatorios: 31, receita: 35000 }
+  const stats = [
+    { 
+      label: 'Clientes', 
+      value: clientes.length, 
+      icon: Users, 
+      color: 'from-blue-500 to-blue-600',
+      bgColor: 'bg-blue-50',
+      iconColor: 'text-blue-600',
+      change: '+0%'
+    },
+    { 
+      label: 'Peças', 
+      value: pecas.length, 
+      icon: Package, 
+      color: 'from-purple-500 to-purple-600',
+      bgColor: 'bg-purple-50',
+      iconColor: 'text-purple-600',
+      change: '+0%'
+    },
+    { 
+      label: 'Serviços', 
+      value: servicos.length, 
+      icon: Wrench, 
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-50',
+      iconColor: 'text-green-600',
+      change: '+0%'
+    },
+    { 
+      label: 'Relatórios', 
+      value: relatorios.length, 
+      icon: FileText, 
+      color: 'from-orange-500 to-orange-600',
+      bgColor: 'bg-orange-50',
+      iconColor: 'text-orange-600',
+      change: '+0%'
+    },
   ];
 
-  const statusData = [
-    { name: 'Concluídos', value: 45, fill: '#10b981' },
-    { name: 'Em Andamento', value: 30, fill: '#f59e0b' },
-    { name: 'Pendentes', value: 25, fill: '#ef4444' }
+  // Estatísticas financeiras do mês
+  const receitaMes = financeiro?.totalFaturado || 0;
+  const variacaoReceita = financeiro?.variacaoFaturado || 0;
+
+  // Alertas do sistema
+  const alertas = [];
+  
+  // Verifica peças com estoque baixo (menos de 5 unidades)
+  const pecasEstoqueBaixo = pecas.filter(p => (p.quantidade || 0) < 5).length;
+  if (pecasEstoqueBaixo > 0) {
+    alertas.push({
+      tipo: 'warning',
+      mensagem: `${pecasEstoqueBaixo} peças com estoque baixo`
+    });
+  }
+
+  // Verifica relatórios pendentes
+  const relatoriosPendentes = relatorios.filter(r => r.status === 'pendente' || r.status === 'aberto').length;
+  if (relatoriosPendentes > 0) {
+    alertas.push({
+      tipo: 'info',
+      mensagem: `${relatoriosPendentes} relatórios pendentes`
+    });
+  }
+
+  const recentActivity = [
+    { action: 'Sistema carregado com sucesso', time: 'Agora', icon: FileText, color: 'text-green-600' },
   ];
-
-  if (loading) return <LoadingSpinner />;
-
-  const StatCard = ({ icon: Icon, label, value, color }) => (
-    <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-600 text-sm">{label}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
-        </div>
-        <Icon className={`w-12 h-12 ${color}`} />
-      </div>
-    </div>
-  );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p className="text-gray-600">Bem-vindo ao sistema EDDA</p>
-      </div>
+    <div className="space-y-6 p-6">
+      {loading && (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-gray-600 mt-4">Carregando dados...</p>
+        </div>
+      )}
+
+      {!loading && (
+        <>
+      {/* Welcome Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 text-white shadow-2xl"
+      >
+        <h1 className="text-4xl font-black mb-2">
+          Olá, {user?.nome || 'Administrador'}! 👋
+        </h1>
+        <p className="text-blue-100 text-lg">
+          Bem-vindo ao Sistema de Gestão. Aqui está um resumo do seu negócio.
+        </p>
+      </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <StatCard
-          icon={Users}
-          label="Total de Clientes"
-          value={stats.totalClientes}
-          color="text-blue-500"
-        />
-        <StatCard
-          icon={Wrench}
-          label="Total de Peças"
-          value={stats.totalPecas}
-          color="text-orange-500"
-        />
-        <StatCard
-          icon={FileText}
-          label="Total de Serviços"
-          value={stats.totalServicos}
-          color="text-green-500"
-        />
-        <StatCard
-          icon={TrendingUp}
-          label="Total de Relatórios"
-          value={stats.totalRelatorios}
-          color="text-purple-500"
-        />
-        <StatCard
-          icon={DollarSign}
-          label="Receita (Mês)"
-          value={`R$ ${(stats.receitaMes / 1000).toFixed(1)}K`}
-          color="text-red-500"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+            className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className={`w-12 h-12 ${stat.bgColor} rounded-xl flex items-center justify-center`}>
+                <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
+              </div>
+              {stat.change !== '+0%' && (
+                <div className={`px-3 py-1 bg-gradient-to-r ${stat.color} text-white rounded-lg text-xs font-bold`}>
+                  {stat.change}
+                </div>
+              )}
+            </div>
+            <p className="text-gray-500 text-sm font-medium uppercase tracking-wide mb-1">{stat.label}</p>
+            <p className="text-3xl font-black text-gray-900">{stat.value}</p>
+          </motion.div>
+        ))}
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Line Chart - Receita */}
-        <div className="lg:col-span-2 bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Receita Mensal</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="mes" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="receita"
-                stroke="#f59e0b"
-                strokeWidth={2}
-                dot={{ fill: '#f59e0b', r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        {/* Recent Activity */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+          className="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-200 p-6"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+              <Clock className="w-5 h-5 text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">Atividade Recente</h2>
+          </div>
 
-        {/* Pie Chart - Status */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Status de Relatórios</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={statusData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, value }) => `${name}: ${value}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
+          <div className="space-y-4">
+            {recentActivity.map((activity, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 + index * 0.1 }}
+                className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
               >
-                {statusData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+                <div className={`w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm`}>
+                  <activity.icon className={`w-5 h-5 ${activity.color}`} />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">{activity.action}</p>
+                  <p className="text-sm text-gray-500">{activity.time}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
 
-      {/* Bar Chart - Relatórios */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Relatórios e Receita por Mês</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="mes" />
-            <YAxis yAxisId="left" />
-            <YAxis yAxisId="right" orientation="right" />
-            <Tooltip />
-            <Legend />
-            <Bar yAxisId="left" dataKey="relatorios" fill="#8b5cf6" name="Relatórios" />
-            <Bar yAxisId="right" dataKey="receita" fill="#10b981" name="Receita (R$)" />
-          </BarChart>
-        </ResponsiveContainer>
+        {/* Quick Stats */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+          className="space-y-6"
+        >
+          {/* Revenue Card */}
+          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-white">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
+                <DollarSign className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="text-lg font-bold">Receita do Mês</h3>
+            </div>
+            <p className="text-4xl font-black mb-2">
+              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(receitaMes)}
+            </p>
+            <div className="flex items-center gap-2 text-green-100">
+              <TrendingUp className="w-4 h-4" />
+              <span className="text-sm font-semibold">
+                {variacaoReceita >= 0 ? '+' : ''}{variacaoReceita.toFixed(1)}% vs mês anterior
+              </span>
+            </div>
+          </div>
+
+          {/* Alerts Card */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center">
+                <AlertCircle className="w-5 h-5 text-red-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Alertas</h3>
+            </div>
+            {alertas.length > 0 ? (
+              <div className="space-y-3">
+                {alertas.map((alerta, index) => (
+                  <div 
+                    key={index}
+                    className={`p-3 ${
+                      alerta.tipo === 'warning' ? 'bg-yellow-50 border border-yellow-200' : 'bg-blue-50 border border-blue-200'
+                    } rounded-lg`}
+                  >
+                    <p className={`text-sm font-semibold ${
+                      alerta.tipo === 'warning' ? 'text-yellow-900' : 'text-blue-900'
+                    }`}>
+                      {alerta.mensagem}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">Nenhum alerta no momento</p>
+            )}
+          </div>
+        </motion.div>
       </div>
+      </>
+      )}
     </div>
   );
 }
