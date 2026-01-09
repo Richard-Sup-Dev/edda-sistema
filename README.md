@@ -298,7 +298,7 @@ Desenvolvido por Richard
 
 Se encontrar problemas ou tiver sugestões:
 - Abra uma [issue](https://github.com/Richard-Sup-Dev/edda-sistema/issues)
-- Entre em contato via email
+- Entre em contato via email: natsunokill188@gmail.com
 
 ---
 
