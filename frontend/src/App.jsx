@@ -18,7 +18,10 @@ import Logs from "@/pages/Admin/Logs.jsx";
 import Seguranca from "@/pages/Admin/Seguranca.jsx";
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import ConfigPanel from "@/features/admin/ConfigPanel";
-import ProfileSettings from "@/pages/Users/ProfileSettings.jsx"; 
+import ProfileSettings from "@/pages/Users/ProfileSettings.jsx";
+import Profile from "@/pages/Profile.jsx";
+import ChangePassword from "@/pages/ChangePassword.jsx";
+import Help from "@/pages/Help.jsx"; 
 
 // ===============================================
 // 1. Protege rotas normais (qualquer usuário logado)
@@ -213,10 +216,28 @@ function App() {
           />
         </Route>
 
+        {/* ========== PERFIL DO USUÁRIO ========== */}
+        <Route
+          path="/profile"
+          element={<ProtectedRoute><Profile /></ProtectedRoute>}
+        />
+
         {/* ========== CONFIGURAÇÕES DE PERFIL (tela cheia) ========== */}
         <Route
           path="/profile-settings"
           element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>}
+        />
+
+        {/* ========== TROCAR SENHA ========== */}
+        <Route
+          path="/change-password"
+          element={<ProtectedRoute><ChangePassword /></ProtectedRoute>}
+        />
+
+        {/* ========== AJUDA ========== */}
+        <Route
+          path="/help"
+          element={<ProtectedRoute><Help /></ProtectedRoute>}
         />
 
         {/* ========== PAINEL ADMINISTRATIVO (exclusivo para admins) ========== */}
