@@ -115,7 +115,7 @@ const limiterGeral = rateLimit({
 // Rate limiting mais restritivo para autenticação (previne brute force)
 const limiterAuth = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // 5 tentativas por IP em 15 minutos
+  max: process.env.NODE_ENV === 'production' ? 10 : 100, // 10 em prod, 100 em dev
   message: 'Muitas tentativas de autenticação. Tente novamente em 15 minutos.',
   standardHeaders: true,
   skip: (req) => req.method !== 'POST'
@@ -124,7 +124,7 @@ const limiterAuth = rateLimit({
 // Rate limiting específico para login (ainda mais restritivo)
 const limiterLogin = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 3, // Apenas 3 tentativas de login por IP em 15 minutos
+  max: process.env.NODE_ENV === 'production' ? 5 : 50, // 5 em prod, 50 em dev
   message: 'Muitas tentativas de login. Tente novamente em 15 minutos.',
   standardHeaders: true,
   skipSuccessfulRequests: true // Não conta requisições bem-sucedidas
