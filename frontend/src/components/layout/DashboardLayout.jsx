@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import notificacoesService from '@/services/notificacoesService';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home,
@@ -126,6 +127,11 @@ export default function DashboardLayoutNew() {
   const [globalFilters, setGlobalFilters] = useState({});
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [presentationSlideIndex, setPresentationSlideIndex] = useState(0);
+  
+  // Estados de notificações (API real)
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
   
   // Novos estados para melhorias de próxima geração
   const [showWidgetLibrary, setShowWidgetLibrary] = useState(false);
@@ -657,15 +663,70 @@ export default function DashboardLayoutNew() {
     }
   }, [searchOpen]);
 
-  // Mock de notificações
-  const notifications = [
-    { id: 1, title: 'Novo relatório criado', message: 'Relatório #1234 foi gerado com sucesso', time: '5 min atrás', read: false },
-    { id: 2, title: 'Cliente adicionado', message: 'João Silva foi cadastrado', time: '1 hora atrás', read: false },
-    { id: 3, title: 'Pagamento recebido', message: 'R$ 1.500,00 confirmado', time: '2 horas atrás', read: true },
-    { id: 4, title: 'Sistema atualizado', message: 'Nova versão 2.0 disponível', time: '1 dia atrás', read: true },
-  ];
+  // Carregar notificações da API
+  const carregarNotificacoes = useCallback(async () => {
+    try {
+      setLoadingNotifications(true);
+      const [notifs, count] = await Promise.all([
+        notificacoesService.listar({ limit: 10 }),
+        notificacoesService.contarNaoLidas()
+      ]);
+      setNotifications(notifs.notificacoes || []);
+      setUnreadCount(count);
+    } catch (error) {
+      console.error('Erro ao carregar notificações:', error);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  }, []);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  // Carregar notificações ao montar e quando abrir dropdown
+  useEffect(() => {
+    if (user) {
+      carregarNotificacoes();
+      // Atualizar a cada 30 segundos
+      const interval = setInterval(carregarNotificacoes, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user, carregarNotificacoes]);
+
+  // Marcar notificação como lida
+  const marcarComoLida = async (id) => {
+    try {
+      await notificacoesService.marcarComoLida(id);
+      setNotifications(prev => 
+        prev.map(n => n.id === id ? { ...n, lida: true } : n)
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Erro ao marcar notificação como lida:', error);
+    }
+  };
+
+  // Marcar todas como lidas
+  const marcarTodasComoLidas = async () => {
+    try {
+      await notificacoesService.marcarTodasComoLidas();
+      setNotifications(prev => prev.map(n => ({ ...n, lida: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Erro ao marcar todas como lidas:', error);
+    }
+  };
+
+  // Deletar notificação
+  const deletarNotificacao = async (id) => {
+    try {
+      await notificacoesService.deletar(id);
+      const notif = notifications.find(n => n.id === id);
+      setNotifications(prev => prev.filter(n => n.id !== id));
+      if (notif && !notif.lida) {
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error('Erro ao deletar notificação:', error);
+    }
+  };
 
   // Mock de atividades recentes
   const recentActivities = [
@@ -1304,28 +1365,75 @@ export default function DashboardLayoutNew() {
                       </div>
                     </div>
                     <div className="max-h-96 overflow-y-auto">
-                      {notifications.map((notif) => (
-                        <div
-                          key={notif.id}
-                          className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer ${!notif.read ? 'bg-blue-50/50' : ''}`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${!notif.read ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-sm text-gray-900">{notif.title}</p>
-                              <p className="text-xs text-gray-600 mt-0.5">{notif.message}</p>
-                              <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                                <Clock size={12} />
-                                {notif.time}
-                              </p>
+                      {loadingNotifications ? (
+                        <div className="p-8 text-center text-gray-500">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+                          <p className="mt-2 text-sm">Carregando...</p>
+                        </div>
+                      ) : notifications.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500">
+                          <Bell size={32} className="mx-auto text-gray-300 mb-2" />
+                          <p className="text-sm">Nenhuma notificação</p>
+                        </div>
+                      ) : (
+                        notifications.map((notif) => (
+                          <div
+                            key={notif.id}
+                            className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors group ${!notif.lida ? 'bg-blue-50/50' : ''}`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${!notif.lida ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="flex-1">
+                                    <p className="font-semibold text-sm text-gray-900">{notif.titulo}</p>
+                                    <p className="text-xs text-gray-600 mt-0.5">{notif.mensagem}</p>
+                                    <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                                      <Clock size={12} />
+                                      {new Date(notif.createdAt).toLocaleDateString('pt-BR', { 
+                                        day: '2-digit', 
+                                        month: 'short', 
+                                        hour: '2-digit', 
+                                        minute: '2-digit' 
+                                      })}
+                                    </p>
+                                  </div>
+                                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {!notif.lida && (
+                                      <button
+                                        onClick={() => marcarComoLida(notif.id)}
+                                        className="p-1 hover:bg-blue-100 rounded text-blue-600"
+                                        title="Marcar como lida"
+                                      >
+                                        <Check size={14} />
+                                      </button>
+                                    )}
+                                    <button
+                                      onClick={() => deletarNotificacao(notif.id)}
+                                      className="p-1 hover:bg-red-100 rounded text-red-600"
+                                      title="Deletar"
+                                    >
+                                      <X size={14} />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))
+                      )}
                     </div>
-                    <div className="p-3 bg-gray-50 text-center">
-                      <button className="text-sm font-semibold text-orange-600 hover:text-orange-700">
-                        Ver todas as notificações
+                    <div className="p-3 bg-gray-50 border-t border-gray-100 flex gap-2">
+                      {unreadCount > 0 && (
+                        <button 
+                          onClick={marcarTodasComoLidas}
+                          className="flex-1 text-sm font-semibold text-blue-600 hover:text-blue-700 py-2 hover:bg-blue-50 rounded"
+                        >
+                          Marcar todas como lidas
+                        </button>
+                      )}
+                      <button className="flex-1 text-sm font-semibold text-orange-600 hover:text-orange-700 py-2 hover:bg-orange-50 rounded">
+                        Ver todas
                       </button>
                     </div>
                   </motion.div>

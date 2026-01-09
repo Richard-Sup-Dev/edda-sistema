@@ -35,6 +35,12 @@ export const API_ENDPOINTS = {
   // Notas Fiscais (NF)
   NF: `${API_BASE_URL}/api/nf`,
   NF_ITENS: `${API_BASE_URL}/api/nf/itens`,
+
+  // Notificações
+  NOTIFICACOES: `${API_BASE_URL}/api/notificacoes`,
+  NOTIFICACOES_NAO_LIDAS: `${API_BASE_URL}/api/notificacoes/nao-lidas/count`,
+  NOTIFICACOES_MARCAR_LIDAS: `${API_BASE_URL}/api/notificacoes/marcar-todas-lidas`,
+  NOTIFICACOES_DELETAR_LIDAS: `${API_BASE_URL}/api/notificacoes/lidas/limpar`,
 };
 
 /**
