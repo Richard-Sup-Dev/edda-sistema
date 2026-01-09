@@ -54,12 +54,13 @@ const Notificacao = sequelize.define('Notificacao', {
 }, {
   tableName: 'notificacoes',
   timestamps: true,
+  underscored: true,
   indexes: [
     {
-      fields: ['usuarioId', 'lida']
+      fields: ['usuario_id', 'lida']
     },
     {
-      fields: ['createdAt']
+      fields: ['created_at']
     }
   ]
 });

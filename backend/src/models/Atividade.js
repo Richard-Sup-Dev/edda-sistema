@@ -62,18 +62,19 @@ const Atividade = sequelize.define('Atividade', {
 }, {
   tableName: 'atividades',
   timestamps: true,
+  underscored: true,
   indexes: [
     {
-      fields: ['usuarioId', 'createdAt']
+      fields: ['usuario_id', 'created_at']
     },
     {
       fields: ['tipo']
     },
     {
-      fields: ['entidade', 'entidadeId']
+      fields: ['entidade', 'entidade_id']
     },
     {
-      fields: ['createdAt']
+      fields: ['created_at']
     }
   ]
 });
