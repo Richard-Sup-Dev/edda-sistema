@@ -11,6 +11,8 @@ version: "3.8"
 volumes:
   postgres_data:
     driver: local
+  redis_data:
+    driver: local
   backend_uploads:
     driver: local
 
@@ -61,6 +63,36 @@ services:
       retries: 5
 
   # ========================================
+  # REDIS - Cache
+  # ========================================
+  redis:
+    image: redis:7-alpine
+    container_name: edda_redis
+    restart: unless-stopped
+    
+    # Comando com senha (opcional)
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-edda_redis_pass}
+    
+    # Volumes para persistência
+    volumes:
+      - redis_data:/data
+    
+    # Network
+    networks:
+      - edda_network
+    
+    # Port (apenas internamente)
+    expose:
+      - "6379"
+    
+    # Health Check
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ========================================
   # BACKEND - Node.js / Express
   # ========================================
   backend:
@@ -78,6 +110,12 @@ services:
       
       # Banco de Dados
       DATABASE_URL: "postgresql://edda_user:edda_password@postgres:5432/edda_db?sslmode=disable"
+      
+      # Redis Cache
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-edda_redis_pass}
+      REDIS_DB: 0
       
       # JWT (GERAR NOVO EM PRODUÇÃO!)
       JWT_SECRET: ${JWT_SECRET:-change_this_in_production_use_openssl_rand_hex}

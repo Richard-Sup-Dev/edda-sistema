@@ -77,7 +77,7 @@ export function validateEnvironment() {
 
     // Verificar se é obrigatória
     if (config.required && !value) {
-      errors.push(`❌ Variável obrigatória não definida: ${key}`);
+      errors.push(`Variável obrigatória não definida: ${key}`);
       if (config.description) {
         errors.push(`   → ${config.description}`);
       }
@@ -85,12 +85,12 @@ export function validateEnvironment() {
 
     // Verificar comprimento mínimo (para JWT_SECRET)
     if (value && config.minLength && value.length < config.minLength) {
-      errors.push(`❌ ${key} deve ter no mínimo ${config.minLength} caracteres (tem ${value.length})`);
+      errors.push(`${key} deve ter no mínimo ${config.minLength} caracteres (tem ${value.length})`);
     }
 
     // Verificar valores permitidos
     if (value && config.values && !config.values.includes(value)) {
-      errors.push(`❌ ${key} deve ser um de: ${config.values.join(', ')}`);
+      errors.push(`${key} deve ser um de: ${config.values.join(', ')}`);
     }
 
     // Advertência se estiver usando valor padrão em produção
@@ -105,7 +105,7 @@ export function validateEnvironment() {
 
     // Verificar se DATABASE_URL é válido
     if (key === 'DATABASE_URL' && value && !value.startsWith('postgresql://')) {
-      errors.push(`❌ DATABASE_URL deve ser uma URL PostgreSQL válida`);
+      errors.push(`DATABASE_URL deve ser uma URL PostgreSQL válida`);
     }
 
     // Verificar se ALLOWED_ORIGINS tem formato válido
@@ -113,7 +113,7 @@ export function validateEnvironment() {
       const origins = value.split(',').map(o => o.trim());
       origins.forEach(origin => {
         if (!origin.startsWith('http://') && !origin.startsWith('https://')) {
-          errors.push(`❌ ALLOWED_ORIGINS inválido: "${origin}" (deve começar com http:// ou https://)`);
+          errors.push(`ALLOWED_ORIGINS inválido: "${origin}" (deve começar com http:// ou https://)`);
         }
       });
     }
@@ -132,11 +132,11 @@ export function validateEnvironment() {
   // Se há erros, exibir e sair
   if (errors.length > 0) {
     console.error('\n' + '='.repeat(60));
-    console.error('❌ ERRO: Variáveis de ambiente inválidas ou faltando');
+    console.error('ERRO: Variáveis de ambiente inválidas ou faltando');
     console.error('='.repeat(60));
     errors.forEach(error => console.error(error));
     console.error('='.repeat(60));
-    console.error('\n📝 Crie um arquivo .env.production com as variáveis obrigatórias');
+    console.error('\nCrie um arquivo .env.production com as variáveis obrigatórias');
     console.error('📚 Referência: backend/.env.production.example\n');
     process.exit(1);
   }
@@ -150,7 +150,7 @@ export function validateEnvironment() {
     console.warn('⚠️  '.repeat(20) + '\n');
   }
 
-  console.log('✅ Todas as variáveis de ambiente validadas com sucesso!\n');
+  console.log('Todas as variáveis de ambiente validadas com sucesso\n');
 }
 
 /**

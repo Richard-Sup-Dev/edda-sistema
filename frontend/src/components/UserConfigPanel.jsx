@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import { X, User, Lock, Shield } from 'lucide-react';
 
 // Estilos reutilizáveis (mantidos consistentes com o Painel Admin)
@@ -27,7 +27,7 @@ const btnStyle = {
     gap: '8px'
 };
 
-const UserConfigPanel = ({ isOpen, onClose, user }) => {
+const UserConfigPanel = memo(({ isOpen, onClose, user }) => {
     // Simula o usuário logado (Richard Lima, Técnico)
     const [userData, setUserData] = useState({
         nome: user?.nome || 'Richard Lima',
@@ -45,7 +45,7 @@ const UserConfigPanel = ({ isOpen, onClose, user }) => {
     const [salvo, setSalvo] = useState(false);
     const [message, setMessage] = useState('');
 
-    const handlePasswordChange = () => {
+    const handlePasswordChange = useCallback(() => {
         setMessage('');
         
         // Simulação de validação
@@ -67,14 +67,14 @@ const UserConfigPanel = ({ isOpen, onClose, user }) => {
         setPasswordFields({ currentPassword: '', newPassword: '', confirmPassword: '' });
         setSalvo(true);
         setTimeout(() => setSalvo(false), 2500);
-    };
+    }, [passwordFields]);
 
-    const handleProfileUpdate = () => {
+    const handleProfileUpdate = useCallback(() => {
         // Lógica real chamaria a API para atualizar nome/email
         setMessage('Perfil atualizado com sucesso!');
         setSalvo(true);
         setTimeout(() => setSalvo(false), 2500);
-    };
+    }, []);
 
     if (!isOpen) return null;
 
@@ -219,6 +219,8 @@ const UserConfigPanel = ({ isOpen, onClose, user }) => {
             </div>
         </div>
     );
-};
+});
+
+UserConfigPanel.displayName = 'UserConfigPanel';
 
 export default UserConfigPanel;

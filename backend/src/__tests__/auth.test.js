@@ -15,21 +15,33 @@ testApp.use(cors());
 testApp.use(express.json());
 testApp.use('/api/auth', authRoutes);
 
-describe('Auth Controller - POST /api/auth/register', () => {
-  beforeAll(async () => {
-    // Conectar ao banco de testes
-    try {
-      await sequelize.authenticate();
-      await sequelize.sync({ force: true }); // Limpar e recriar banco em testes
-    } catch (error) {
-      console.error('Erro ao conectar ao banco de dados de teste:', error);
-    }
-  });
+// ============================================
+// SETUP GLOBAL - EXECUTADO UMA VEZ
+// ============================================
+beforeAll(async () => {
+  try {
+    await sequelize.authenticate();
+    await sequelize.sync({ force: true });
+    console.log('✅ Banco de dados de teste conectado');
+  } catch (error) {
+    console.error('❌ Erro ao conectar ao banco de testes:', error);
+    throw error;
+  }
+});
 
-  afterAll(async () => {
-    // Fechar conexão após testes
+afterAll(async () => {
+  try {
     await sequelize.close();
-  });
+    console.log('✅ Conexão com banco de testes fechada');
+  } catch (error) {
+    console.error('❌ Erro ao fechar conexão:', error);
+  }
+});
+
+// ============================================
+// TESTES DE REGISTRO
+// ============================================
+describe('Auth Controller - POST /api/auth/register', () => {
 
   it('Deve registrar um novo usuário com sucesso', async () => {
     const response = await request(testApp)
@@ -65,7 +77,7 @@ describe('Auth Controller - POST /api/auth/register', () => {
       });
 
     expect(response.status).toBe(400);
-    expect(response.body.erro).toContain('duplicado');
+    expect(response.body.erro).toContain('já está cadastrado');
   });
 
   it('Deve rejeitar registro com email inválido', async () => {
@@ -90,28 +102,29 @@ describe('Auth Controller - POST /api/auth/register', () => {
       });
 
     expect(response.status).toBe(400);
-    expect(response.body.erro).toContain('minimo');
+    expect(response.body.erro).toContain('mínimo');
   });
 });
 
+// ============================================
+// TESTES DE LOGIN
+// ============================================
 describe('Auth Controller - POST /api/auth/login', () => {
   beforeAll(async () => {
-    await sequelize.authenticate();
-    await sequelize.sync({ force: true });
-
-    // Criar usuário de teste
-    const bcrypt = (await import('bcryptjs')).default;
-    const hash = await bcrypt.hash('teste123456', 12);
-    await User.create({
-      nome: 'Test User',
-      email: 'test@example.com',
-      senha: hash,
-      role: 'user'
-    });
-  });
-
-  afterAll(async () => {
-    await sequelize.close();
+    try {
+      // Criar usuário de teste para login
+      const bcrypt = (await import('bcryptjs')).default;
+      const hash = await bcrypt.hash('teste123456', 12);
+      await User.create({
+        nome: 'Test User',
+        email: 'test@example.com',
+        senha: hash,
+        role: 'user'
+      });
+      console.log('✅ Usuário de teste criado para login');
+    } catch (error) {
+      console.error('❌ Erro ao criar usuário de teste:', error.message);
+    }
   });
 
   it('Deve fazer login com credenciais corretas', async () => {
@@ -121,10 +134,13 @@ describe('Auth Controller - POST /api/auth/login', () => {
         email: 'test@example.com',
         senha: 'teste123456'
       });
-
+    if (response.status !== 200) {
+      console.log('DEBUG - Status:', response.status);
+      console.log('DEBUG - Body:', response.body);
+    }
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('token');
-    expect(response.body.usuario).toHaveProperty('email', 'test@example.com');
+    expect(response.body.user).toHaveProperty('email', 'test@example.com');
   });
 
   it('Deve rejeitar login com email incorreto', async () => {

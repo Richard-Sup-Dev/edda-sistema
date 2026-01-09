@@ -167,7 +167,9 @@ export const DataProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await apiClient.get('/relatorios');
-      setRelatorios(response.data);
+      // Backend retorna { relatorios: [...], total, page, lastPage }
+      const data = response.data.relatorios || response.data;
+      setRelatorios(Array.isArray(data) ? data : []);
       setError(null);
     } catch (err) {
       setError('Erro ao carregar relatórios');

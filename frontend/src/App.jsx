@@ -1,27 +1,33 @@
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import { useAuth, AuthProvider } from "@/contexts/AuthContext";
 import { DataProvider } from "@/contexts/DataContext";
 import Login from "@/pages/Login.jsx";
-import Dashboard from "@/pages/Dashboard.jsx";
-import Clientes from "@/pages/Clientes.jsx";
-import Pecas from "@/pages/Pecas.jsx";
-import Servicos from "@/pages/Servicos.jsx";
-import Relatorios from "@/pages/Relatorios.jsx";
-import CriarRelatorio from "@/pages/CriarRelatorio.jsx";
-import DetalhesRelatorio from "@/pages/DetalhesRelatorio.jsx";
-import NovaNotaFiscal from "@/pages/NovaNotaFiscal.jsx";
-import Financeiro from "@/pages/Financeiro.jsx";
-import Analises from "@/pages/Analises.jsx";
-import Usuarios from "@/pages/Admin/Usuarios.jsx";
-import Configuracoes from "@/pages/Admin/Configuracoes.jsx";
-import Logs from "@/pages/Admin/Logs.jsx";
-import Seguranca from "@/pages/Admin/Seguranca.jsx";
-import DashboardLayout from '@/components/layout/DashboardLayout';
-import ConfigPanel from "@/features/admin/ConfigPanel";
-import ProfileSettings from "@/pages/Users/ProfileSettings.jsx";
-import Profile from "@/pages/Profile.jsx";
-import ChangePassword from "@/pages/ChangePassword.jsx";
-import Help from "@/pages/Help.jsx"; 
+import ErrorBoundary from '@/components/ErrorBoundary';
+
+// Layout (crítico, carrega sempre)
+import DashboardLayout from '@/components/dashboard/DashboardLayoutRefactored';
+
+// Páginas com lazy loading
+const Dashboard = lazy(() => import("@/pages/Dashboard.jsx"));
+const Clientes = lazy(() => import("@/pages/Clientes.jsx"));
+const Pecas = lazy(() => import("@/pages/Pecas.jsx"));
+const Servicos = lazy(() => import("@/pages/Servicos.jsx"));
+const Relatorios = lazy(() => import("@/pages/Relatorios.jsx"));
+const CriarRelatorio = lazy(() => import("@/pages/CriarRelatorio.jsx"));
+const DetalhesRelatorio = lazy(() => import("@/pages/DetalhesRelatorio.jsx"));
+const NovaNotaFiscal = lazy(() => import("@/pages/NovaNotaFiscal.jsx"));
+const Financeiro = lazy(() => import("@/pages/Financeiro.jsx"));
+const Analises = lazy(() => import("@/pages/Analises.jsx"));
+const Usuarios = lazy(() => import("@/pages/Admin/Usuarios.jsx"));
+const Configuracoes = lazy(() => import("@/pages/Admin/Configuracoes.jsx"));
+const Logs = lazy(() => import("@/pages/Admin/Logs.jsx"));
+const Seguranca = lazy(() => import("@/pages/Admin/Seguranca.jsx"));
+const ConfigPanel = lazy(() => import("@/features/admin/ConfigPanel"));
+const Profile = lazy(() => import("@/pages/Profile.jsx"));
+const ChangePassword = lazy(() => import("@/pages/ChangePassword.jsx"));
+const Help = lazy(() => import("@/pages/Help.jsx"));
+const AdminRoute = lazy(() => import("@/components/auth/AdminRoute.jsx")); 
 
 // ===============================================
 // 1. Protege rotas normais (qualquer usuário logado)
@@ -58,37 +64,34 @@ function LoginRoute({ children }) {
 }
 
 // ===============================================
-// 3. ROTA EXCLUSIVA DO ADMIN (só role: 'admin')
+// 3. Loading Suspense Component
 // ===============================================
-function AdminRoute({ children }) {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-black text-orange-600 text-7xl font-bold animate-pulse">
-        EDDA
-      </div>
-    );
-  }
-
-  if (!user || user.role !== 'admin') {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return children;
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center h-screen bg-black text-orange-600 text-7xl font-bold animate-pulse">
+      EDDA
+    </div>
+  );
 }
+
+// AdminRoute agora é importado de @/components/auth/AdminRoute.jsx
 
 // ===============================================
 // 4. Wrapper do Painel Admin (com botão fechar funcional)
 // ===============================================
 function AdminPanelWrapper() {
+  const { useNavigate } = require('react-router-dom');
   const navigate = useNavigate();
 
   const handleClose = () => {
     navigate('/dashboard');
   };
 
-  return <ConfigPanel isOpen={true} onClose={handleClose} />;
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ConfigPanel isOpen={true} onClose={handleClose} />
+    </Suspense>
+  );
 }
 
 // ===============================================
@@ -126,138 +129,144 @@ function NotFoundPage() {
 // ===============================================
 function App() {
   return (
-    <AuthProvider>
-      <Routes>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
 
-        {/* ========== LOGIN ========== */}
-        <Route
-          path="/login"
-          element={<LoginRoute><Login /></LoginRoute>}
-        />
-
-        {/* ========== DASHBOARD COM LAYOUT (rotas aninhadas) ========== */}
-        <Route path="/dashboard" element={<ProtectedRoute><DataProvider><DashboardLayout /></DataProvider></ProtectedRoute>}>
-          {/* Dashboard principal com gráficos */}
+          {/* ========== LOGIN ========== */}
           <Route
-            index
-            element={<Dashboard />}
+            path="/login"
+            element={<LoginRoute><Login /></LoginRoute>}
           />
 
-          {/* CRUDS - Clientes */}
+          {/* ========== DASHBOARD COM LAYOUT (rotas aninhadas) ========== */}
+          <Route path="/dashboard" element={<ProtectedRoute><DataProvider><DashboardLayout /></DataProvider></ProtectedRoute>}>
+            {/* Dashboard principal com gráficos */}
+            <Route
+              index
+              element={<Dashboard />}
+            />
+
+            {/* CRUDS - Clientes */}
+            <Route
+              path="clientes"
+              element={<Clientes />}
+            />
+
+            {/* CRUDS - Peças */}
+            <Route
+              path="pecas"
+              element={<Pecas />}
+            />
+
+            {/* CRUDS - Serviços */}
+            <Route
+              path="servicos"
+              element={<Servicos />}
+            />
+
+            {/* Relatórios */}
+            <Route
+              path="relatorios"
+              element={<Relatorios />}
+            />
+
+            {/* Criar Novo Relatório */}
+            <Route
+              path="relatorios/novo"
+              element={<CriarRelatorio />}
+            />
+
+            {/* Ver Detalhes do Relatório */}
+            <Route
+              path="relatorios/:id"
+              element={<DetalhesRelatorio />}
+            />
+
+            {/* Nova Nota Fiscal */}
+            <Route
+              path="nf/nova"
+              element={<NovaNotaFiscal />}
+            />
+
+            {/* Financeiro */}
+            <Route
+              path="financeiro"
+              element={<Financeiro />}
+            />
+
+            {/* Análises */}
+            <Route
+              path="analises"
+              element={<Analises />}
+            />
+
+            {/* Páginas Administrativas (somente admins) */}
+            <Route
+              path="usuarios"
+              element={<AdminRoute><Usuarios /></AdminRoute>}
+            />
+            <Route
+              path="logs"
+              element={<AdminRoute><Logs /></AdminRoute>}
+            />
+            <Route
+              path="seguranca"
+              element={<AdminRoute><Seguranca /></AdminRoute>}
+            />
+          </Route>
+
+          {/* ========== PERFIL DO USUÁRIO ========== */}
           <Route
-            path="clientes"
-            element={<Clientes />}
+            path="/profile"
+            element={<ProtectedRoute><Profile /></ProtectedRoute>}
           />
 
-          {/* CRUDS - Peças */}
+          {/* ========== REDIRECT: /profile-settings → /profile ========== */}
           <Route
-            path="pecas"
-            element={<Pecas />}
+            path="/profile-settings"
+            element={<Navigate to="/profile" replace />}
           />
 
-          {/* CRUDS - Serviços */}
+          {/* ========== TROCAR SENHA ========== */}
           <Route
-            path="servicos"
-            element={<Servicos />}
+            path="/change-password"
+            element={<ProtectedRoute><ChangePassword /></ProtectedRoute>}
           />
 
-          {/* Relatórios */}
+          {/* ========== AJUDA ========== */}
           <Route
-            path="relatorios"
-            element={<Relatorios />}
+            path="/help"
+            element={<ProtectedRoute><Help /></ProtectedRoute>}
           />
 
-          {/* Criar Novo Relatório */}
+          {/* ========== CONFIGURAÇÕES DO SISTEMA (fullscreen - só admin) ========== */}
           <Route
-            path="relatorios/novo"
-            element={<CriarRelatorio />}
-          />
-
-          {/* Ver Detalhes do Relatório */}
-          <Route
-            path="relatorios/:id"
-            element={<DetalhesRelatorio />}
-          />
-
-          {/* Nova Nota Fiscal */}
-          <Route
-            path="nf/nova"
-            element={<NovaNotaFiscal />}
-          />
-
-          {/* Financeiro */}
-          <Route
-            path="financeiro"
-            element={<Financeiro />}
-          />
-
-          {/* Análises */}
-          <Route
-            path="analises"
-            element={<Analises />}
-          />
-
-          {/* Páginas Administrativas (somente admins) */}
-          <Route
-            path="usuarios"
-            element={<AdminRoute><Usuarios /></AdminRoute>}
-          />
-          <Route
-            path="configuracoes"
+            path="/configuracoes"
             element={<AdminRoute><Configuracoes /></AdminRoute>}
           />
+
+          {/* ========== PAINEL ADMINISTRATIVO (exclusivo para admins) ========== */}
           <Route
-            path="logs"
-            element={<AdminRoute><Logs /></AdminRoute>}
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminPanelWrapper />
+              </AdminRoute>
+            }
           />
-          <Route
-            path="seguranca"
-            element={<AdminRoute><Seguranca /></AdminRoute>}
-          />
-        </Route>
 
-        {/* ========== PERFIL DO USUÁRIO ========== */}
-        <Route
-          path="/profile"
-          element={<ProtectedRoute><Profile /></ProtectedRoute>}
-        />
+          {/* ========== RAIZ - redireciona para dashboard ========== */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        {/* ========== CONFIGURAÇÕES DE PERFIL (tela cheia) ========== */}
-        <Route
-          path="/profile-settings"
-          element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>}
-        />
+          {/* ========== 404 - Página não encontrada ========== */}
+          <Route path="*" element={<NotFoundPage />} />
 
-        {/* ========== TROCAR SENHA ========== */}
-        <Route
-          path="/change-password"
-          element={<ProtectedRoute><ChangePassword /></ProtectedRoute>}
-        />
-
-        {/* ========== AJUDA ========== */}
-        <Route
-          path="/help"
-          element={<ProtectedRoute><Help /></ProtectedRoute>}
-        />
-
-        {/* ========== PAINEL ADMINISTRATIVO (exclusivo para admins) ========== */}
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminPanelWrapper />
-            </AdminRoute>
-          }
-        />
-
-        {/* ========== RAIZ - redireciona para dashboard ========== */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-        {/* ========== 404 - Página não encontrada ========== */}
-        <Route path="*" element={<NotFoundPage />} />
-
-      </Routes>
+        </Routes>
+      </Suspense>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

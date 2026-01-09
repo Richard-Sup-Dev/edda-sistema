@@ -76,7 +76,7 @@ export default function Financeiro() {
         animate={{ opacity: 1, y: 0 }}
       >
         <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-linear-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
             <DollarSign className="w-6 h-6 text-white" />
           </div>
           Financeiro
@@ -154,7 +154,7 @@ export default function Financeiro() {
             ))}
           </div>
         ) : (
-          <div className="h-64 bg-gradient-to-br from-green-50 to-blue-50 rounded-xl flex items-center justify-center">
+          <div className="h-64 bg-linear-to-br from-green-50 to-blue-50 rounded-xl flex items-center justify-center">
             <p className="text-gray-500 text-lg">Nenhum dado de evolução disponível</p>
           </div>
         )}

@@ -62,7 +62,7 @@ export default function Usuarios() {
       >
         <div>
           <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-linear-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
               <UserCog className="w-6 h-6 text-white" />
             </div>
             Gerenciar Usuários
@@ -73,7 +73,7 @@ export default function Usuarios() {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-2 bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all font-semibold"
+          className="flex items-center gap-2 bg-linear-to-r from-orange-600 to-orange-700 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all font-semibold"
         >
           <Plus className="w-5 h-5" />
           Novo Usuário

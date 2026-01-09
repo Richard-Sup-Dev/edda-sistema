@@ -31,7 +31,7 @@ export const listarAtividades = async (req, res) => {
       where,
       limit: parseInt(limit),
       offset,
-      order: [['createdAt', 'DESC']],
+      order: [['id', 'DESC']],
       include: [{
         association: 'usuario',
         attributes: ['id', 'nome', 'email']

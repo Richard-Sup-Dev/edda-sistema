@@ -705,7 +705,7 @@ function CreateReportForm() {
                                 type="button" 
                                 onClick={handleNextStep} 
                                 disabled={!tipoRelatorio || !formData.os_numero}
-                                className="px-8 py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                                className="px-8 py-3 bg-linear-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                             >
                                 Próximo <CheckCircle2 className="w-5 h-5" />
                             </button>
@@ -716,7 +716,7 @@ function CreateReportForm() {
                 {step === 2 && (
                     <div id="step-two" className="space-y-6">
                         {/* Contador Global de Fotos - Card Melhorado */}
-                        <div className="bg-gradient-to-r from-orange-50 to-orange-100 border-2 border-orange-300 rounded-lg shadow-md p-6">
+                        <div className="bg-linear-to-r from-orange-50 to-orange-100 border-2 border-orange-300 rounded-lg shadow-md p-6">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <Camera className="w-8 h-8 text-orange-600" />
@@ -746,7 +746,7 @@ function CreateReportForm() {
                             {/* Barra de Progresso */}
                             <div className="mt-4 h-2 bg-white rounded-full overflow-hidden">
                                 <div 
-                                    className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-300"
+                                    className="h-full bg-linear-to-r from-orange-500 to-orange-600 transition-all duration-300"
                                     style={{ width: `${(getTotalPhotosTaken() / getTotalExpectedPhotos()) * 100}%` }}
                                 />
                             </div>
@@ -960,7 +960,7 @@ function CreateReportForm() {
                             <button 
                                 type="submit" 
                                 disabled={isLoading} 
-                                className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                                className="px-8 py-3 bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                             >
                                 {isLoading ? (
                                     <>

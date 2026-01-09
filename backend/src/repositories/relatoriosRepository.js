@@ -178,11 +178,37 @@ async function buscarRelatorioPorId(id, dbInstance) {
 
 
 // -------------------------------------------------------------------------
-// BUSCA AVANÇADA COM PAGINAÇÃO E JOIN DE CLIENTES (mantida)
+// BUSCA AVANÇADA COM PAGINAÇÃO E JOIN DE CLIENTES
 // -------------------------------------------------------------------------
-async function buscarRelatoriosAvancado(query, page, limit) {
-    const searchTerm = `%${query.toLowerCase()}%`;
+async function buscarRelatoriosAvancado(query, page, limit, userId = null, isAdmin = false) {
     const offset = (page - 1) * limit;
+    
+    // Se query está vazia, lista todos sem filtro de texto
+    const hasFilter = query && query.trim().length > 0;
+    const searchTerm = hasFilter ? `%${query.toLowerCase()}%` : '%';
+
+    // Construir WHERE clause
+    let whereConditions = [];
+    
+    // Filtro de busca textual
+    if (hasFilter) {
+        whereConditions.push(`(
+            LOWER(r.os_numero) LIKE $1 OR 
+            LOWER(r.titulo_relatorio) LIKE $1 OR
+            LOWER(COALESCE(c.nome_fantasia, r.cliente_nome)) LIKE $1 OR
+            LOWER(r.cliente_cnpj) LIKE $1
+        )`);
+    }
+    
+    // Filtro por usuário (se não for admin)
+    if (!isAdmin && userId) {
+        const userParam = hasFilter ? '$4' : '$3';
+        whereConditions.push(`r.criador_id = ${userParam}`);
+    }
+
+    const whereClause = whereConditions.length > 0 
+        ? `WHERE ${whereConditions.join(' AND ')}`
+        : '';
 
     const sql = `
         SELECT 
@@ -192,19 +218,16 @@ async function buscarRelatoriosAvancado(query, page, limit) {
             r.titulo_relatorio, 
             r.data_emissao,
             COALESCE(c.nome_fantasia, r.cliente_nome) as cliente_nome_final,
-            r.tipo_relatorio
+            r.tipo_relatorio,
+            r.criador_id
         FROM 
             relatorios r
         LEFT JOIN 
             clientes c ON r.cliente_id = c.id
-        WHERE 
-            LOWER(r.os_numero) LIKE $1 OR 
-            LOWER(r.titulo_relatorio) LIKE $1 OR
-            LOWER(COALESCE(c.nome_fantasia, r.cliente_nome)) LIKE $1 OR
-            LOWER(r.cliente_cnpj) LIKE $1
+        ${whereClause}
         ORDER BY 
             r.data_emissao DESC, r.id DESC
-        LIMIT $2 OFFSET $3;
+        LIMIT $${hasFilter ? 2 : 1} OFFSET $${hasFilter ? 3 : 2};
     `;
 
     const countSql = `
@@ -214,15 +237,27 @@ async function buscarRelatoriosAvancado(query, page, limit) {
             relatorios r
         LEFT JOIN 
             clientes c ON r.cliente_id = c.id
-        WHERE 
-            LOWER(r.os_numero) LIKE $1 OR 
-            LOWER(r.titulo_relatorio) LIKE $1 OR
-            LOWER(COALESCE(c.nome_fantasia, r.cliente_nome)) LIKE $1 OR
-            LOWER(r.cliente_cnpj) LIKE $1;
+        ${whereClause};
     `;
 
-    const resultsPromise = pool.query(sql, [searchTerm, limit, offset]);
-    const countPromise = pool.query(countSql, [searchTerm]);
+    // Construir parâmetros baseado nos filtros ativos
+    let params, countParams;
+    if (hasFilter && !isAdmin && userId) {
+        params = [searchTerm, limit, offset, userId];
+        countParams = [searchTerm, userId];
+    } else if (hasFilter) {
+        params = [searchTerm, limit, offset];
+        countParams = [searchTerm];
+    } else if (!isAdmin && userId) {
+        params = [limit, offset, userId];
+        countParams = [userId];
+    } else {
+        params = [limit, offset];
+        countParams = [];
+    }
+
+    const resultsPromise = pool.query(sql, params);
+    const countPromise = pool.query(countSql, countParams);
 
     const [results, countResult] = await Promise.all([resultsPromise, countPromise]);
     const totalItems = parseInt(countResult.rows[0].count, 10);
@@ -274,7 +309,7 @@ async function salvarRelatorioServicos(relatorioId, servicosCotados, dbInstance)
 // DADOS REAIS DO FINANCEIRO - COMPLETO (2025)
 // -------------------------------------------------------------------------
 
-// 1. Total pendente (relatórios com status diferente de 'concluido')
+// 1. Total pendente (relatórios sem data_fim_servico = não concluídos)
 async function getTotalPendente() {
     const query = `
         SELECT COALESCE(SUM(
@@ -284,13 +319,13 @@ async function getTotalPendente() {
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
         LEFT JOIN relatorio_servicos rs ON r.id = rs.relatorio_id
-        WHERE r.status != 'concluido' OR r.status IS NULL
+        WHERE r.data_fim_servico IS NULL
     `;
     const result = await pool.query(query);
     return parseFloat(result.rows[0].total) || 0;
 }
 
-// 2. Total concluído no mês atual (CORRIGIDO: usa data_fim_servico)
+// 2. Total concluído no mês atual (usa data_fim_servico)
 async function getTotalConcluidoMesAtual() {
     const query = `
         SELECT COALESCE(SUM(
@@ -300,8 +335,7 @@ async function getTotalConcluidoMesAtual() {
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
         LEFT JOIN relatorio_servicos rs ON r.id = rs.relatorio_id
-        WHERE r.status = 'concluido'
-          AND r.data_fim_servico IS NOT NULL
+        WHERE r.data_fim_servico IS NOT NULL
           AND EXTRACT(YEAR FROM r.data_fim_servico) = EXTRACT(YEAR FROM CURRENT_DATE)
           AND EXTRACT(MONTH FROM r.data_fim_servico) = EXTRACT(MONTH FROM CURRENT_DATE)
     `;
@@ -309,7 +343,7 @@ async function getTotalConcluidoMesAtual() {
     return parseFloat(result.rows[0].total) || 0;
 }
 
-// 3. Total faturado no mês atual (SÓ OS QUE TÊM NF EMITIDA)
+// 3. Total faturado no mês atual (relatórios com data_fim_servico no mês atual)
 async function getTotalFaturadoMesAtual() {
     const query = `
         SELECT COALESCE(SUM(
@@ -319,9 +353,7 @@ async function getTotalFaturadoMesAtual() {
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
         LEFT JOIN relatorio_servicos rs ON r.id = rs.relatorio_id
-        WHERE r.status = 'concluido'
-          AND r.nf_emitida = true
-          AND r.data_fim_servico IS NOT NULL
+        WHERE r.data_fim_servico IS NOT NULL
           AND EXTRACT(YEAR FROM r.data_fim_servico) = EXTRACT(YEAR FROM CURRENT_DATE)
           AND EXTRACT(MONTH FROM r.data_fim_servico) = EXTRACT(MONTH FROM CURRENT_DATE)
     `;
@@ -342,8 +374,7 @@ async function getEvolucaoMensal() {
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
         LEFT JOIN relatorio_servicos rs ON r.id = rs.relatorio_id
-        WHERE r.status = 'concluido'
-          AND r.data_fim_servico IS NOT NULL
+        WHERE r.data_fim_servico IS NOT NULL
           AND r.data_fim_servico >= CURRENT_DATE - INTERVAL '11 months'
         GROUP BY TO_CHAR(r.data_fim_servico, 'Mon'), EXTRACT(YEAR FROM r.data_fim_servico), EXTRACT(MONTH FROM r.data_fim_servico)
         ORDER BY ano, EXTRACT(MONTH FROM r.data_fim_servico)
@@ -359,20 +390,20 @@ async function getEvolucaoMensal() {
     }));
 }
 
-// 5. Contadores (O.S. em aberto, finalizadas, NFs emitidas)
+// 5. Contadores (O.S. em aberto = sem data_fim, finalizadas = com data_fim)
 async function getContadores() {
     const query = `
         SELECT 
-            COUNT(CASE WHEN r.status != 'concluido' THEN 1 END) AS os_abertas,
-            COUNT(CASE WHEN r.status = 'concluido' THEN 1 END) AS finalizadas,
-            COUNT(CASE WHEN r.nf_emitida = true THEN 1 END) AS nf_emitidas
+            COUNT(CASE WHEN r.data_fim_servico IS NULL THEN 1 END) AS os_abertas,
+            COUNT(CASE WHEN r.data_fim_servico IS NOT NULL THEN 1 END) AS finalizadas,
+            COUNT(*) AS total
         FROM relatorios r
     `;
     const result = await pool.query(query);
     return {
         osAbertas: parseInt(result.rows[0].os_abertas) || 0,
         finalizadas: parseInt(result.rows[0].finalizadas) || 0,
-        nfEmitidas: parseInt(result.rows[0].nf_emitidas) || 0
+        nfEmitidas: parseInt(result.rows[0].finalizadas) || 0
     };
 }
 
@@ -388,7 +419,7 @@ async function getTotalFaturadoPorAno(ano) {
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
         LEFT JOIN relatorio_servicos rs ON r.id = rs.relatorio_id
-        WHERE r.status = 'concluido'
+        WHERE r.data_fim_servico IS NOT NULL
           AND EXTRACT(YEAR FROM r.data_emissao) = $1
     `;
     try {
@@ -414,8 +445,7 @@ async function getTotalPendenteMesAnterior() {
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
         LEFT JOIN relatorio_servicos rs ON r.id = rs.relatorio_id
-        WHERE r.status != 'concluido' OR r.status IS NULL
-        -- Filtra por relatórios iniciados no mês anterior
+        WHERE r.data_fim_servico IS NULL
         AND EXTRACT(YEAR FROM r.data_inicio_servico) = EXTRACT(YEAR FROM (CURRENT_DATE - INTERVAL '1 month'))
         AND EXTRACT(MONTH FROM r.data_inicio_servico) = EXTRACT(MONTH FROM (CURRENT_DATE - INTERVAL '1 month'))
     `;
@@ -433,8 +463,7 @@ async function getTotalConcluidoMesAnterior() {
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
         LEFT JOIN relatorio_servicos rs ON r.id = rs.relatorio_id
-        WHERE r.status = 'concluido'
-          AND r.data_fim_servico IS NOT NULL
+        WHERE r.data_fim_servico IS NOT NULL
           AND EXTRACT(YEAR FROM r.data_fim_servico) = EXTRACT(YEAR FROM (CURRENT_DATE - INTERVAL '1 month'))
           AND EXTRACT(MONTH FROM r.data_fim_servico) = EXTRACT(MONTH FROM (CURRENT_DATE - INTERVAL '1 month'))
     `;
@@ -452,9 +481,7 @@ async function getTotalFaturadoMesAnterior() {
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
         LEFT JOIN relatorio_servicos rs ON r.id = rs.relatorio_id
-        WHERE r.status = 'concluido'
-          AND r.nf_emitida = true
-          AND r.data_fim_servico IS NOT NULL
+        WHERE r.data_fim_servico IS NOT NULL
           AND EXTRACT(YEAR FROM r.data_fim_servico) = EXTRACT(YEAR FROM (CURRENT_DATE - INTERVAL '1 month'))
           AND EXTRACT(MONTH FROM r.data_fim_servico) = EXTRACT(MONTH FROM (CURRENT_DATE - INTERVAL '1 month'))
     `;
@@ -465,6 +492,7 @@ async function getTotalFaturadoMesAnterior() {
 
 // O 'module.exports' final, incluindo a nova função de busca.
 export default {
+    pool,
     salvarRelatorio,
     salvarMedicaoIsolamento,
     salvarMedicaoBatimento,

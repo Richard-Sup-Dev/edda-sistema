@@ -118,7 +118,7 @@ export default function Dashboard() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 text-white shadow-2xl"
+        className="bg-linear-to-r from-blue-600 to-purple-600 rounded-3xl p-8 text-white shadow-2xl"
       >
         <h1 className="text-4xl font-black mb-2">
           Olá, {user?.nome || 'Administrador'}! 👋
@@ -144,7 +144,7 @@ export default function Dashboard() {
                 <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
               </div>
               {stat.change !== '+0%' && (
-                <div className={`px-3 py-1 bg-gradient-to-r ${stat.color} text-white rounded-lg text-xs font-bold`}>
+                <div className={`px-3 py-1 bg-linear-to-r ${stat.color} text-white rounded-lg text-xs font-bold`}>
                   {stat.change}
                 </div>
               )}
@@ -164,7 +164,7 @@ export default function Dashboard() {
           className="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-200 p-6"
         >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-linear-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
               <Clock className="w-5 h-5 text-white" />
             </div>
             <h2 className="text-xl font-bold text-gray-900">Atividade Recente</h2>
@@ -199,7 +199,7 @@ export default function Dashboard() {
           className="space-y-6"
         >
           {/* Revenue Card */}
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-white">
+          <div className="bg-linear-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-white">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
                 <DollarSign className="w-5 h-5 text-white" />

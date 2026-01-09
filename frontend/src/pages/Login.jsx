@@ -58,8 +58,16 @@ export default function Login() {
 
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 py-8">
         {/* Grid de fundo */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-orange-950/20 to-gray-950" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1a1a1a_1px,transparent_1px),linear-gradient(to_bottom,#1a1a1a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)] opacity-20" />
+        <div className="absolute inset-0 bg-linear-to-br from-gray-950 via-orange-950/20 to-gray-950" />
+        <div 
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: 'linear-gradient(to right, #1a1a1a 1px, transparent 1px), linear-gradient(to bottom, #1a1a1a 1px, transparent 1px)',
+            backgroundSize: '4rem 4rem',
+            maskImage: 'radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 110%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 110%)'
+          }}
+        />
 
         {/* Logo EDDA gigante no fundo */}
         <motion.div 
@@ -80,9 +88,9 @@ export default function Login() {
           className="relative z-10 w-full max-w-md"
         >
           {/* Card Glassmorphism */}
-          <div className="relative backdrop-blur-xl bg-gradient-to-br from-gray-900/95 via-gray-900/90 to-gray-950/95 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] border border-orange-500/20 overflow-hidden will-change-transform">
+          <div className="relative backdrop-blur-xl bg-linear-to-br from-gray-900/95 via-gray-900/90 to-gray-950/95 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] border border-orange-500/20 overflow-hidden will-change-transform">
             {/* Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-orange-600/10 opacity-50" />
+            <div className="absolute inset-0 bg-linear-to-br from-orange-500/10 via-transparent to-orange-600/10 opacity-50" />
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-500/15 rounded-full blur-2xl" />
             <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-600/10 rounded-full blur-2xl" />
 
@@ -99,19 +107,19 @@ export default function Login() {
                   transition={{ duration: 0.5 }}
                   className="relative inline-block"
                 >
-                  <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 rounded-2xl flex items-center justify-center text-5xl font-black text-white shadow-lg shadow-orange-500/40 mb-4 mx-auto relative overflow-hidden will-change-transform">
+                  <div className="w-20 h-20 md:w-24 md:h-24 bg-linear-to-br from-orange-500 via-orange-600 to-orange-700 rounded-2xl flex items-center justify-center text-5xl font-black text-white shadow-lg shadow-orange-500/40 mb-4 mx-auto relative overflow-hidden will-change-transform">
                     <span className="relative z-10">E</span>
                   </div>
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg"
+                    className="absolute -top-2 -right-2 w-8 h-8 bg-linear-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg"
                   >
                     <Sparkles className="w-4 h-4 text-white" />
                   </motion.div>
                 </motion.div>
 
-                <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent mb-2 tracking-tight">
+                <h1 className="text-5xl md:text-6xl font-black bg-linear-to-r from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent mb-2 tracking-tight">
                   EDDA
                 </h1>
                 <p className="text-gray-400 text-sm md:text-base flex items-center justify-center gap-2">
@@ -261,9 +269,9 @@ export default function Login() {
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={loading}
-                  className="relative w-full py-4 mt-6 bg-gradient-to-r from-orange-500 via-orange-600 to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative w-full py-4 mt-6 bg-linear-to-r from-orange-500 via-orange-600 to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {loading ? (
                       <>
@@ -334,12 +342,12 @@ export default function Login() {
           <motion.div
             animate={{ y: [0, -8, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-8 -right-8 w-20 h-20 bg-gradient-to-br from-orange-500/15 to-orange-600/15 rounded-full blur-xl will-change-transform"
+            className="absolute -top-8 -right-8 w-20 h-20 bg-linear-to-br from-orange-500/15 to-orange-600/15 rounded-full blur-xl will-change-transform"
           />
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-br from-orange-600/15 to-orange-700/15 rounded-full blur-xl will-change-transform"
+            className="absolute -bottom-8 -left-8 w-24 h-24 bg-linear-to-br from-orange-600/15 to-orange-700/15 rounded-full blur-xl will-change-transform"
           />
         </motion.div>
       </div>
@@ -421,7 +429,7 @@ function AnimatedBackground() {
     animate();
 
     return () => {
-      canvas.remove();
+      if (canvas) canvas.remove();
       window.removeEventListener('resize', resize);
     };
   }, []);

@@ -29,7 +29,7 @@ export const listarNotificacoes = async (req, res) => {
       where,
       limit: parseInt(limit),
       offset,
-      order: [['createdAt', 'DESC']]
+      order: [['id', 'DESC']]
     });
 
     res.json({
@@ -201,7 +201,7 @@ export const limparAntigas = async (diasAtras = 30) => {
     console.log(`${deleted} notificações antigas removidas`);
     return deleted;
   } catch (error) {
-    console.error('Erro ao limpar notificações antigas:', error);
+    logger.error('Erro ao limpar notificações antigas:', error);
     throw error;
   }
 };

@@ -1,7 +1,8 @@
 // src/middlewares/auth.js
 
 import jwt from 'jsonwebtoken';
-import 'dotenv/config'; // Garante que process.env.JWT_SECRET esteja carregado
+import 'dotenv/config';
+import logger from '../config/logger.js';
 
 // ==================== AUTENTICAÇÃO BÁSICA (JWT) ====================
 export function authMiddleware(req, res, next) {
@@ -16,7 +17,7 @@ export function authMiddleware(req, res, next) {
 
   // Verifica se JWT_SECRET está definido (nunca use fallback em produção)
   if (!process.env.JWT_SECRET) {
-    console.error('JWT_SECRET não está definido no .env');
+    logger.error('JWT_SECRET não está definido no .env');
     return res.status(500).json({ erro: 'Erro de configuração do servidor.' });
   }
 
@@ -40,7 +41,7 @@ export function authMiddleware(req, res, next) {
       return res.status(401).json({ erro: 'Token inválido ou corrompido.' });
     }
 
-    console.error('Erro na verificação do token:', error);
+    logger.error('Erro na verificação do token:', error);
     return res.status(401).json({ erro: 'Falha na autenticação.' });
   }
 }

@@ -67,8 +67,10 @@
 /**
  * @swagger
  * tags:
+ *   - name: Health
+ *     description: Endpoints de health check e monitoramento
  *   - name: Autenticação
- *     description: Endpoints de autenticação
+ *     description: Endpoints de autenticação e gestão de usuários
  *   - name: Clientes
  *     description: Gestão de clientes
  *   - name: Relatórios
@@ -77,6 +79,14 @@
  *     description: Catálogo de peças
  *   - name: Serviços
  *     description: Catálogo de serviços
+ *   - name: Notas Fiscais
+ *     description: Geração e gestão de notas fiscais
+ *   - name: Notificações
+ *     description: Sistema de notificações em tempo real
+ *   - name: Atividades
+ *     description: Log de atividades e auditoria
+ *   - name: Financeiro
+ *     description: Dashboard e relatórios financeiros
  */
 
 /**

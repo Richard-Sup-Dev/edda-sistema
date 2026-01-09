@@ -19,16 +19,16 @@ await fs.mkdir(uploadDir, { recursive: true }).catch(() => {});
 // ==================== BUSCA AVANÇADA ====================
 async function buscarRelatorios(req, res) {
   const { q, page = 1, limit = 10 } = req.query;
-
-  if (!q?.trim()) {
-    return res.status(400).json({ erro: "O parâmetro de busca 'q' é obrigatório." });
-  }
+  const userId = req.user?.id;
+  const isAdmin = req.user?.role === 'admin';
 
   try {
     const results = await relatoriosService.buscarRelatorios({
-      query: q.trim(),
+      query: q?.trim() || '', // Se não tiver q, busca todos
       page: Number(page),
-      limit: Number(limit)
+      limit: Number(limit),
+      userId,
+      isAdmin
     });
 
     return res.status(200).json(results);

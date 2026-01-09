@@ -8,12 +8,76 @@ import logger from '../config/logger.js';
 
 const router = express.Router();
 
-// ====================== RESUMO FINANCEIRO ======================
-// Rota protegida: apenas usuários autenticados podem acessar (admin e técnicos veem o dashboard financeiro)
+/**
+ * @swagger
+ * /api/financeiro/resumo:
+ *   get:
+ *     summary: Resumo financeiro do sistema
+ *     description: Retorna dashboard financeiro com totais faturados, pendentes, evolução mensal. Apenas admin/técnico.
+ *     tags: [Financeiro]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Resumo financeiro completo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalAcumuladoAno:
+ *                   type: number
+ *                   format: float
+ *                   description: Total faturado no ano atual
+ *                 valorPendente:
+ *                   type: number
+ *                   format: float
+ *                   description: Valor de OS abertas/pendentes
+ *                 valorConcluido:
+ *                   type: number
+ *                   format: float
+ *                   description: Valor de OS concluídas no mês
+ *                 valorFaturado:
+ *                   type: number
+ *                   format: float
+ *                   description: Valor faturado no mês
+ *                 variacaoPendente:
+ *                   type: number
+ *                   format: float
+ *                   description: Variação percentual do pendente (mês anterior)
+ *                 variacaoConcluido:
+ *                   type: number
+ *                   format: float
+ *                 variacaoFaturado:
+ *                   type: number
+ *                   format: float
+ *                 osAbertas:
+ *                   type: integer
+ *                   description: Número de OS abertas
+ *                 finalizadas:
+ *                   type: integer
+ *                   description: Número de OS finalizadas
+ *                 nfEmitidas:
+ *                   type: integer
+ *                   description: Número de NFs emitidas
+ *                 evolucaoMensal:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       mes:
+ *                         type: string
+ *                       valor:
+ *                         type: number
+ *       403:
+ *         description: Sem permissão
+ *       500:
+ *         description: Erro ao buscar dados financeiros
+ */
 router.get(
   '/resumo',
-  authMiddleware,                         // Verifica se está logado
-  roleMiddleware('admin', 'tecnico'),     // Apenas admin ou técnico (ajuste conforme sua necessidade)
+  authMiddleware,
+  roleMiddleware('admin', 'tecnico'),
   async (req, res) => {
     try {
       const anoAtual = new Date().getFullYear();

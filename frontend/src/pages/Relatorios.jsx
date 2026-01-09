@@ -65,7 +65,7 @@ export default function Relatorios() {
       >
         <div>
           <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-linear-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
               <FileText className="w-6 h-6 text-white" />
             </div>
             Relatórios
@@ -78,7 +78,7 @@ export default function Relatorios() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => navigate('/dashboard/relatorios/novo')}
-          className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
+          className="flex items-center gap-2 bg-linear-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
         >
           <Plus className="w-5 h-5" />
           Novo Relatório
@@ -126,7 +126,7 @@ export default function Relatorios() {
             className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all cursor-pointer"
           >
             <div className={`w-14 h-14 ${tipo.bgColor} rounded-xl flex items-center justify-center mb-4`}>
-              <tipo.icon className={`w-7 h-7 bg-gradient-to-br ${tipo.color} bg-clip-text text-transparent`} style={{ WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }} />
+              <tipo.icon className={`w-7 h-7 bg-linear-to-br ${tipo.color} bg-clip-text text-transparent`} style={{ WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }} />
             </div>
             
             <h3 className="font-bold text-gray-900 text-lg mb-2">
@@ -140,7 +140,7 @@ export default function Relatorios() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r ${tipo.color} text-white px-4 py-3 rounded-xl font-semibold`}
+              className={`w-full flex items-center justify-center gap-2 bg-linear-to-r ${tipo.color} text-white px-4 py-3 rounded-xl font-semibold`}
             >
               <Download className="w-4 h-4" />
               Gerar PDF
@@ -219,7 +219,7 @@ export default function Relatorios() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/dashboard/relatorios/novo')}
-              className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl font-bold"
+              className="bg-linear-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl font-bold"
             >
               Criar Primeiro Relatório
             </motion.button>

@@ -37,6 +37,7 @@ const __dirname = dirname(__filename);
 // === IMPORTAÇÃO DAS ROTAS ===
 import relatoriosRoutes from './routes/relatoriosRoutes.js';
 import authRoutes from './routes/auth.js';
+import healthRoutes from './routes/health.js';
 import financeiroRoutes from './routes/financeiroRoutes.js';
 import pecasRoutes from './routes/pecasRoutes.js';
 import servicosRoutes from './routes/servicosRoutes.js';
@@ -45,6 +46,11 @@ import adminRoutes from './routes/adminRoutes.js';
 import nfsRoutes from './routes/nfsRoutes.js';
 import notificacoesRoutes from './routes/notificacoesRoutes.js';
 import atividadesRoutes from './routes/atividadesRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
+// Importar WebSocket service
+import websocketService from './services/websocketService.js';
+// Importar Redis client
+import redisClient from './config/redis.js';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -103,7 +109,7 @@ app.use(helmet());
 // Proteção contra ataques de força bruta e DDoS
 const limiterGeral = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // 100 requisições por IP por janela de 15 minutos
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // 100 em prod, 1000 em dev
   message: 'Muitas requisições, tente novamente mais tarde.',
   standardHeaders: true, // Retorna rate limit info nos headers
   skip: (req) => {
@@ -152,26 +158,6 @@ app.use(express.urlencoded({ limit: '100mb', extended: true }));
 // Servir uploads
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-// === HEALTH CHECK ===
-app.get('/api/health', async (req, res) => {
-  try {
-    await sequelize.authenticate();
-    res.status(200).json({
-      status: 'OK',
-      timestamp: new Date().toISOString(),
-      database: 'connected',
-      environment: process.env.NODE_ENV || 'development'
-    });
-  } catch (error) {
-    res.status(503).json({
-      status: 'ERROR',
-      timestamp: new Date().toISOString(),
-      database: 'disconnected',
-      error: error.message
-    });
-  }
-});
-
 // === SWAGGER API DOCUMENTATION ===
 if (swaggerUi && swaggerSpec) {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
@@ -204,6 +190,9 @@ if (swaggerUi && swaggerSpec) {
  *                 status:
  *                   type: string
  */
+// Health checks (ANTES de outras rotas - sem autenticação)
+app.use('/health', healthRoutes);
+
 app.use('/api/relatorios', relatoriosRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/auth/login', limiterLogin); // Rate limiter específico para login
@@ -215,6 +204,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/nfs', nfsRoutes);
 app.use('/api/notificacoes', notificacoesRoutes);
 app.use('/api/atividades', atividadesRoutes);
+app.use('/api/users', profileRoutes); // Rotas de perfil de usuário
 
 // Rota de saúde/teste
 app.get('/api/test', (req, res) => {
@@ -239,16 +229,25 @@ app.use(errorHandler());
     // Setup de handlers de erro global
     setupGlobalErrorHandlers(logger);
     
-    // Validar variáveis de ambiente antes de qualquer coisa
-    validateEnvironment();
+    // Validar variáveis de ambiente antes de qualquer coisa (exceto em testes)
+    if (process.env.NODE_ENV !== 'test') {
+      validateEnvironment();
+    }
     
     await sequelize.authenticate();
-    logger.info('✅ Conectado ao PostgreSQL com sucesso!');
+    logger.info('Conectado ao PostgreSQL');
+
+    // Conectar ao Redis (opcional - não bloqueia inicialização)
+    try {
+      await redisClient.connect();
+    } catch (error) {
+      logger.warn('⚠️  Redis não disponível - sistema funcionará sem cache');
+    }
 
     // Sincronizar models sem alterar estrutura em produção
     if (process.env.NODE_ENV !== 'production') {
       await sequelize.sync({ alter: false });
-      logger.info('✅ Modelos Sequelize sincronizados.');
+      logger.info('Modelos Sequelize sincronizados');
     } else {
       logger.info('⚠️ Modo produção - sync desabilitado (use migrations)');
     }
@@ -263,24 +262,34 @@ app.use(errorHandler());
         senha: hash,
         role: 'admin'
       });
-      logger.info('✅ Admin criado: admin@edda.com / Admin@2025EDDA');
+      logger.info('Usuário admin criado: admin@edda.com');
     } else {
-      logger.info('✅ Admin já existe.');
+      logger.info('Usuário admin já existe');
     }
 
-    app.listen(port, '0.0.0.0', () => {
+    // Iniciar servidor HTTP
+    const server = app.listen(port, '0.0.0.0', () => {
       logger.info('');
-      logger.info('🚀 SERVIDOR EDDA RODANDO COM SUCESSO!');
+      logger.info('Servidor EDDA iniciado com sucesso');
       logger.info(`📍 Listening on http://0.0.0.0:${port}`);
       logger.info(`🔐 Default Login: admin@edda.com / Admin@2025EDDA`);
       logger.info('');
     });
 
+    // Inicializar WebSocket server
+    websocketService.initialize(server);
+    logger.info('WebSocket server inicializado');
+    logger.info(`🔌 WebSocket disponível em ws://0.0.0.0:${port}`);
+    logger.info('');
+
   } catch (erro) {
-    logger.error('❌ FALHA AO INICIAR O SERVIDOR', { 
+    logger.error('Falha ao iniciar o servidor', { 
       message: erro.message, 
       stack: erro.stack 
     });
     process.exit(1);
   }
 })();
+
+// Exportar app para testes
+export default app;

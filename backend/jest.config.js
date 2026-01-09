@@ -3,10 +3,19 @@ export default {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1'
   },
-  testMatch: ['**/__tests__/**/health.test.js'],
+  testMatch: ['**/__tests__/**/*.test.js'],
   testPathIgnorePatterns: [
     'node_modules/',
     'dist/'
   ],
-  testTimeout: 30000
+  transform: {},
+  testTimeout: 30000,
+  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.js'],
+  collectCoverageFrom: [
+    'src/**/*.js',
+    '!src/__tests__/**',
+    '!src/server.js',
+    '!src/components/**',
+    '!**/node_modules/**'
+  ]
 };

@@ -134,14 +134,14 @@ export default function Analises() {
       >
         <div>
           <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-linear-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
               <BarChart3 className="w-6 h-6 text-white" />
             </div>
             Análises
           </h1>
           <p className="text-gray-600 mt-2">Insights inteligentes e métricas de desempenho</p>
         </div>
-        <div className="px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl font-bold text-sm shadow-lg">
+        <div className="px-4 py-2 bg-linear-to-r from-purple-500 to-purple-600 text-white rounded-xl font-bold text-sm shadow-lg">
           🎯 BETA
         </div>
       </motion.div>
@@ -158,7 +158,7 @@ export default function Analises() {
             className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 bg-gradient-to-br ${metrica.color} rounded-xl flex items-center justify-center`}>
+              <div className={`w-12 h-12 bg-linear-to-br ${metrica.color} rounded-xl flex items-center justify-center`}>
                 <metrica.icon className="w-6 h-6 text-white" />
               </div>
               {metrica.variacao && (
@@ -202,7 +202,7 @@ export default function Analises() {
                 className={`p-4 bg-${insight.cor}-50 border border-${insight.cor}-200 rounded-xl`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`w-10 h-10 bg-${insight.cor}-100 rounded-lg flex items-center justify-center flex-shrink-0`}>
+                  <div className={`w-10 h-10 bg-${insight.cor}-100 rounded-lg flex items-center justify-center shrink-0`}>
                     <insight.icone className={`w-5 h-5 text-${insight.cor}-600`} />
                   </div>
                   <div>
@@ -226,7 +226,7 @@ export default function Analises() {
             <PieChart className="w-5 h-5 text-purple-600" />
             Distribuição
           </h2>
-          <div className="h-64 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl flex items-center justify-center">
+          <div className="h-64 bg-linear-to-br from-purple-50 to-pink-50 rounded-xl flex items-center justify-center">
             <div className="text-center">
               <PieChart className="w-16 h-16 text-purple-300 mx-auto mb-2" />
               <p className="text-gray-500 text-sm">Gráfico de Pizza</p>

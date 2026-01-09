@@ -55,6 +55,15 @@ Com uma interface moderna e intuitiva, o sistema permite criar relatórios compl
 - Clientes ativos
 - Métricas do sistema
 
+### 🆕 Recursos Avançados (2026)
+- ✅ **WebSocket** - Notificações em tempo real
+- ✅ **Layout Modular** - Dashboard refatorado (95% menor)
+- ✅ **Testes Automatizados** - Vitest + React Testing Library
+- ✅ **AI Assistant** - Assistente inteligente com NLP
+- ✅ **Upload Avançado** - Drag & drop com preview
+- ✅ **Busca Inteligente** - Filtros múltiplos e keyboard shortcuts
+- ✅ **Backup Automatizado** - Scripts para AWS S3/GCS/Azure
+
 ## 🛠️ Tecnologias
 
 ### Backend
@@ -80,6 +89,8 @@ Com uma interface moderna e intuitiva, o sistema permite criar relatórios compl
 - **GitHub Actions** - CI/CD (planejado)
 
 ## 📦 Instalação
+
+> **🚀 Quick Start**: Veja o [Guia de Início Rápido](QUICK_START.md) para setup em 5 minutos!
 
 ### Pré-requisitos
 
@@ -166,6 +177,27 @@ npm run dev
 ```
 
 O frontend estará disponível em `http://localhost:5173`
+
+### 🚀 Instalação Automática (Recomendado)
+
+Para instalar todas as melhorias recentes (WebSocket, Testes, etc):
+
+**Windows (PowerShell):**
+```powershell
+.\install-updates.ps1
+```
+
+**Linux/Mac:**
+```bash
+chmod +x install-updates.sh
+./install-updates.sh
+```
+
+Este script instala:
+- ✅ WebSocket (ws@^8.18.0)
+- ✅ Vitest + React Testing Library
+- ✅ Configurações de ambiente
+- ✅ Todas as dependências
 
 ### Usando Docker (Recomendado)
 
@@ -328,6 +360,18 @@ npm run build
 npm install -g pm2
 pm2 start backend/src/server.js --name api-relatorios
 ```
+
+## 📚 Documentação Adicional
+
+- **[PROXIMOS_PASSOS.md](PROXIMOS_PASSOS.md)** - Guia das últimas implementações
+- **[MELHORIAS_IMPLEMENTADAS.md](MELHORIAS_IMPLEMENTADAS.md)** - Detalhes de todas as melhorias
+- **[frontend/TESTING.md](frontend/TESTING.md)** - Guia completo de testes
+- **[CHANGELOG.md](CHANGELOG.md)** - Histórico de versões
+- **[QUICK_START.md](QUICK_START.md)** - Guia de início rápido (5 minutos)
+- **[DEPLOY.md](DEPLOY.md)** - Guia completo de deploy em produção
+- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Status atual e roadmap
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Como contribuir
+- **[SECURITY.md](SECURITY.md)** - Política de segurança
 
 ## 🤝 Contribuindo
 

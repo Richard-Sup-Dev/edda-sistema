@@ -1,7 +1,10 @@
 import React from 'react';
-import { HelpCircle, BookOpen, MessageCircle, Video, Mail, FileText, ExternalLink } from 'lucide-react';
+import { HelpCircle, BookOpen, MessageCircle, Video, Mail, FileText, ExternalLink, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Help() {
+  const navigate = useNavigate();
+  
   const helpSections = [
     {
       icon: BookOpen,
@@ -67,6 +70,15 @@ export default function Help() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto">
+        {/* Botão Voltar */}
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors mb-4 group"
+        >
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <span className="font-medium">Voltar ao Dashboard</span>
+        </button>
+
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mb-6">
           <div className="flex items-center gap-3 mb-2">
@@ -122,7 +134,7 @@ export default function Help() {
             {faq.map((item, index) => (
               <details key={index} className="group">
                 <summary className="cursor-pointer p-4 bg-gray-50 hover:bg-gray-100 rounded-lg font-medium text-gray-900 flex items-center gap-2 transition-colors">
-                  <HelpCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <HelpCircle className="w-5 h-5 text-green-600 shrink-0" />
                   {item.question}
                 </summary>
                 <div className="p-4 border-l-4 border-green-500 bg-green-50 mt-2 rounded-lg">
@@ -134,9 +146,9 @@ export default function Help() {
         </div>
 
         {/* Contact Support */}
-        <div className="bg-gradient-to-r from-orange-600 to-orange-700 rounded-lg p-8 text-white">
+        <div className="bg-linear-to-r from-orange-600 to-orange-700 rounded-lg p-8 text-white">
           <div className="flex items-start gap-6">
-            <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center shrink-0">
               <Mail className="w-8 h-8 text-orange-600" />
             </div>
             <div className="flex-1">

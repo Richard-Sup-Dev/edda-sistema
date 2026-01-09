@@ -2,9 +2,16 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import notificacoesService from '@/services/notificacoesService';
-import atividadesService from '@/services/atividadesService';
+import AIAssistant from '@/components/AIAssistant';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDashboardState } from '@/hooks/useDashboardState';
+import { useDashboardNotifications } from '@/hooks/useDashboardNotifications';
+import { useDashboardActivities } from '@/hooks/useDashboardActivities';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import UserMenu from '@/components/dashboard/UserMenu';
+import CommandPalette from '@/components/dashboard/CommandPalette';
+import KeyboardShortcutsModal from '@/components/dashboard/KeyboardShortcutsModal';
+import QuickActions from '@/components/dashboard/QuickActions';
 import {
   Home,
   Users,
@@ -74,69 +81,58 @@ export default function DashboardLayoutNew() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Estados locais
-  const [sidebarOpen, setSidebarOpen] = useState(() => {
-    const saved = localStorage.getItem('sidebarOpen');
-    return saved !== null ? JSON.parse(saved) : true;
-  });
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved !== null ? JSON.parse(saved) : false;
-  });
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('favorites');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
-  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
-  const [language, setLanguage] = useState(() => localStorage.getItem('language') || 'pt');
-  const [presentationMode, setPresentationMode] = useState(false);
+  // Custom Hooks para gerenciar estado do dashboard
+  const dashboardState = useDashboardState();
+  const {
+    sidebarOpen,
+    darkMode,
+    currentTime,
+    userMenuOpen,
+    notificationsOpen,
+    searchOpen,
+    searchQuery,
+    favorites,
+    commandPaletteOpen,
+    focusMode,
+    showKeyboardShortcuts,
+    language,
+    presentationMode,
+    setSidebarOpen,
+    setDarkMode,
+    setUserMenuOpen,
+    setNotificationsOpen,
+    setSearchOpen,
+    setSearchQuery,
+    setCommandPaletteOpen,
+    setFocusMode,
+    setShowKeyboardShortcuts,
+    setPresentationMode,
+    toggleSidebar,
+    toggleDarkMode,
+    toggleFocusMode,
+    toggleFavorite,
+  } = dashboardState;
+
+  // Hook de notificações
+  const {
+    notificacoes: notifications,
+    unreadCount,
+    loadingNotificacoes: loadingNotifications,
+    marcarComoLida,
+    marcarTodasComoLidas,
+    deletarNotificacao,
+  } = useDashboardNotifications();
+
+  // Hook de atividades
+  const {
+    atividadesRecentes: recentActivities,
+    loadingAtividades: loadingActivities,
+  } = useDashboardActivities();
+
+  // Estados adicionais não cobertos pelos hooks
   const [activityFeedOpen, setActivityFeedOpen] = useState(false);
   const [navigationHistory, setNavigationHistory] = useState([]);
   const [serverLatency, setServerLatency] = useState(null);
-  
-  // Novos estados para melhorias avançadas
-  const [showTour, setShowTour] = useState(() => !localStorage.getItem('tourCompleted'));
-  const [tourStep, setTourStep] = useState(0);
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'default');
-  const [density, setDensity] = useState(() => localStorage.getItem('density') || 'comfortable');
-  const [aiChatOpen, setAiChatOpen] = useState(false);
-  const [aiMessage, setAiMessage] = useState('');
-  const [stickyNotes, setStickyNotes] = useState(() => {
-    const saved = localStorage.getItem('stickyNotes');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [showAuditLog, setShowAuditLog] = useState(false);
-  const [userPoints, setUserPoints] = useState(() => parseInt(localStorage.getItem('userPoints')) || 0);
-  const [userLevel, setUserLevel] = useState(() => parseInt(localStorage.getItem('userLevel')) || 1);
-  const [achievements, setAchievements] = useState(() => {
-    const saved = localStorage.getItem('achievements');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [showThemeCustomizer, setShowThemeCustomizer] = useState(false);
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
-  const [voiceCommand, setVoiceCommand] = useState('');
-  const [isListening, setIsListening] = useState(false);
-  const [kioskMode, setKioskMode] = useState(false);
-  const [showExportCenter, setShowExportCenter] = useState(false);
-  const [globalFilters, setGlobalFilters] = useState({});
-  const [showVersionHistory, setShowVersionHistory] = useState(false);
-  const [presentationSlideIndex, setPresentationSlideIndex] = useState(0);
-  
-  // Estados de notificações (API real)
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loadingNotifications, setLoadingNotifications] = useState(false);
-  
-  // Estados de atividades (API real)
-  const [recentActivities, setRecentActivities] = useState([]);
-  const [loadingActivities, setLoadingActivities] = useState(false);
   
   // Novos estados para melhorias de próxima geração
   const [showWidgetLibrary, setShowWidgetLibrary] = useState(false);
@@ -260,29 +256,31 @@ export default function DashboardLayoutNew() {
   const aiChatRef = useRef(null);
   const voiceRecognitionRef = useRef(null);
 
-  // Atualizar relógio a cada minuto
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
+  // Handle logout
+  const handleLogout = useCallback(() => {
+    logout();
+    navigate('/login');
+  }, [logout, navigate]);
 
-  // Salvar preferências no localStorage
-  useEffect(() => {
-    localStorage.setItem('sidebarOpen', JSON.stringify(sidebarOpen));
-  }, [sidebarOpen]);
+  // Hook de atalhos de teclado
+  const { shortcuts } = useKeyboardShortcuts({
+    onToggleSidebar: toggleSidebar,
+    onToggleDarkMode: toggleDarkMode,
+    onToggleFocusMode: toggleFocusMode,
+    onOpenCommandPalette: () => setCommandPaletteOpen(true),
+    onOpenSearch: () => setSearchOpen(true),
+    onShowShortcuts: () => setShowKeyboardShortcuts(true),
+    onLogout: handleLogout,
+  });
 
+  // Aplicar dark mode ao documento
   useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
     if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
-
-  useEffect(() => {
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-  }, [favorites]);
 
   // Fechar menus ao clicar fora
   useEffect(() => {
@@ -301,57 +299,8 @@ export default function DashboardLayoutNew() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Atalhos de teclado globais
+  // Atalhos de teclado
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      // Command Palette: Ctrl+K / Cmd+K
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setCommandPaletteOpen(true);
-      }
-      
-      // Search: Ctrl+/ ou Cmd+/
-      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
-        e.preventDefault();
-        setSearchOpen(true);
-      }
-      
-      // Keyboard Shortcuts Help: ?
-      if (e.shiftKey && e.key === '?') {
-        e.preventDefault();
-        setShowKeyboardShortcuts(true);
-      }
-      
-      // Focus Mode: F
-      if (e.key === 'f' && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT') {
-        e.preventDefault();
-        setFocusMode(!focusMode);
-      }
-      
-      // Navigation shortcuts
-      if (e.key === 'g' && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT') {
-        // Próxima tecla determina o destino
-        const nextKeyHandler = (nextE) => {
-          if (nextE.key === 'd') navigate('/dashboard');
-          if (nextE.key === 'c') navigate('/dashboard/clientes');
-          if (nextE.key === 'r') navigate('/dashboard/relatorios');
-          if (nextE.key === 'p') navigate('/dashboard/pecas');
-          document.removeEventListener('keydown', nextKeyHandler);
-        };
-        document.addEventListener('keydown', nextKeyHandler);
-      }
-      
-      // ESC fecha tudo
-      if (e.key === 'Escape') {
-        setSearchOpen(false);
-        setCommandPaletteOpen(false);
-        setUserMenuOpen(false);
-        setNotificationsOpen(false);
-        setActivityFeedOpen(false);
-        setShowKeyboardShortcuts(false);
-        setFocusMode(false);
-      }
-    };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [navigate, focusMode]);
@@ -691,7 +640,11 @@ export default function DashboardLayoutNew() {
       carregarNotificacoes();
       // Atualizar a cada 30 segundos
       const interval = setInterval(carregarNotificacoes, 30000);
-     Carregar atividades recentes
+      return () => clearInterval(interval);
+    }
+  }, [user, carregarNotificacoes]);
+
+  // Carregar atividades recentes
   const carregarAtividades = useCallback(async () => {
     try {
       setLoadingActivities(true);
@@ -714,10 +667,6 @@ export default function DashboardLayoutNew() {
     }
   }, [user, carregarAtividades]);
 
-  //  return () => clearInterval(interval);
-    }
-  }, [user, carregarNotificacoes]);
-
   // Marcar notificação como lida
   const marcarComoLida = async (id) => {
     try {
@@ -733,20 +682,13 @@ export default function DashboardLayoutNew() {
 
   // Marcar todas como lidas
   const marcarTodasComoLidas = async () => {
-    tFormatar tempo relativo
-  const formatarTempoRelativo = (data) => {
-    const agora = new Date();
-    const dataAtividade = new Date(data);
-    const diffMs = agora - dataAtividade;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHoras = Math.floor(diffMs / 3600000);
-    const diffDias = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'agora';
-    if (diffMins < 60) return `${diffMins} min atrás`;
-    if (diffHoras < 24) return `${diffHoras} hora${diffHoras > 1 ? 's' : ''} atrás`;
-    return `${diffDias} dia${diffDias > 1 ? 's' : ''} atrás`;
-  } }
+    try {
+      await notificacoesService.marcarTodasComoLidas();
+      setNotifications(prev => prev.map(n => ({ ...n, lida: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Erro ao marcar todas como lidas:', error);
+    }
   };
 
   // Deletar notificação
@@ -763,13 +705,20 @@ export default function DashboardLayoutNew() {
     }
   };
 
-  // Mock de atividades recentes
-  const recentActivities = [
-    { id: 1, type: 'create', user: 'João Silva', action: 'criou relatório', item: '#1234', time: '2 min atrás' },
-    { id: 2, type: 'update', user: 'Maria Santos', action: 'atualizou cliente', item: 'Empresa XYZ', time: '15 min atrás' },
-    { id: 3, type: 'delete', user: 'Pedro Costa', action: 'removeu peça', item: 'Motor ABC', time: '1 hora atrás' },
-    { id: 4, type: 'create', user: 'Ana Oliveira', action: 'adicionou serviço', item: 'Manutenção', time: '2 horas atrás' },
-  ];
+  // Formatar tempo relativo
+  const formatarTempoRelativo = (data) => {
+    const agora = new Date();
+    const dataAtividade = new Date(data);
+    const diffMs = agora - dataAtividade;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHoras = Math.floor(diffMs / 3600000);
+    const diffDias = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'agora';
+    if (diffMins < 60) return `${diffMins} min atrás`;
+    if (diffHoras < 24) return `${diffHoras} hora${diffHoras > 1 ? 's' : ''} atrás`;
+    return `${diffDias} dia${diffDias > 1 ? 's' : ''} atrás`;
+  };
 
   // Mock de stats em tempo real
   const stats = [
@@ -868,23 +817,7 @@ export default function DashboardLayoutNew() {
 
   const t = translations[language];
 
-  // Funções (devem vir antes de serem usadas)
-  const handleLogout = () => {
-    if (confirm('Tem certeza que deseja fazer logout?')) {
-      logout();
-      toast.success('Desconectado com sucesso');
-    }
-  };
-
-  const toggleFavorite = (path) => {
-    setFavorites(prev => 
-      prev.includes(path) 
-        ? prev.filter(p => p !== path)
-        : [...prev, path]
-    );
-    toast.success(favorites.includes(path) ? 'Removido dos favoritos' : 'Adicionado aos favoritos');
-  };
-
+  // Funções auxiliares
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -912,7 +845,7 @@ export default function DashboardLayoutNew() {
     { id: 'go-analytics', label: 'Ir para Análises', icon: BarChart3, action: () => navigate('/dashboard/analises'), shortcut: 'G A' },
     { id: 'toggle-dark', label: 'Alternar Tema Escuro', icon: Moon, action: () => setDarkMode(!darkMode), shortcut: 'T D' },
     { id: 'toggle-focus', label: 'Modo Foco', icon: TrendingUp, action: () => setFocusMode(!focusMode), shortcut: 'F' },
-    { id: 'open-settings', label: 'Abrir Configurações', icon: Settings, action: () => navigate('/profile-settings'), shortcut: 'Ctrl+,' },
+    { id: 'open-settings', label: 'Abrir Meu Perfil', icon: User, action: () => navigate('/profile'), shortcut: 'Ctrl+,' },
     { id: 'logout', label: 'Fazer Logout', icon: LogOut, action: handleLogout, shortcut: 'L O' },
   ];
 
@@ -933,7 +866,7 @@ export default function DashboardLayoutNew() {
     { label: 'divider', isDivider: true },
     { label: 'ADMINISTRAÇÃO', isHeader: true },
     { label: 'Gerenciar Usuários', path: '/dashboard/usuarios', icon: UserCog, badge: 'ADMIN', color: 'orange' },
-    { label: 'Configurações', path: '/dashboard/configuracoes', icon: Settings, badge: 'ADMIN', color: 'purple' },
+    { label: 'Configurações', path: '/configuracoes', icon: Settings, badge: 'ADMIN', color: 'purple' },
     { label: 'Logs do Sistema', path: '/dashboard/logs', icon: Database, badge: 'ADMIN', color: 'blue' },
     { label: 'Segurança', path: '/dashboard/seguranca', icon: Shield, badge: 'ADMIN', color: 'red' },
   ];
@@ -953,17 +886,17 @@ export default function DashboardLayoutNew() {
   };
 
   return (
-    <div className={`flex h-screen overflow-hidden ${darkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'}`}>
+    <div className={`flex h-screen overflow-hidden ${darkMode ? 'bg-linear-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-linear-to-br from-gray-50 via-white to-gray-100'}`}>
       {/* Sidebar com animação */}
       <motion.aside
         variants={sidebarVariants}
         initial="open"
         animate={sidebarOpen ? 'open' : 'closed'}
         transition={{ duration: 0.4, ease: 'easeInOut' }}
-        className="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white flex flex-col fixed h-full z-50 shadow-2xl border-r border-gray-800/50"
+        className="bg-linear-to-b from-gray-900 via-gray-800 to-gray-900 text-white flex flex-col fixed h-full z-50 shadow-2xl border-r border-gray-800/50"
       >
         {/* Header da Sidebar */}
-        <div className="p-5 border-b border-gray-700/30 flex items-center justify-between bg-gradient-to-r from-gray-800/30 to-transparent backdrop-blur-sm min-h-[80px]">
+        <div className="p-5 border-b border-gray-700/30 flex items-center justify-between bg-linear-to-r from-gray-800/30 to-transparent backdrop-blur-sm min-h-20">
           <AnimatePresence mode="wait">
             {sidebarOpen ? (
               <motion.div
@@ -974,11 +907,11 @@ export default function DashboardLayoutNew() {
                 transition={{ duration: 0.3 }}
                 className="flex items-center gap-3"
               >
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-600/50">
+                <div className="w-11 h-11 rounded-xl bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-600/50">
                   <span className="text-white font-black text-xl">E</span>
                 </div>
                 <div>
-                  <h1 className="font-black bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent text-2xl tracking-tight leading-none">
+                  <h1 className="font-black bg-linear-to-r from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent text-2xl tracking-tight leading-none">
                     EDDA
                   </h1>
                   <p className="text-[10px] text-gray-400 font-medium tracking-wider mt-0.5">SISTEMA PRO</p>
@@ -991,7 +924,7 @@ export default function DashboardLayoutNew() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.3 }}
-                className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-600/50"
+                className="w-11 h-11 rounded-xl bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-600/50"
               >
                 <span className="text-white font-black text-xl">E</span>
               </motion.div>
@@ -1028,7 +961,7 @@ export default function DashboardLayoutNew() {
                         whileTap={{ scale: 0.98 }}
                         className="relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 hover:bg-yellow-500/20"
                       >
-                        <Icon size={18} className="flex-shrink-0" />
+                        <Icon size={18} className="shrink-0" />
                         <span className="font-semibold text-xs flex-1">{item.label}</span>
                         <Star size={14} className="fill-yellow-400" />
                       </motion.div>
@@ -1081,8 +1014,8 @@ export default function DashboardLayoutNew() {
                     whileTap={{ scale: 0.98 }}
                     className={`relative flex items-center ${sidebarOpen ? 'gap-3 px-4' : 'justify-center px-3'} py-3.5 rounded-xl transition-all duration-300 ${
                       active
-                        ? 'bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 text-white shadow-xl shadow-orange-600/50 border border-orange-400/20'
-                        : 'text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/80 hover:to-gray-700/80 hover:text-white hover:shadow-lg hover:border hover:border-gray-600/20'
+                        ? 'bg-linear-to-r from-orange-600 via-orange-500 to-orange-600 text-white shadow-xl shadow-orange-600/50 border border-orange-400/20'
+                        : 'text-gray-300 hover:bg-linear-to-r hover:from-gray-800/80 hover:to-gray-700/80 hover:text-white hover:shadow-lg hover:border hover:border-gray-600/20'
                     }`}
                   >
                     {active && (
@@ -1092,7 +1025,7 @@ export default function DashboardLayoutNew() {
                         transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                       />
                     )}
-                    <Icon size={22} className={`flex-shrink-0 ${active ? 'drop-shadow-lg' : ''} ${!sidebarOpen ? 'mx-auto' : ''}`} />
+                    <Icon size={22} className={`shrink-0 ${active ? 'drop-shadow-lg' : ''} ${!sidebarOpen ? 'mx-auto' : ''}`} />
                     <AnimatePresence>
                       {sidebarOpen && (
                         <motion.div
@@ -1142,7 +1075,7 @@ export default function DashboardLayoutNew() {
 
                   {/* Tooltip quando fechado */}
                   {!sidebarOpen && (
-                    <div className="absolute left-full ml-3 px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-700 text-white text-sm font-medium rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50 shadow-2xl border border-gray-600/30 group-hover:translate-x-1">
+                    <div className="absolute left-full ml-3 px-4 py-2 bg-linear-to-r from-gray-800 to-gray-700 text-white text-sm font-medium rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50 shadow-2xl border border-gray-600/30 group-hover:translate-x-1">
                       {item.label}
                       {item.badge === 'ADMIN' && (
                         <span className="ml-2 text-orange-400 text-xs">⚡ Admin</span>
@@ -1157,14 +1090,14 @@ export default function DashboardLayoutNew() {
         </nav>
 
         {/* Footer da Sidebar */}
-        <div className="p-4 border-t border-gray-700/30 space-y-2 bg-gradient-to-b from-transparent via-gray-900/30 to-gray-900/50">
+        <div className="p-4 border-t border-gray-700/30 space-y-2 bg-linear-to-b from-transparent via-gray-900/30 to-gray-900/50">
           <Link
-            to="/profile-settings"
-            className="group flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/60 hover:to-gray-700/60 hover:text-white transition-all hover:scale-[1.02] hover:shadow-lg border border-transparent hover:border-gray-600/20"
-            title={!sidebarOpen ? 'Configurações' : ''}
+            to="/profile"
+            className="group flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-linear-to-r hover:from-gray-800/60 hover:to-gray-700/60 hover:text-white transition-all hover:scale-[1.02] hover:shadow-lg border border-transparent hover:border-gray-600/20"
+            title={!sidebarOpen ? 'Meu Perfil' : ''}
           >
-            <Settings size={20} className="group-hover:rotate-90 transition-transform duration-300" />
-            {sidebarOpen && <span className="font-semibold text-sm">Configurações</span>}
+            <User size={20} className="group-hover:scale-110 transition-transform duration-300" />
+            {sidebarOpen && <span className="font-semibold text-sm">Meu Perfil</span>}
           </Link>
         </div>
 
@@ -1176,15 +1109,14 @@ export default function DashboardLayoutNew() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.4 }}
-              className="p-4 border-t border-gray-700/30 bg-gradient-to-br from-gray-800/40 via-gray-800/60 to-gray-900/80 backdrop-blur-sm relative overflow-hidden"
+              className="p-4 border-t border-gray-700/30 bg-linear-to-br from-gray-800/40 via-gray-800/60 to-gray-900/80 backdrop-blur-sm relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-orange-600/5 rounded-full blur-3xl"></div>
               <div className="relative flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-orange-600/30 border-2 border-gray-700/50">
+                  <div className="w-11 h-11 rounded-xl bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-orange-600/30 border-2 border-gray-700/50">
                     {(user?.nome || 'A').charAt(0).toUpperCase()}
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-gray-900"></div>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900"></div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Logado como</p>
@@ -1209,7 +1141,7 @@ export default function DashboardLayoutNew() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
             >
-              <h1 className="text-xl font-black bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
+              <h1 className="text-xl font-black bg-linear-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
                 EDDA
               </h1>
               <p className="text-[10px] text-gray-500 font-medium">Sistema de Relatórios</p>
@@ -1220,7 +1152,7 @@ export default function DashboardLayoutNew() {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-gray-50 to-transparent rounded-lg border-l-2 border-orange-500"
+              className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-linear-to-r from-gray-50 to-transparent rounded-lg border-l-2 border-orange-500"
             >
               <ChevronRight size={14} className="text-orange-500" />
               <span className="text-xs font-bold text-gray-700 capitalize">
@@ -1330,9 +1262,9 @@ export default function DashboardLayoutNew() {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="fixed right-4 top-20 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-[999]"
+                      className="fixed right-4 top-20 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-999"
                     >
-                      <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
+                      <div className="p-4 border-b border-gray-200 bg-linear-to-r from-blue-50 to-white">
                         <h3 className="font-bold text-gray-900">{t.activities}</h3>
                       </div>
                       <div className="max-h-96 overflow-y-auto">
@@ -1408,9 +1340,9 @@ export default function DashboardLayoutNew() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="fixed right-4 top-20 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-[999]"
+                    className="fixed right-4 top-20 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-999"
                   >
-                    <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+                    <div className="p-4 border-b border-gray-200 bg-linear-to-r from-gray-50 to-white">
                       <div className="flex items-center justify-between">
                         <h3 className="font-bold text-gray-900">Notificações</h3>
                         {unreadCount > 0 && (
@@ -1436,7 +1368,7 @@ export default function DashboardLayoutNew() {
                             className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors group ${!notif.lida ? 'bg-blue-50/50' : ''}`}
                           >
                             <div className="flex items-start gap-3">
-                              <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${!notif.lida ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+                              <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${!notif.lida ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="flex-1">
@@ -1501,7 +1433,7 @@ export default function DashboardLayoutNew() {
                 whileHover={{ scale: 1.1, rotate: 180 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setDarkMode(!darkMode)}
-                className="p-2.5 rounded-xl hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-50 transition-all border border-transparent hover:border-gray-200 shadow-sm"
+                className="p-2.5 rounded-xl hover:bg-linear-to-br hover:from-gray-100 hover:to-gray-50 transition-all border border-transparent hover:border-gray-200 shadow-sm"
                 title={darkMode ? 'Modo Claro' : 'Modo Escuro'}
               >
                 {darkMode ? <Sun size={20} className="text-yellow-500" /> : <Moon size={20} className="text-gray-600" />}
@@ -1528,9 +1460,9 @@ export default function DashboardLayoutNew() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 px-2 md:px-3 py-2 bg-gradient-to-br from-orange-50 to-white rounded-xl border border-orange-200 hover:border-orange-300 transition-all shadow-sm hover:shadow-md"
+                className="flex items-center gap-2 px-2 md:px-3 py-2 bg-linear-to-br from-orange-50 to-white rounded-xl border border-orange-200 hover:border-orange-300 transition-all shadow-sm hover:shadow-md"
               >
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm shadow-md ring-2 ring-white">
+                <div className="w-9 h-9 rounded-full bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm shadow-md ring-2 ring-white">
                   {(user?.nome || 'A').charAt(0).toUpperCase()}
                 </div>
                 <div className="text-left hidden lg:block">
@@ -1551,10 +1483,10 @@ export default function DashboardLayoutNew() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="fixed right-4 top-20 w-72 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-2 border-orange-100 dark:border-gray-700 overflow-hidden z-[999]"
+                    className="fixed right-4 top-20 w-72 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-2 border-orange-100 dark:border-gray-700 overflow-hidden z-999"
                   >
                     {/* Header do Dropdown */}
-                    <div className="p-4 bg-gradient-to-br from-orange-500 to-orange-600">
+                    <div className="p-4 bg-linear-to-br from-orange-500 to-orange-600">
                       <div className="flex items-center gap-3">
                         <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-bold text-xl shadow-lg ring-4 ring-white/30">
                           {(user?.nome || 'A').charAt(0).toUpperCase()}
@@ -1587,19 +1519,22 @@ export default function DashboardLayoutNew() {
                         </div>
                       </Link>
                       
-                      <Link
-                        to="/profile-settings"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-orange-50 dark:hover:bg-gray-700 transition-all group"
-                      >
-                        <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-gray-600 transition-colors">
-                          <Settings size={20} className="text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-semibold text-gray-900 dark:text-white">Configurações</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Preferências do sistema</p>
-                        </div>
-                      </Link>
+                      {/* Configurações do Sistema - Só Admin */}
+                      {isAdmin && (
+                        <Link
+                          to="/configuracoes"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-orange-50 dark:hover:bg-gray-700 transition-all group"
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-purple-200 dark:group-hover:bg-gray-600 transition-colors">
+                            <Settings size={20} className="text-purple-600 dark:text-purple-400" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">Configurações do Sistema</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">SMTP, segurança, backups</p>
+                          </div>
+                        </Link>
+                      )}
                       
                       <Link
                         to="/change-password"
@@ -1657,7 +1592,7 @@ export default function DashboardLayoutNew() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-gradient-to-br from-gray-50 via-white to-gray-100"
+          className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-linear-to-br from-gray-50 via-white to-gray-100"
         >
           <Outlet />
         </motion.main>
@@ -1673,7 +1608,7 @@ export default function DashboardLayoutNew() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSearchOpen(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-100"
             />
             
             {/* Modal */}
@@ -1681,7 +1616,7 @@ export default function DashboardLayoutNew() {
               initial={{ opacity: 0, scale: 0.95, y: -20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              className="fixed top-20 left-1/2 -translate-x-1/2 w-full max-w-2xl bg-white rounded-2xl shadow-2xl z-[101] overflow-hidden"
+              className="fixed top-20 left-1/2 -translate-x-1/2 w-full max-w-2xl bg-white rounded-2xl shadow-2xl z-101 overflow-hidden"
             >
               <form onSubmit={handleSearch} className="p-6">
                 <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
@@ -1709,7 +1644,7 @@ export default function DashboardLayoutNew() {
                         onClick={() => setSearchOpen(false)}
                         className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors group"
                       >
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center group-hover:from-orange-200 group-hover:to-orange-100 transition-colors">
+                        <div className="w-10 h-10 rounded-lg bg-linear-to-br from-orange-100 to-orange-50 flex items-center justify-center group-hover:from-orange-200 group-hover:to-orange-100 transition-colors">
                           <Icon size={20} className="text-orange-600" />
                         </div>
                         <div className="flex-1">
@@ -1733,80 +1668,19 @@ export default function DashboardLayoutNew() {
         )}
       </AnimatePresence>
 
-      {/* Command Palette */}
-      <AnimatePresence>
-        {commandPaletteOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setCommandPaletteOpen(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
-            />
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              className="fixed top-20 left-1/2 -translate-x-1/2 w-full max-w-2xl bg-white rounded-2xl shadow-2xl z-[101] overflow-hidden"
-            >
-              <div className="p-6">
-                <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
-                  <Command size={24} className="text-orange-600" />
-                  <input
-                    ref={commandInputRef}
-                    type="text"
-                    placeholder="Digite um comando ou busque..."
-                    className="flex-1 text-lg outline-none"
-                  />
-                  <kbd className="px-3 py-1 bg-gray-100 rounded-lg text-sm text-gray-600 border border-gray-200">ESC</kbd>
-                </div>
+      {/* Command Palette - Componente Extraído */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        commands={commands}
+      />
 
-                <div className="mt-4 space-y-2 max-h-96 overflow-y-auto">
-                  <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-3">Comandos Disponíveis</p>
-                  {commands.map((command) => {
-                    const Icon = command.icon;
-                    return (
-                      <button
-                        key={command.id}
-                        onClick={() => {
-                          command.action();
-                          setCommandPaletteOpen(false);
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-orange-50 transition-colors group"
-                      >
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center group-hover:from-orange-200 group-hover:to-orange-100 transition-colors">
-                          <Icon size={20} className="text-orange-600" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-semibold text-sm text-gray-900">{command.label}</p>
-                          {command.shortcut && (
-                            <p className="text-xs text-gray-500">Atalho: {command.shortcut}</p>
-                          )}
-                        </div>
-                        <ChevronRight size={16} className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
-                  <span>Use ↑ ↓ para navegar</span>
-                  <span className="flex items-center gap-2">
-                    <kbd className="px-2 py-1 bg-gray-100 rounded border border-gray-200">Ctrl</kbd>
-                    <span>+</span>
-                    <kbd className="px-2 py-1 bg-gray-100 rounded border border-gray-200">K</kbd>
-                    <span>para abrir</span>
-                  </span>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Modal de Atalhos de Teclado */}
+      {/* Modal de Atalhos de Teclado - Componente Extraído */}
+      <KeyboardShortcutsModal
+        isOpen={showKeyboardShortcuts}
+        onClose={() => setShowKeyboardShortcuts(false)}
+        shortcuts={shortcuts}
+      />
       <AnimatePresence>
         {showKeyboardShortcuts && (
           <>
@@ -1815,16 +1689,16 @@ export default function DashboardLayoutNew() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowKeyboardShortcuts(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-100"
             />
             
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl bg-white rounded-2xl shadow-2xl z-[101] overflow-hidden"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl bg-white rounded-2xl shadow-2xl z-101 overflow-hidden"
             >
-              <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-white">
+              <div className="p-6 border-b border-gray-200 bg-linear-to-r from-orange-50 to-white">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-black text-gray-900">⌨️ Atalhos de Teclado</h2>
                   <button
@@ -1836,7 +1710,7 @@ export default function DashboardLayoutNew() {
                 </div>
               </div>
               
-              <div className="p-6 max-h-[600px] overflow-y-auto">
+              <div className="p-6 max-h-150 overflow-y-auto">
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
@@ -1893,7 +1767,7 @@ export default function DashboardLayoutNew() {
                   </div>
                 </div>
 
-                <div className="mt-6 p-4 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl border border-orange-200">
+                <div className="mt-6 p-4 bg-linear-to-br from-orange-50 to-yellow-50 rounded-xl border border-orange-200">
                   <p className="text-sm text-gray-700">
                     💡 <strong>Dica:</strong> Use o Command Palette (Ctrl+K) para acessar rapidamente qualquer funcionalidade do sistema!
                   </p>
@@ -1912,9 +1786,9 @@ export default function DashboardLayoutNew() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             ref={aiChatRef}
-            className="fixed bottom-4 right-4 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-[100]"
+            className="fixed bottom-4 right-4 w-96 h-125 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-100"
           >
-            <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-t-2xl flex items-center justify-between">
+            <div className="p-4 border-b border-gray-200 bg-linear-to-r from-purple-500 to-pink-500 text-white rounded-t-2xl flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🤖</span>
                 <div>
@@ -1930,7 +1804,7 @@ export default function DashboardLayoutNew() {
             <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
               <div className="space-y-3">
                 <div className="flex gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm shrink-0">
                     🤖
                   </div>
                   <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm max-w-[80%]">
@@ -1963,7 +1837,7 @@ export default function DashboardLayoutNew() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold"
+                  className="px-4 py-2 bg-linear-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold"
                 >
                   Enviar
                 </motion.button>
@@ -1982,15 +1856,15 @@ export default function DashboardLayoutNew() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowThemeCustomizer(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-100"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-2xl shadow-2xl z-[101]"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-2xl shadow-2xl z-101"
             >
-              <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
+              <div className="p-6 border-b border-gray-200 bg-linear-to-r from-purple-50 to-pink-50">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-black text-gray-900">🎨 Personalizar Tema</h2>
                   <button onClick={() => setShowThemeCustomizer(false)} className="p-2 hover:bg-gray-100 rounded-lg">
@@ -1999,7 +1873,7 @@ export default function DashboardLayoutNew() {
                 </div>
               </div>
               
-              <div className="p-6 max-h-[600px] overflow-y-auto">
+              <div className="p-6 max-h-150 overflow-y-auto">
                 <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-3">Esquema de Cores</label>
@@ -2066,15 +1940,15 @@ export default function DashboardLayoutNew() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowExportCenter(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-100"
             />
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl bg-white rounded-2xl shadow-2xl z-[101]"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl bg-white rounded-2xl shadow-2xl z-101"
             >
-              <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-cyan-50">
+              <div className="p-6 border-b border-gray-200 bg-linear-to-r from-blue-50 to-cyan-50">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-black text-gray-900">💾 Central de Exportações</h2>
                   <button onClick={() => setShowExportCenter(false)} className="p-2 hover:bg-gray-100 rounded-lg">
@@ -2128,15 +2002,15 @@ export default function DashboardLayoutNew() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowAuditLog(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-100"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl bg-white rounded-xl shadow-2xl z-[101]"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl bg-white rounded-xl shadow-2xl z-101"
             >
-              <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+              <div className="p-6 border-b border-gray-200 bg-linear-to-r from-gray-900 to-gray-800 text-white">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-black">📜 Auditoria do Sistema</h2>
                   <button onClick={() => setShowAuditLog(false)} className="p-2 hover:bg-white/10 rounded-lg">
@@ -2145,7 +2019,7 @@ export default function DashboardLayoutNew() {
                 </div>
               </div>
               
-              <div className="p-6 max-h-[600px] overflow-y-auto">
+              <div className="p-6 max-h-150 overflow-y-auto">
                 <div className="space-y-2">
                   {auditLog.map(log => (
                     <div key={log.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -2174,14 +2048,14 @@ export default function DashboardLayoutNew() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 z-[200] flex items-center justify-center"
+            className="fixed inset-0 bg-black/70 z-200 flex items-center justify-center"
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               className="bg-white rounded-2xl shadow-2xl max-w-md mx-4"
             >
-              <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-yellow-50">
+              <div className="p-6 border-b border-gray-200 bg-linear-to-r from-orange-50 to-yellow-50">
                 <h3 className="text-xl font-black text-gray-900">{tourSteps[tourStep].title}</h3>
                 <p className="text-sm text-gray-600 mt-1">Passo {tourStep + 1} de {tourSteps.length}</p>
               </div>
@@ -2230,52 +2104,6 @@ export default function DashboardLayoutNew() {
         )}
       </AnimatePresence>
 
-      {/* Sticky Notes */}
-      {stickyNotes.map((note, index) => (
-        <motion.div
-          key={index}
-          drag
-          dragMomentum={false}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          className="fixed w-64 h-64 bg-yellow-100 border-2 border-yellow-300 rounded-lg shadow-lg p-4 cursor-move z-50"
-          style={{ top: `${100 + index * 50}px`, right: `${100 + index * 50}px` }}
-        >
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-2xl">📌</span>
-            <button
-              onClick={() => setStickyNotes(prev => prev.filter((_, i) => i !== index))}
-              className="text-gray-600 hover:text-red-600"
-            >
-              <X size={16} />
-            </button>
-          </div>
-          <textarea
-            value={note}
-            onChange={(e) => {
-              const newNotes = [...stickyNotes];
-              newNotes[index] = e.target.value;
-              setStickyNotes(newNotes);
-            }}
-            className="w-full h-full bg-transparent resize-none outline-none text-sm"
-            placeholder="Digite sua nota..."
-          />
-        </motion.div>
-      ))}
-
-      {/* Botão para adicionar Sticky Note */}
-      {!focusMode && (
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setStickyNotes(prev => [...prev, ''])}
-          className="fixed bottom-4 left-4 w-14 h-14 bg-yellow-400 rounded-full shadow-lg flex items-center justify-center text-2xl z-50 hover:bg-yellow-500 transition-colors"
-          title="Adicionar Nota"
-        >
-          📌
-        </motion.button>
-      )}
-
       {/* Widget Library Modal */}
       <AnimatePresence>
         {showWidgetLibrary && (
@@ -2293,7 +2121,7 @@ export default function DashboardLayoutNew() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-5xl w-full max-h-[85vh] overflow-hidden"
             >
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-purple-500 to-pink-500">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-purple-500 to-pink-500">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <span className="text-3xl">🧩</span>
@@ -2324,7 +2152,7 @@ export default function DashboardLayoutNew() {
                       whileHover={{ scale: 1.05, y: -5 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => { addWidget(widget); }}
-                      className={`bg-gradient-to-br ${widget.color} p-6 rounded-xl cursor-pointer shadow-lg hover:shadow-2xl transition-all`}
+                      className={`bg-linear-to-br ${widget.color} p-6 rounded-xl cursor-pointer shadow-lg hover:shadow-2xl transition-all`}
                     >
                       <div className="text-5xl mb-3">{widget.icon}</div>
                       <h3 className="text-white font-bold text-lg mb-1">{widget.name}</h3>
@@ -2377,7 +2205,7 @@ export default function DashboardLayoutNew() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-7xl h-[90vh] flex flex-col overflow-hidden"
             >
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-yellow-500 to-orange-500">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-yellow-500 to-orange-500">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <span className="text-3xl">🎨</span>
@@ -2457,7 +2285,7 @@ export default function DashboardLayoutNew() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-7xl h-[90vh] flex flex-col overflow-hidden"
             >
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-indigo-500 to-purple-500">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-indigo-500 to-purple-500">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <span className="text-3xl">📋</span>
@@ -2470,11 +2298,11 @@ export default function DashboardLayoutNew() {
                 </button>
               </div>
               
-              <div className="flex-1 p-6 overflow-x-auto bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
+              <div className="flex-1 p-6 overflow-x-auto bg-linear-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
                 <div className="flex gap-4 h-full min-w-max">
                   {Object.entries(kanbanColumns).map(([column, tasks]) => (
-                    <div key={column} className="flex-1 min-w-[300px]">
-                      <div className={`bg-gradient-to-r ${
+                    <div key={column} className="flex-1 min-w-75">
+                      <div className={`bg-linear-to-r ${
                         column === 'todo' ? 'from-gray-500 to-gray-600' :
                         column === 'inProgress' ? 'from-blue-500 to-indigo-500' :
                         'from-green-500 to-emerald-500'
@@ -2484,14 +2312,14 @@ export default function DashboardLayoutNew() {
                           <span className="bg-white/20 px-2 py-1 rounded-full text-sm">{tasks.length}</span>
                         </h3>
                       </div>
-                      <div className="bg-white dark:bg-gray-700 rounded-b-xl p-4 space-y-3 min-h-[500px]">
+                      <div className="bg-white dark:bg-gray-700 rounded-b-xl p-4 space-y-3 min-h-125">
                         {tasks.map((task, idx) => (
                           <motion.div
                             key={idx}
                             drag
                             dragMomentum={false}
                             whileHover={{ scale: 1.02 }}
-                            className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-600 dark:to-gray-700 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-600 cursor-move"
+                            className="bg-linear-to-r from-white to-gray-50 dark:from-gray-600 dark:to-gray-700 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-600 cursor-move"
                           >
                             <h4 className="font-semibold dark:text-white">{task.title}</h4>
                             <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{task.desc}</p>
@@ -2542,7 +2370,7 @@ export default function DashboardLayoutNew() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden"
             >
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-cyan-500 to-blue-500">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-cyan-500 to-blue-500">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <span className="text-3xl">📊</span>
@@ -2566,7 +2394,7 @@ export default function DashboardLayoutNew() {
                     <motion.div
                       key={idx}
                       whileHover={{ scale: 1.05, y: -5 }}
-                      className={`bg-gradient-to-br ${metric.color} p-6 rounded-xl shadow-lg text-white`}
+                      className={`bg-linear-to-br ${metric.color} p-6 rounded-xl shadow-lg text-white`}
                     >
                       <div className="text-4xl mb-2">{metric.icon}</div>
                       <div className="text-3xl font-bold">{metric.value}</div>
@@ -2579,7 +2407,7 @@ export default function DashboardLayoutNew() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 p-6 rounded-xl">
+                  <div className="bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 p-6 rounded-xl">
                     <h3 className="font-bold text-lg mb-4 dark:text-white flex items-center gap-2">
                       <span>📊</span> Desempenho Semanal
                     </h3>
@@ -2590,7 +2418,7 @@ export default function DashboardLayoutNew() {
                           initial={{ height: 0 }}
                           animate={{ height: `${value}%` }}
                           transition={{ delay: idx * 0.1 }}
-                          className="flex-1 bg-gradient-to-t from-blue-500 to-cyan-400 rounded-t-lg relative group"
+                          className="flex-1 bg-linear-to-t from-blue-500 to-cyan-400 rounded-t-lg relative group"
                         >
                           <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                             {value}%
@@ -2605,7 +2433,7 @@ export default function DashboardLayoutNew() {
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl">
+                  <div className="bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl">
                     <h3 className="font-bold text-lg mb-4 dark:text-white flex items-center gap-2">
                       <span>🎯</span> Top Ações
                     </h3>
@@ -2649,7 +2477,7 @@ export default function DashboardLayoutNew() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="fixed top-16 right-2 bg-black/90 backdrop-blur-md text-white p-3 rounded-lg shadow-2xl z-[90] border border-green-500/30 text-xs"
+          className="fixed top-16 right-2 bg-black/90 backdrop-blur-md text-white p-3 rounded-lg shadow-2xl z-90 border border-green-500/30 text-xs"
         >
           <div className="flex items-center gap-2 mb-2">
             <Activity size={16} className="text-green-400" />
@@ -2681,7 +2509,7 @@ export default function DashboardLayoutNew() {
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-full shadow-2xl z-[90] flex items-center gap-2 text-sm"
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-full shadow-2xl z-90 flex items-center gap-2 text-sm"
         >
           <motion.div
             animate={{ scale: [1, 1.2, 1] }}
@@ -2701,7 +2529,7 @@ export default function DashboardLayoutNew() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-gradient-to-br from-purple-900/95 via-indigo-900/95 to-blue-900/95 backdrop-blur-xl z-[85] flex items-center justify-center"
+          className="fixed inset-0 bg-linear-to-br from-purple-900/95 via-indigo-900/95 to-blue-900/95 backdrop-blur-xl z-85 flex items-center justify-center"
         >
           <div className="text-center text-white">
             <motion.div
@@ -2785,7 +2613,7 @@ export default function DashboardLayoutNew() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden"
             >
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-purple-500 to-pink-500">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-purple-500 to-pink-500">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <Camera size={28} />
@@ -2804,7 +2632,7 @@ export default function DashboardLayoutNew() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={takeScreenshot}
-                    className="p-6 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
+                    className="p-6 bg-linear-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
                   >
                     <Camera size={32} className="mx-auto mb-3" />
                     <div className="font-bold text-lg">📸 Screenshot</div>
@@ -2815,7 +2643,7 @@ export default function DashboardLayoutNew() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={isRecording ? stopRecording : startRecording}
-                    className={`p-6 ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-gradient-to-br from-pink-500 to-pink-600'} text-white rounded-xl shadow-lg hover:shadow-xl transition-all`}
+                    className={`p-6 ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-linear-to-br from-pink-500 to-pink-600'} text-white rounded-xl shadow-lg hover:shadow-xl transition-all`}
                   >
                     {isRecording ? <Square size={32} className="mx-auto mb-3" /> : <Video size={32} className="mx-auto mb-3" />}
                     <div className="font-bold text-lg">{isRecording ? '⏹️ Parar' : '🎥 Gravar'}</div>
@@ -2866,7 +2694,7 @@ export default function DashboardLayoutNew() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden"
             >
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-pink-500 to-purple-500">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-pink-500 to-purple-500">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <Palette size={28} />
@@ -2946,7 +2774,7 @@ export default function DashboardLayoutNew() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={applyCustomTheme}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl"
+                    className="flex-1 px-6 py-3 bg-linear-to-r from-pink-500 to-purple-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl"
                   >
                     <Save size={20} className="inline mr-2" />
                     Aplicar Tema
@@ -2983,7 +2811,7 @@ export default function DashboardLayoutNew() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden"
             >
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-red-500 to-orange-500">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-red-500 to-orange-500">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <Timer size={28} />
@@ -3077,7 +2905,7 @@ export default function DashboardLayoutNew() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden"
             >
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-amber-500 to-orange-500">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-amber-500 to-orange-500">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <Target size={28} />
@@ -3096,7 +2924,7 @@ export default function DashboardLayoutNew() {
                     <motion.div
                       key={goal.id}
                       whileHover={{ scale: 1.02 }}
-                      className="p-6 bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 shadow-md"
+                      className="p-6 bg-linear-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 shadow-md"
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div>
@@ -3112,7 +2940,7 @@ export default function DashboardLayoutNew() {
                             initial={{ width: 0 }}
                             animate={{ width: `${goal.progress}%` }}
                             transition={{ duration: 1 }}
-                            className="h-full bg-gradient-to-r from-amber-500 to-orange-500"
+                            className="h-full bg-linear-to-r from-amber-500 to-orange-500"
                           />
                         </div>
                         <div className="absolute -top-8 right-0 text-2xl">
@@ -3170,7 +2998,7 @@ export default function DashboardLayoutNew() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden"
             >
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-green-500 to-emerald-500">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-green-500 to-emerald-500">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <Code size={28} />
@@ -3200,7 +3028,7 @@ export default function DashboardLayoutNew() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="col-span-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-bold shadow-lg"
+                    className="col-span-2 px-6 py-3 bg-linear-to-r from-green-500 to-emerald-500 text-white rounded-lg font-bold shadow-lg"
                   >
                     Enviar
                   </motion.button>
@@ -3266,7 +3094,7 @@ export default function DashboardLayoutNew() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden"
             >
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-violet-500 to-purple-500">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-violet-500 to-purple-500">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <Upload size={28} />
@@ -3372,7 +3200,7 @@ export default function DashboardLayoutNew() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden"
             >
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-yellow-500 to-orange-500">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-yellow-500 to-orange-500">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <Zap size={28} />
@@ -3402,7 +3230,7 @@ export default function DashboardLayoutNew() {
                         drag
                         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
                         whileHover={{ scale: 1.05 }}
-                        className="p-4 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-lg cursor-move shadow-md border-2 border-yellow-300 dark:border-yellow-700"
+                        className="p-4 bg-linear-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-lg cursor-move shadow-md border-2 border-yellow-300 dark:border-yellow-700"
                       >
                         <div className="text-2xl mb-2">{block.icon}</div>
                         <div className="font-bold text-sm dark:text-white">{block.title}</div>
@@ -3411,7 +3239,7 @@ export default function DashboardLayoutNew() {
                     ))}
                   </div>
                   
-                  <div className="col-span-2 bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 min-h-[500px]">
+                  <div className="col-span-2 bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 min-h-125">
                     <h3 className="font-bold dark:text-white mb-4">🎯 Canvas de Workflow</h3>
                     <div className="text-center text-gray-400 mt-20">
                       <Zap size={64} className="mx-auto mb-4 opacity-50" />
@@ -3424,7 +3252,7 @@ export default function DashboardLayoutNew() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-xl font-bold shadow-lg"
+                    className="flex-1 px-6 py-3 bg-linear-to-r from-yellow-500 to-orange-500 text-white rounded-xl font-bold shadow-lg"
                   >
                     <Save size={20} className="inline mr-2" />
                     Salvar Workflow
@@ -3461,7 +3289,7 @@ export default function DashboardLayoutNew() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden"
             >
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-blue-500 to-indigo-500">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-linear-to-r from-blue-500 to-indigo-500">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <Filter size={28} />
@@ -3534,7 +3362,7 @@ export default function DashboardLayoutNew() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl font-bold shadow-lg"
+                    className="flex-1 px-6 py-3 bg-linear-to-r from-blue-500 to-indigo-500 text-white rounded-xl font-bold shadow-lg"
                   >
                     <Search size={20} className="inline mr-2" />
                     Buscar
@@ -3564,7 +3392,7 @@ export default function DashboardLayoutNew() {
 
       {/* Confetti Effect */}
       {showConfetti && (
-        <div className="fixed inset-0 pointer-events-none z-[100]">
+        <div className="fixed inset-0 pointer-events-none z-100">
           {[...Array(50)].map((_, i) => (
             <motion.div
               key={i}
@@ -3600,7 +3428,7 @@ export default function DashboardLayoutNew() {
             zIndex: 60
           }}
         >
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-3 flex justify-between items-center cursor-move">
+          <div className="bg-linear-to-r from-indigo-500 to-purple-500 p-3 flex justify-between items-center cursor-move">
             <span className="text-white font-semibold">{window.title}</span>
             <button
               onClick={() => setFloatingWindows(prev => prev.filter(w => w.id !== window.id))}
@@ -3614,6 +3442,9 @@ export default function DashboardLayoutNew() {
           </div>
         </motion.div>
       ))}
+
+      {/* Assistente de IA */}
+      <AIAssistant />
     </div>
   );
 }

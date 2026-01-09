@@ -78,7 +78,7 @@ export default function Logs() {
         animate={{ opacity: 1, y: 0 }}
       >
         <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
             <Database className="w-6 h-6 text-white" />
           </div>
           Logs do Sistema
@@ -102,7 +102,7 @@ export default function Logs() {
               className={`p-4 rounded-xl border ${getBgColor(log.tipo)}`}
             >
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 mt-1">
+                <div className="shrink-0 mt-1">
                   {getIcon(log.tipo)}
                 </div>
                 <div className="flex-1">

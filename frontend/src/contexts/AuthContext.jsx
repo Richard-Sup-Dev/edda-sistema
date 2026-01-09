@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import apiClient from '@/services/apiClient';
 import { logger } from '@/config/api';
+import { verificarVersaoToken, marcarVersaoToken } from '@/utils/tokenVersion';
 
 // Cria o contexto
 const AuthContext = createContext({});
@@ -14,10 +15,15 @@ export const AuthProvider = ({ children }) => {
 
   // Verifica token ao carregar a página
   useEffect(() => {
+    // Primeiro verifica a versão do token
+    const versaoValida = verificarVersaoToken();
+    
     const token = localStorage.getItem('token');
 
-    if (!token) {
+    // Se não tem versão válida ou token, resetar
+    if (!versaoValida || !token) {
       setLoading(false);
+      setUser(null);
       return;
     }
 
@@ -26,11 +32,20 @@ export const AuthProvider = ({ children }) => {
       .then((response) => {
         const userData = response.data.user || response.data;
         setUser(userData);
+        marcarVersaoToken(); // Marca versão como válida
       })
       .catch((error) => {
         logger.error('Token validation failed:', error.response?.data || error.message);
+        // Limpar dados inválidos
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setUser(null);
+        
+        // Se não estiver na página de login, redirecionar
+        if (!window.location.pathname.includes('/login')) {
+          console.warn('🔒 Token inválido detectado. Redirecionando para login...');
+          window.location.href = '/login';
+        }
       })
       .finally(() => {
         setLoading(false);
@@ -49,6 +64,7 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem('token', token);
       setUser(userData);
+      marcarVersaoToken(); // Marca versão do token como válida
 
       return { success: true };
     } catch (error) {

@@ -1,6 +1,6 @@
 // src/components/CreateNF.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '@/services/apiClient';
 import { API_ENDPOINTS, UPLOAD_BASE_URL, logger } from '@/config/api';
 import { notifySuccess, notifyError } from "@/utils/notifications";
 
@@ -21,8 +21,8 @@ function CreateNF() {
     const carregarItens = async () => {
       try {
         const [resPecas, resServicos] = await Promise.all([
-          axios.get(API_ENDPOINTS.PECAS),
-          axios.get(API_ENDPOINTS.SERVICOS)
+          apiClient.get(API_ENDPOINTS.PECAS),
+          apiClient.get(API_ENDPOINTS.SERVICOS)
         ]);
         setPecas(resPecas.data);
         setServicos(resServicos.data);
@@ -42,7 +42,7 @@ function CreateNF() {
 
     const timer = setTimeout(async () => {
       try {
-        const res = await axios.get(API_ENDPOINTS.CLIENTES);
+        const res = await apiClient.get(API_ENDPOINTS.CLIENTES);
         const clientesFiltrados = res.data.filter(cliente =>
           (cliente.nome_fantasia || cliente.nome || '')
             .toLowerCase()
@@ -114,14 +114,6 @@ function CreateNF() {
 
     setLoading(true);
 
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      notifyError("Sessão expirada ou não autenticada. Faça login novamente.");
-      setLoading(false);
-      return;
-    }
-
     // DADOS PARA O BACKEND
     const nfData = {
       // *NOTA: Idealmente, o número da NF deve vir do backend (ex: buscando o próximo ID)
@@ -139,10 +131,9 @@ function CreateNF() {
     };
 
     try {
-      const response = await axios.post(
+      const response = await apiClient.post(
         `${API_ENDPOINTS.NF}/generate`,
-        nfData,
-        // ... headers ...
+        nfData
       );
 
       const { numero, caminho_salvo, url_acesso } = response.data;
@@ -211,7 +202,7 @@ function CreateNF() {
         </div>
 
         {cliente && (
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-6">
+          <div className="bg-linear-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-blue-600 font-semibold mb-1">Cliente Selecionado</p>
@@ -405,7 +396,7 @@ function CreateNF() {
 
         {/* Total */}
         {itens.length > 0 && (
-          <div className="bg-gradient-to-br from-green-50 to-green-100 border-t-2 border-green-200 px-6 py-6">
+          <div className="bg-linear-to-br from-green-50 to-green-100 border-t-2 border-green-200 px-6 py-6">
             <div className="flex justify-between items-center">
               <span className="text-lg font-bold text-gray-700">Valor Total da Nota Fiscal</span>
               <span className="text-3xl font-black text-green-600">
@@ -425,7 +416,7 @@ function CreateNF() {
             className={`px-12 py-4 rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-105 ${
               loading
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-500/50'
+                : 'bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-500/50'
             } text-white`}
           >
             {loading ? 'GERANDO NOTA FISCAL...' : 'GERAR NOTA FISCAL'}

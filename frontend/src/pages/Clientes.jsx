@@ -61,7 +61,7 @@ export default function Clientes() {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
           <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
               <Users className="w-6 h-6 text-white" />
             </div>
             Clientes
@@ -73,14 +73,14 @@ export default function Clientes() {
         <div className="flex gap-4">
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl px-6 py-3"
+            className="bg-linear-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl px-6 py-3"
           >
             <p className="text-xs text-blue-600 font-semibold uppercase">Total</p>
             <p className="text-2xl font-black text-blue-900">{clientes.length}</p>
           </motion.div>
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl px-6 py-3"
+            className="bg-linear-to-br from-green-50 to-green-100 border border-green-200 rounded-xl px-6 py-3"
           >
             <p className="text-xs text-green-600 font-semibold uppercase">Ativos</p>
             <p className="text-2xl font-black text-green-900">{filteredClientes.length}</p>
@@ -129,7 +129,7 @@ export default function Clientes() {
                 setEditingData(null);
                 setShowForm(!showForm);
               }}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all font-semibold"
+              className="flex items-center gap-2 bg-linear-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all font-semibold"
             >
               <Plus className="w-5 h-5" />
               Novo Cliente
@@ -181,7 +181,7 @@ export default function Clientes() {
               {/* Avatar e Nome */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                  <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
                     {cliente.nome_fantasia.charAt(0).toUpperCase()}
                   </div>
                   <div>

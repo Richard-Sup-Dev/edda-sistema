@@ -1,8 +1,8 @@
 // src/components/Particles.jsx
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 
-const Particles = ({
+const Particles = memo(({
   count = 100,              // quantidade de partículas
   speed = 1.5,              // velocidade base (multiplicador)
   colors = ['#ff4000', '#ff8c00', '#ffbf00'], // cores do tema EDDA 
@@ -90,6 +90,8 @@ const Particles = ({
       }}
     />
   );
-};
+});
+
+Particles.displayName = 'Particles';
 
 export default Particles;

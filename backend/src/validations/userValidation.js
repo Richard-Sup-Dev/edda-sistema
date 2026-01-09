@@ -58,7 +58,7 @@ const userLoginSchema = Joi.object({
     })
 }).unknown(false);
 
-const userUpdateSchema = userSchema.fork(['senha'], schema => schema.optional());
+const userUpdateSchema = userSchema.fork(['senha', 'nome', 'email'], schema => schema.optional());
 
 const passwordResetSchema = Joi.object({
   senhaAtual: Joi.string()

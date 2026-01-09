@@ -130,7 +130,6 @@ const mapSectionToTitle = (secao) => {
     }
 };
 
-// [relatoriosService.js] - Função gerarPdf - BLOCO CORRIGIDO
 async function gerarPdf({ id, caminhoSalvarPdf, caminhoEncontrarFotos }) {
 
 
@@ -158,7 +157,7 @@ async function gerarPdf({ id, caminhoSalvarPdf, caminhoEncontrarFotos }) {
 
             // ... (continue o resto da função)
 
-            // 1. Mapeamento de campos críticos (Datas e RTE)
+            // Mapeamento de campos (Datas e RTE)
             relatorioData.data_emissao = relatorioData.data_emissao || '';
             relatorioData.data_inicio_servico = relatorioData.data_inicio_servico || '';
             relatorioData.data_fim_servico = relatorioData.data_fim_servico || '';
@@ -305,8 +304,7 @@ async function gerarPdf({ id, caminhoSalvarPdf, caminhoEncontrarFotos }) {
             // Mapear fotos (Usaremos fotosParaMapear, que agora contém as fotos do Mobile)
             const fotosDoDb = fotosParaMapear;
 
-            // --- 🚀 LÓGICA DE CAMINHO DAS FOTOS (ATUALIZADA) ---
-            // --- 🚀 LÓGICA DE CAMINHO DAS FOTOS (ATUALIZADA) ---
+            // Lógica de caminho das fotos
 
             let photoCounter = 0; // 👈 PASSO 1: Adicione este contador
 
@@ -540,14 +538,19 @@ async function salvarFotoBase64NoDB(base64Data, section, relatorioId, descriptio
     }
 }
 
-// 🚀 FUNÇÃO DE BUSCA AVANÇADA (NOVA) 🚀
-async function buscarRelatorios({ query, page, limit }) {
-    if (!query) {
-        throw new Error("Parâmetro de busca obrigatório.");
-    }
+// Função de busca avançada
+async function buscarRelatorios({ query, page, limit, userId, isAdmin }) {
+    // Se não tiver query, busca todos os relatórios
+    const searchQuery = query || '';
     
     // Chama o repositório para fazer a busca paginada e o JOIN
-    const results = await relatoriosRepository.buscarRelatoriosAvancado(query, page, limit);
+    const results = await relatoriosRepository.buscarRelatoriosAvancado(
+        searchQuery, 
+        page, 
+        limit,
+        userId,
+        isAdmin
+    );
 
     // Formatar datas e nomes para exibição no frontend
     const formattedRelatorios = results.relatorios.map(r => ({

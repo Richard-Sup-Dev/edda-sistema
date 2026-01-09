@@ -59,7 +59,7 @@ export default function Seguranca() {
         animate={{ opacity: 1, y: 0 }}
       >
         <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-linear-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
             <Shield className="w-6 h-6 text-white" />
           </div>
           Segurança
@@ -78,7 +78,7 @@ export default function Seguranca() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className={`bg-gradient-to-br from-${stat.color}-50 to-${stat.color}-100 border border-${stat.color}-200 rounded-2xl p-6`}
+            className={`bg-linear-to-br from-${stat.color}-50 to-${stat.color}-100 border border-${stat.color}-200 rounded-2xl p-6`}
           >
             <div className={`w-12 h-12 bg-${stat.color}-500 rounded-xl flex items-center justify-center mb-4`}>
               <stat.icon className="w-6 h-6 text-white" />

@@ -17,7 +17,7 @@ async function imageToBase64(filePath) {
 
         return `data:${mimeType};base64,${data.toString('base64')}`;
     } catch (error) {
-        console.error('[ERRO FATAL - BASE64] Falha ao ler arquivo:', filePath, error.message);
+        // Falha ao ler arquivo - retorna string vazia
         return '';
     }
 }

@@ -17,7 +17,7 @@ export default function DetalhesRelatorio() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => navigate('/dashboard/relatorios')}
-        className="flex items-center gap-2 mb-6 px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl hover:shadow-lg transition-all font-semibold"
+        className="flex items-center gap-2 mb-6 px-6 py-3 bg-linear-to-r from-orange-600 to-orange-700 text-white rounded-xl hover:shadow-lg transition-all font-semibold"
       >
         <ArrowLeft className="w-5 h-5" />
         Voltar para Relatórios

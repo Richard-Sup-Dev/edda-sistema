@@ -92,7 +92,7 @@ const buildNFStyle = () => `
  */
 const getBase64Image = (filePath) => {
     if (!fs.existsSync(filePath)) {
-        console.warn(`Aviso: Logo não encontrada em ${filePath}.`);
+        // Logo não encontrada - retorna fallback SVG
         return 'data:image/svg+xml;base64,...'; // Fallback SVG
     }
     const file = fs.readFileSync(filePath);
@@ -340,7 +340,6 @@ const generateAndSaveNF = async (nfData) => {
     } catch (error) {
         // Garante que o navegador seja fechado em caso de erro
         if (browser) await browser.close();
-        console.error('Erro ao gerar ou salvar o PDF da NF:', error);
         throw new Error('Falha na geração do PDF da Nota Fiscal. Verifique se o Puppeteer foi instalado corretamente.');
     }
 };

@@ -6,6 +6,7 @@ import { roleMiddleware } from '../middlewares/roleMiddleware.js';
 import uploadInstance from '../middlewares/multerMiddleware.js';
 import { validarDados, relatorioSchema } from '../middlewares/validationMiddleware.js';
 import relatoriosController from '../controllers/relatoriosController.js';
+import { cache, invalidateCache, cacheStrategies } from '../middlewares/cacheMiddleware.js';
 
 const router = express.Router();
 
@@ -18,36 +19,54 @@ const uploadFields = uploadInstance.fields([
 // ====================== CRIAR RELATÓRIO ======================
 // Rota principal: criação completa com upload, processamento, PDF e meta.json
 // Protegida: apenas admin ou técnico pode criar relatórios
+// Invalida cache de relatórios após criação
 router.post(
   '/',
   authMiddleware,
   roleMiddleware('admin', 'tecnico'),
   uploadFields,
+  invalidateCache('relatorios'),
   validarDados(relatorioSchema),
   relatoriosController.criarRelatorio
 );
 
+// ====================== LISTAR RELATÓRIOS ======================
+// Rota para listar todos os relatórios (GET /api/relatorios)
+// Cache curto (1 min) - dados mudam frequentemente
+router.get(
+  '/',
+  authMiddleware,
+  cacheStrategies.short,
+  relatoriosController.buscarRelatorios
+);
+
 // ====================== BUSCA AVANÇADA ======================
 // Todos logados podem buscar (útil para listagem no frontend)
+// Cache curto (1 min) - resultados de busca mudam frequentemente
 router.get(
   '/search',
   authMiddleware,
+  cacheStrategies.short,
   relatoriosController.buscarRelatorios
 );
 
 // ====================== METADADOS (meta.json) ======================
 // Todos logados podem acessar metadados de um relatório
+// Cache médio (5 min) - metadados mudam pouco
 router.get(
   '/:id/meta',
   authMiddleware,
+  cacheStrategies.medium,
   relatoriosController.getRelatorioMeta
 );
 
 // ====================== DETALHES COMPLETOS ======================
 // Todos logados podem ver detalhes completos de um relatório
+// Cache médio (5 min) - detalhes mudam pouco
 router.get(
   '/:id/full',
   authMiddleware,
+  cacheStrategies.medium,
   relatoriosController.buscarDetalhesCompletos
 );
 
@@ -55,15 +74,18 @@ router.get(
 router.get(
   '/:id/detalhes',
   authMiddleware,
+  cacheStrategies.medium,
   relatoriosController.buscarDetalhesCompletos
 );
 
 // ====================== SALVAR ORÇAMENTO ======================
 // Apenas admin ou técnico pode salvar orçamento
+// Invalida cache após salvar orçamento
 router.post(
   '/:id/orcamento',
   authMiddleware,
   roleMiddleware('admin', 'tecnico'),
+  invalidateCache('relatorios'),
   relatoriosController.salvarOrcamento
 );
 
@@ -72,6 +94,7 @@ router.patch(
   '/:id/orcamento',
   authMiddleware,
   roleMiddleware('admin', 'tecnico'),
+  invalidateCache('relatorios'),
   relatoriosController.salvarOrcamento
 );
 

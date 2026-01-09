@@ -1,15 +1,19 @@
 // src/routes/adminRoutes.js
 
 import { Router } from 'express';
-import authMiddleware from '../middlewares/authMiddleware.js'; // Primeiro: verifica login
-import { adminMiddleware } from '../middlewares/roleMiddleware.js'; // Depois: verifica se é admin
+import authMiddleware from '../middlewares/authMiddleware.js';
+import adminMiddleware from '../middlewares/adminMiddleware.js';
 import User from '../models/User.js';
 import logger from '../config/logger.js';
 
 const router = Router();
 
+// Protege todas as rotas admin
+router.use(authMiddleware);
+router.use(adminMiddleware);
+
 // ====================== LISTAR TODOS OS USUÁRIOS ======================
-router.get('/users', authMiddleware, adminMiddleware, async (req, res) => {
+router.get('/users', async (req, res) => {
   try {
     const users = await User.findAll({
       attributes: { exclude: ['senha'] }, // Nunca retorna a senha hash
@@ -24,7 +28,7 @@ router.get('/users', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // ====================== ALTERAR ROLE DE USUÁRIO ======================
-router.patch('/users/:id/role', authMiddleware, adminMiddleware, async (req, res) => {
+router.patch('/users/:id/role', async (req, res) => {
   const { id } = req.params;
   const { role } = req.body;
 

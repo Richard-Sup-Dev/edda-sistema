@@ -2,14 +2,14 @@
 import nodemailer from 'nodemailer';
 import logger from '../config/logger.js';
 
-logger.info('CARREGANDO E-MAIL REAL — VAI CHEGAR NO GMAIL DE VERDADE!');
+logger.info('Configurando transporte de email...');
 
-// GMAIL REAL — FUNCIONANDO PERFEITO EM 2025
+// Configuração usando variáveis de ambiente
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: process.env.EMAIL_SERVICE || 'gmail',
   auth: {
-    user: 'natsunokill188@gmail.com',           // ← seu Gmail
-    pass: 'fdxxdockofacqmgo'                     // ← senha de app que você gerou (tudo junto!)
+    user: process.env.EMAIL_USER || 'natsunokill188@gmail.com',
+    pass: process.env.EMAIL_APP_PASS || 'fdxxdockofacqmgo'
   },
   tls: { rejectUnauthorized: false }
 });
@@ -17,9 +17,9 @@ const transporter = nodemailer.createTransport({
 // Verifica conexão com o Gmail
 transporter.verify((error, success) => {
   if (error) {
-    logger.error('ERRO AO CONECTAR NO GMAIL:', error.message);
+    logger.error('Erro ao conectar no Gmail:', error.message);
   } else {
-    logger.info('GMAIL CONECTADO COM SUCESSO! PRONTO PRA ENVIAR E-MAILS REAIS!');
+    logger.info('Gmail conectado - pronto para enviar emails');
   }
 });
 
@@ -29,7 +29,7 @@ const sendResetPasswordEmail = async (email, token) => {
 
   try {
     const info = await transporter.sendMail({
-      from: '"EDDA Energia" <natsunokill188@gmail.com>',
+      from: `"${process.env.EMAIL_FROM || 'EDDA Energia'}" <${process.env.EMAIL_USER || 'natsunokill188@gmail.com'}>`,
       to: email,
       subject: 'EDDA - Redefinição de Senha',
       html: `

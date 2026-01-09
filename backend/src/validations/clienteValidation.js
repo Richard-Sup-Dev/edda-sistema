@@ -7,6 +7,7 @@ const clienteSchema = Joi.object({
     .length(14)
     .pattern(/^\d{14}$/)
     .messages({
+      'string.empty': 'CNPJ é obrigatório',
       'string.pattern.base': 'CNPJ deve conter apenas 14 dígitos',
       'string.length': 'CNPJ deve ter exatamente 14 dígitos',
       'any.required': 'CNPJ é obrigatório'
@@ -48,9 +49,9 @@ const clienteSchema = Joi.object({
 
   cep: Joi.string()
     .optional()
-    .pattern(/^\d{8}$/)
+    .pattern(/^\d{5}-?\d{3}$/)
     .messages({
-      'string.pattern.base': 'CEP deve conter apenas 8 dígitos'
+      'string.pattern.base': 'CEP deve estar no formato 12345-678 ou 12345678'
     }),
 
   responsavel_contato: Joi.string()
