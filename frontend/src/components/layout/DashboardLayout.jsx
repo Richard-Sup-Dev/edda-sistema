@@ -1,8 +1,9 @@
 // src/components/layout/DashboardLayoutNew.jsx
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import notificacoesService from '@/services/notificacoesService';
+import atividadesService from '@/services/atividadesService';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home,
@@ -132,6 +133,10 @@ export default function DashboardLayoutNew() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
+  
+  // Estados de atividades (API real)
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [loadingActivities, setLoadingActivities] = useState(false);
   
   // Novos estados para melhorias de próxima geração
   const [showWidgetLibrary, setShowWidgetLibrary] = useState(false);
@@ -686,7 +691,30 @@ export default function DashboardLayoutNew() {
       carregarNotificacoes();
       // Atualizar a cada 30 segundos
       const interval = setInterval(carregarNotificacoes, 30000);
+     Carregar atividades recentes
+  const carregarAtividades = useCallback(async () => {
+    try {
+      setLoadingActivities(true);
+      const atividades = await atividadesService.recentes();
+      setRecentActivities(atividades);
+    } catch (error) {
+      console.error('Erro ao carregar atividades:', error);
+    } finally {
+      setLoadingActivities(false);
+    }
+  }, []);
+
+  // Carregar atividades ao montar
+  useEffect(() => {
+    if (user) {
+      carregarAtividades();
+      // Atualizar a cada 60 segundos
+      const interval = setInterval(carregarAtividades, 60000);
       return () => clearInterval(interval);
+    }
+  }, [user, carregarAtividades]);
+
+  //  return () => clearInterval(interval);
     }
   }, [user, carregarNotificacoes]);
 
@@ -705,13 +733,20 @@ export default function DashboardLayoutNew() {
 
   // Marcar todas como lidas
   const marcarTodasComoLidas = async () => {
-    try {
-      await notificacoesService.marcarTodasComoLidas();
-      setNotifications(prev => prev.map(n => ({ ...n, lida: true })));
-      setUnreadCount(0);
-    } catch (error) {
-      console.error('Erro ao marcar todas como lidas:', error);
-    }
+    tFormatar tempo relativo
+  const formatarTempoRelativo = (data) => {
+    const agora = new Date();
+    const dataAtividade = new Date(data);
+    const diffMs = agora - dataAtividade;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHoras = Math.floor(diffMs / 3600000);
+    const diffDias = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'agora';
+    if (diffMins < 60) return `${diffMins} min atrás`;
+    if (diffHoras < 24) return `${diffHoras} hora${diffHoras > 1 ? 's' : ''} atrás`;
+    return `${diffDias} dia${diffDias > 1 ? 's' : ''} atrás`;
+  } }
   };
 
   // Deletar notificação
@@ -1301,23 +1336,42 @@ export default function DashboardLayoutNew() {
                         <h3 className="font-bold text-gray-900">{t.activities}</h3>
                       </div>
                       <div className="max-h-96 overflow-y-auto">
-                        {recentActivities.map((activity) => (
-                          <div key={activity.id} className="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                            <div className="flex items-start gap-3">
-                              <div className={`w-2 h-2 rounded-full mt-2 ${
-                                activity.type === 'create' ? 'bg-green-500' :
-                                activity.type === 'update' ? 'bg-blue-500' : 'bg-red-500'
-                              }`}></div>
-                              <div className="flex-1">
-                                <p className="text-sm text-gray-900">
-                                  <span className="font-semibold">{activity.user}</span> {activity.action}{' '}
-                                  <span className="font-semibold">{activity.item}</span>
-                                </p>
-                                <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
+                        {loadingActivities ? (
+                          <div className="p-8 text-center text-gray-500">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                            <p className="mt-2 text-sm">Carregando...</p>
+                          </div>
+                        ) : recentActivities.length === 0 ? (
+                          <div className="p-8 text-center text-gray-500">
+                            <Clock size={32} className="mx-auto text-gray-300 mb-2" />
+                            <p className="text-sm">Nenhuma atividade recente</p>
+                          </div>
+                        ) : (
+                          recentActivities.map((activity) => (
+                            <div key={activity.id} className="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                              <div className="flex items-start gap-3">
+                                <div className={`w-2 h-2 rounded-full mt-2 ${
+                                  activity.tipo === 'create' ? 'bg-green-500' :
+                                  activity.tipo === 'update' ? 'bg-blue-500' : 
+                                  activity.tipo === 'delete' ? 'bg-red-500' :
+                                  activity.tipo === 'login' ? 'bg-purple-500' :
+                                  activity.tipo === 'export' ? 'bg-orange-500' : 'bg-gray-500'
+                                }`}></div>
+                                <div className="flex-1">
+                                  <p className="text-sm text-gray-900">
+                                    <span className="font-semibold">{activity.usuario}</span> {activity.acao}
+                                    {activity.descricao && (
+                                      <span className="text-gray-600"> - {activity.descricao}</span>
+                                    )}
+                                  </p>
+                                  <p className="text-xs text-gray-400 mt-1">
+                                    {formatarTempoRelativo(activity.createdAt)}
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          ))
+                        )}
                       </div>
                     </motion.div>
                   )}

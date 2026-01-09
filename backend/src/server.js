@@ -44,6 +44,7 @@ import clientesRoutes from './routes/clientes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import nfsRoutes from './routes/nfsRoutes.js';
 import notificacoesRoutes from './routes/notificacoesRoutes.js';
+import atividadesRoutes from './routes/atividadesRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -213,6 +214,7 @@ app.use('/api/clientes', clientesRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/nfs', nfsRoutes);
 app.use('/api/notificacoes', notificacoesRoutes);
+app.use('/api/atividades', atividadesRoutes);
 
 // Rota de saúde/teste
 app.get('/api/test', (req, res) => {

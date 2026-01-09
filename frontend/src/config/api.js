@@ -41,6 +41,11 @@ export const API_ENDPOINTS = {
   NOTIFICACOES_NAO_LIDAS: `${API_BASE_URL}/api/notificacoes/nao-lidas/count`,
   NOTIFICACOES_MARCAR_LIDAS: `${API_BASE_URL}/api/notificacoes/marcar-todas-lidas`,
   NOTIFICACOES_DELETAR_LIDAS: `${API_BASE_URL}/api/notificacoes/lidas/limpar`,
+
+  // Atividades
+  ATIVIDADES: `${API_BASE_URL}/api/atividades`,
+  ATIVIDADES_RECENTES: `${API_BASE_URL}/api/atividades/recentes`,
+  ATIVIDADES_ESTATISTICAS: `${API_BASE_URL}/api/atividades/estatisticas`,
 };
 
 /**
