@@ -240,7 +240,13 @@ app.use(errorHandler());
     console.log('🔵 [3.1] Database URL:', process.env.DATABASE_URL ? 'EXISTE' : 'NÃO EXISTE');
     await sequelize.authenticate();
     console.log('🔵 [4] PostgreSQL conectado!');
-    logger.info('Conectado ao PostgreSQL');
+    console.log('🔵 [4.1] Chamando logger.info...');
+    try {
+      logger.info('Conectado ao PostgreSQL');
+      console.log('🔵 [4.2] logger.info OK');
+    } catch (err) {
+      console.error('❌ Erro no logger.info:', err);
+    }
 
     // Redis desabilitado para Render free tier
     // try {
