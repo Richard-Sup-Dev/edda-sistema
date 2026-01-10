@@ -1,16 +1,18 @@
 // backend/src/controllers/healthController.js
 import sequelize from '../config/database.js';
-import Redis from 'ioredis';
+// import Redis from 'ioredis';
 
-const redis = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: process.env.REDIS_PORT || 6379,
-  password: process.env.REDIS_PASSWORD,
-  retryStrategy: (times) => {
-    return null; // Não retentar em health checks
-  },
-  maxRetriesPerRequest: 1
-});
+// Redis desabilitado para Render free tier
+// const redis = new Redis({
+//   host: process.env.REDIS_HOST || 'localhost',
+//   port: process.env.REDIS_PORT || 6379,
+//   password: process.env.REDIS_PASSWORD,
+//   retryStrategy: (times) => {
+//     return null; // Não retentar em health checks
+//   },
+//   maxRetriesPerRequest: 1
+// });
+const redis = null;
 
 class HealthController {
   /**
