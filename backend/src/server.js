@@ -226,15 +226,20 @@ app.use(errorHandler());
 // === INICIALIZAÇÃO ===
 (async () => {
   try {
+    console.log('🔵 [1] Iniciando setup de error handlers...');
     // Setup de handlers de erro global
     setupGlobalErrorHandlers(logger);
     
+    console.log('🔵 [2] Validando variáveis de ambiente...');
     // Validar variáveis de ambiente antes de qualquer coisa (exceto em testes)
     if (process.env.NODE_ENV !== 'test') {
       validateEnvironment();
     }
     
+    console.log('🔵 [3] Conectando ao PostgreSQL...');
+    console.log('🔵 [3.1] Database URL:', process.env.DATABASE_URL ? 'EXISTE' : 'NÃO EXISTE');
     await sequelize.authenticate();
+    console.log('🔵 [4] PostgreSQL conectado!');
     logger.info('Conectado ao PostgreSQL');
 
     // Redis desabilitado para Render free tier
