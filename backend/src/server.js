@@ -283,6 +283,8 @@ app.use(errorHandler());
     logger.info('');
 
   } catch (erro) {
+    console.error('❌ ERRO AO INICIAR SERVIDOR:', erro);
+    console.error('Stack trace:', erro.stack);
     logger.error('Falha ao iniciar o servidor', { 
       message: erro.message, 
       stack: erro.stack 
