@@ -73,17 +73,11 @@ class HealthController {
       checks.database = false;
     }
 
-    // 2. Check Redis
-    try {
-      await redis.ping();
-      checks.redis = true;
-    } catch (error) {
-      errors.push(`Redis: ${error.message}`);
-      checks.redis = false;
-    }
+    // 2. Check Redis (desabilitado)
+    checks.redis = true; // Redis desabilitado - sempre true
 
     // 3. Overall status
-    checks.overall = checks.database && checks.redis;
+    checks.overall = checks.database; // Removido && checks.redis
 
     const status = checks.overall ? 200 : 503;
 
@@ -129,22 +123,11 @@ class HealthController {
       };
     }
 
-    // Check Redis com latência
-    try {
-      const start = Date.now();
-      await redis.ping();
-      health.checks.redis = {
-        status: 'healthy',
-        latency: Date.now() - start
-      };
-    } catch (error) {
-      health.status = 'degraded';
-      health.checks.redis = {
-        status: 'unhealthy',
-        error: error.message,
-        latency: 0
-      };
-    }
+    // Check Redis (desabilitado)
+    health.checks.redis = {
+      status: 'disabled',
+      latency: 0
+    };
 
     const statusCode = health.status === 'healthy' ? 200 : health.status === 'degraded' ? 200 : 503;
 
