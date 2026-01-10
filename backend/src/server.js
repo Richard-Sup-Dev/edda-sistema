@@ -249,17 +249,22 @@ app.use(errorHandler());
     //   logger.warn('⚠️  Redis não disponível - sistema funcionará sem cache');
     // }
 
+    console.log('🔵 [5] Verificando modo de produção...');
     // Sincronizar models sem alterar estrutura em produção
     if (process.env.NODE_ENV !== 'production') {
+      console.log('🔵 [5.1] Modo dev - sincronizando models...');
       await sequelize.sync({ alter: false });
       logger.info('Modelos Sequelize sincronizados');
     } else {
+      console.log('🔵 [5.2] Modo produção - sync desabilitado');
       logger.info('⚠️ Modo produção - sync desabilitado (use migrations)');
     }
 
+    console.log('🔵 [6] Verificando usuário admin...');
     const adminExiste = await User.findOne({ where: { email: 'admin@edda.com' } });
 
     if (!adminExiste) {
+      console.log('🔵 [6.1] Criando usuário admin...');
       const hash = await bcrypt.hash('Admin@2025EDDA', 12);
       await User.create({
         nome: 'Administrador EDDA',
@@ -267,13 +272,17 @@ app.use(errorHandler());
         senha: hash,
         role: 'admin'
       });
+      console.log('🔵 [6.2] Admin criado!');
       logger.info('Usuário admin criado: admin@edda.com');
     } else {
+      console.log('🔵 [6.3] Admin já existe');
       logger.info('Usuário admin já existe');
     }
 
+    console.log('🔵 [7] Iniciando servidor HTTP...');
     // Iniciar servidor HTTP
     const server = app.listen(port, '0.0.0.0', () => {
+      console.log('🔵 [8] Servidor HTTP iniciado!');
       logger.info('');
       logger.info('Servidor EDDA iniciado com sucesso');
       logger.info(`📍 Listening on http://0.0.0.0:${port}`);
