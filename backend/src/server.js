@@ -56,6 +56,8 @@ const app = express();
 const port = process.env.PORT || 10000;
 // Endpoint de health para Render
 app.get('/health', (req, res) => res.send('OK'));
+// Endpoint extra para Render (compatível com /healthz)
+app.get('/healthz', (req, res) => res.send('OK'));
 
 // === CONFIGURAÇÃO DINÂMICA DE CORS ===
 // Suporta variantes com/sem porta (ex: http://localhost e http://localhost:80)
