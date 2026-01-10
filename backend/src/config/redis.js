@@ -13,14 +13,11 @@ class RedisClient {
    * Sistema funcionará normalmente mesmo sem Redis (modo degradado)
    */
   async connect() {
-    // Se Redis está desabilitado via env, pular conexão
-    if (process.env.REDIS_DISABLED === 'true') {
-      logger.info('⚠️  Redis desabilitado via configuração');
-      logger.info('💡 Sistema funcionará sem cache (modo degradado)');
-      this.client = null;
-      this.isConnected = false;
-      return null;
-    }
+    // SEMPRE desabilitar Redis em produção (Render free tier)
+    logger.info('Redis desabilitado - sistema funcionando sem cache');
+    this.client = null;
+    this.isConnected = false;
+    return null;
 
     try {
       const redisConfig = {
