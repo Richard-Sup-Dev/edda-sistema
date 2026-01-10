@@ -237,12 +237,12 @@ app.use(errorHandler());
     await sequelize.authenticate();
     logger.info('Conectado ao PostgreSQL');
 
-    // Conectar ao Redis (opcional - não bloqueia inicialização)
-    try {
-      await redisClient.connect();
-    } catch (error) {
-      logger.warn('⚠️  Redis não disponível - sistema funcionará sem cache');
-    }
+    // Redis desabilitado para Render free tier
+    // try {
+    //   await redisClient.connect();
+    // } catch (error) {
+    //   logger.warn('⚠️  Redis não disponível - sistema funcionará sem cache');
+    // }
 
     // Sincronizar models sem alterar estrutura em produção
     if (process.env.NODE_ENV !== 'production') {

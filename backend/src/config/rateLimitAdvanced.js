@@ -8,16 +8,17 @@ import redis from 'redis';
 // Criar cliente Redis se disponível (para produção)
 let redisClient = null;
 
-try {
-  if (process.env.REDIS_URL) {
-    redisClient = redis.createClient({
-      url: process.env.REDIS_URL
-    });
-    redisClient.connect();
-  }
-} catch (err) {
-  console.log('Redis não disponível, usando memory store');
-}
+// Redis desabilitado para Render free tier
+// try {
+//   if (process.env.REDIS_URL) {
+//     redisClient = redis.createClient({
+//       url: process.env.REDIS_URL
+//     });
+//     redisClient.connect();
+//   }
+// } catch (err) {
+//   console.log('Redis não disponível, usando memory store');
+// }
 
 // ========================================
 // Rate Limiting por Tipo de Requisição
