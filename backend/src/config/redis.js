@@ -1,5 +1,5 @@
 // backend/src/config/redis.js
-import Redis from 'ioredis';
+// import Redis from 'ioredis'; // DESABILITADO para Render free tier
 import logger from './logger.js';
 
 class RedisClient {
@@ -40,7 +40,7 @@ class RedisClient {
         lazyConnect: true, // Não conectar automaticamente
       };
 
-      this.client = new Redis(redisConfig);
+      // this.client = new Redis(redisConfig); // DESABILITADO
 
       this.client.on('connect', () => {
         logger.info('✅ Redis conectado com sucesso');
