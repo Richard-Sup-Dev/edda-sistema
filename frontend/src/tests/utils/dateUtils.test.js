@@ -1,4 +1,5 @@
 // src/tests/utils/dateUtils.test.js
+import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { formatDistanceToNow, formatDate, isValidDate } from '@/utils/dateUtils';
 

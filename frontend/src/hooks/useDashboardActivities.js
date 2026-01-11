@@ -44,8 +44,8 @@ export function useDashboardActivities() {
   const carregarAtividades = useCallback(async () => {
     try {
       setLoadingAtividades(true);
-      const response = await atividadesService.listarRecentes({ limit: 5 });
-      setAtividadesRecentes(response.data || []);
+      const atividades = await atividadesService.recentes();
+      setAtividadesRecentes(atividades);
     } catch (error) {
       console.error('Erro ao carregar atividades:', error);
       // Não mostra toast para não poluir UI

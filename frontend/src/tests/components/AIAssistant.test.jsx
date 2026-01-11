@@ -1,4 +1,4 @@
-// src/tests/components/AIAssistant.test.jsx
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen } from '@testing-library/react';
 import AIAssistant from '@/components/AIAssistant';
@@ -18,7 +18,6 @@ describe('AIAssistant Component', () => {
 
   it('deve renderizar o botão do assistente', () => {
     renderWithRouterOnly(<AIAssistant />);
-    
     const button = screen.getByRole('button');
     expect(button).toBeInTheDocument();
   });

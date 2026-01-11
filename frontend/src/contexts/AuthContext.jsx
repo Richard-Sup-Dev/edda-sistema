@@ -15,16 +15,27 @@ export const AuthProvider = ({ children }) => {
 
   // Verifica token ao carregar a página
   useEffect(() => {
-    // Não usa mais localStorage para token, apenas para user (opcional)
-    apiClient.get('/auth/me')
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      setUser(null);
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
+      return;
+    }
+    apiClient.get('/auth/me', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then((response) => {
         const userData = response.data.user || response.data;
         setUser(userData);
-        marcarVersaoToken(); // Marca versão como válida
+        marcarVersaoToken();
       })
       .catch((error) => {
         logger.error('Token validation failed:', error.response?.data || error.message);
         setUser(null);
+        localStorage.removeItem('token');
         if (!window.location.pathname.includes('/login')) {
           window.location.href = '/login';
         }
@@ -41,7 +52,8 @@ export const AuthProvider = ({ children }) => {
         email,
         senha
       });
-      const userData = response.data.user;
+      const { token, user: userData } = response.data;
+      localStorage.setItem('token', token);
       setUser(userData);
       marcarVersaoToken();
       return { success: true };
@@ -53,8 +65,8 @@ export const AuthProvider = ({ children }) => {
 
   // Função de logout
   const logout = async () => {
-    // Opcional: pode criar endpoint /auth/logout para limpar cookies no backend
     setUser(null);
+    localStorage.removeItem('token');
     window.location.href = '/login';
   };
 

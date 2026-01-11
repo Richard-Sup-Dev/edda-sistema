@@ -1,4 +1,3 @@
-// src/tests/pages/Login.test.jsx
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen } from '@testing-library/react';
 import { render } from '@testing-library/react';
@@ -18,6 +17,7 @@ vi.mock('@/pages/Login', () => ({
 }));
 
 import Login from '@/pages/Login';
+import React from 'react';
 
 describe('Login Page', () => {
   beforeEach(() => {

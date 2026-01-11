@@ -1,4 +1,4 @@
-// src/tests/pages/Dashboard.test.jsx
+import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { render } from '@testing-library/react';

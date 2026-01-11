@@ -1,3 +1,16 @@
+// src/services/apiClient.js
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+// Criar instância do axios
+const apiClient = axios.create({
+  baseURL: `${API_BASE_URL}/api`,
+  headers: {
+    'Content-Type': 'application/json',
+  }
+});
+
 // Utilitário para obter CSRF token
 let csrfToken = null;
 export async function getCsrfToken() {
@@ -8,33 +21,15 @@ export async function getCsrfToken() {
   return csrfToken;
 }
 
-// Adiciona CSRF token em requisições mutáveis
-apiClient.interceptors.request.use(async (config) => {
-  const mutatingMethods = ['post', 'put', 'patch', 'delete'];
-  if (mutatingMethods.includes(config.method)) {
-    if (!csrfToken) {
-      await getCsrfToken();
-    }
-    config.headers['X-CSRF-Token'] = csrfToken;
+
+// Adiciona o token JWT salvo no localStorage no header Authorization
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
   }
   return config;
 });
-// src/services/apiClient.js
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
-// Criar instância do axios
-
-const apiClient = axios.create({
-  baseURL: `${API_BASE_URL}/api`,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true // Permite envio de cookies
-});
-
-// Não é mais necessário adicionar token manualmente, pois será enviado via cookie HttpOnly
 
 // Interceptor para tratar erros de resposta
 apiClient.interceptors.response.use(

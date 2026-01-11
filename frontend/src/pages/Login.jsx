@@ -174,7 +174,8 @@ export default function Login() {
                           onChange={form.handleChange}
                           placeholder="Nome completo"
                           required
-                          className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
+                          className="w-full pl-12 pr-4 py-3.5 bg-gray-900/80 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all shadow-sm"
+                          autoComplete="name"
                         />
                       </div>
                     </motion.div>
@@ -183,7 +184,7 @@ export default function Login() {
 
                 {/* Email */}
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-400 group-focus-within:text-orange-500 transition-colors drop-shadow" />
                   <input
                     name="email"
                     type="email"
@@ -191,7 +192,8 @@ export default function Login() {
                     onChange={form.handleChange}
                     placeholder="Email corporativo"
                     required
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
+                    className="w-full pl-12 pr-4 py-3.5 bg-gray-900/80 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all shadow-sm"
+                    autoComplete="email"
                   />
                 </div>
 
@@ -199,7 +201,7 @@ export default function Login() {
                   <>
                     {/* Senha */}
                     <div className="relative group">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-400 group-focus-within:text-orange-500 transition-colors drop-shadow" />
                       <input
                         name="senha"
                         type={mostrarSenha ? 'text' : 'password'}
@@ -207,12 +209,15 @@ export default function Login() {
                         onChange={form.handleChange}
                         placeholder="Senha segura"
                         required
-                        className="w-full pl-12 pr-12 py-3.5 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
+                        className="w-full pl-12 pr-12 py-3.5 bg-gray-900/80 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all shadow-sm"
+                        autoComplete="current-password"
                       />
                       <button
                         type="button"
                         onClick={toggleMostrarSenha}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500 transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-orange-400 hover:text-orange-500 transition-colors drop-shadow"
+                        tabIndex={-1}
+                        aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
                       >
                         {mostrarSenha ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
@@ -229,7 +234,7 @@ export default function Login() {
                           className="space-y-4"
                         >
                           <div className="relative group">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-orange-500 transition-colors" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-orange-400 group-focus-within:text-orange-500 transition-colors drop-shadow" />
                             <input
                               name="confirmarSenha"
                               type={mostrarSenha ? 'text' : 'password'}
@@ -237,7 +242,8 @@ export default function Login() {
                               onChange={form.handleChange}
                               placeholder="Confirmar senha"
                               required
-                              className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
+                              className="w-full pl-12 pr-4 py-3.5 bg-gray-900/80 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all shadow-sm"
+                              autoComplete="new-password"
                             />
                           </div>
 

@@ -111,11 +111,15 @@ export default function DashboardLayout() {
   const loadNotifications = async () => {
     try {
       setLoadingNotifications(true);
-      const response = await notificacoesService.getNotificacoes();
-      setNotifications(response.data || []);
-      const unread = (response.data || []).filter((n) => !n.lida).length;
+      const response = await notificacoesService.listar();
+      // Garante que response é array, se não, retorna array vazio
+      const notificationsArr = Array.isArray(response) ? response : [];
+      setNotifications(notificationsArr);
+      const unread = notificationsArr.filter((n) => !n.lida).length;
       setUnreadCount(unread);
     } catch (error) {
+      setNotifications([]);
+      setUnreadCount(0);
       console.error('Erro ao carregar notificações:', error);
     } finally {
       setLoadingNotifications(false);
@@ -125,9 +129,10 @@ export default function DashboardLayout() {
   const loadActivities = async () => {
     try {
       setLoadingActivities(true);
-      const response = await atividadesService.getAtividades({ limit: 10 });
-      setRecentActivities(response.data || []);
+      const response = await atividadesService.recentes();
+      setRecentActivities(Array.isArray(response) ? response : []);
     } catch (error) {
+      setRecentActivities([]);
       console.error('Erro ao carregar atividades:', error);
     } finally {
       setLoadingActivities(false);

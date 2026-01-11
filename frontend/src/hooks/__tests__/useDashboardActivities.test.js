@@ -7,7 +7,7 @@ import * as atividadesService from '@/services/atividadesService';
 // Mock do serviço
 vi.mock('@/services/atividadesService', () => ({
   default: {
-    listarRecentes: vi.fn(),
+    recentes: vi.fn(),
   },
 }));
 
@@ -20,7 +20,7 @@ describe('useDashboardActivities', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    atividadesService.default.listarRecentes.mockResolvedValue({ data: mockAtividades });
+    atividadesService.default.recentes.mockResolvedValue(mockAtividades);
   });
 
   it('deve carregar atividades na montagem', async () => {
@@ -33,7 +33,7 @@ describe('useDashboardActivities', () => {
     });
 
     expect(result.current.atividadesRecentes).toEqual(mockAtividades);
-    expect(atividadesService.default.listarRecentes).toHaveBeenCalledWith({ limit: 5 });
+    expect(atividadesService.default.recentes).toHaveBeenCalledTimes(1);
   });
 
   it('deve recarregar atividades manualmente', async () => {
@@ -43,16 +43,16 @@ describe('useDashboardActivities', () => {
       expect(result.current.loadingAtividades).toBe(false);
     });
 
-    expect(atividadesService.default.listarRecentes).toHaveBeenCalledTimes(1);
+    expect(atividadesService.default.recentes).toHaveBeenCalledTimes(1);
 
     await result.current.carregarAtividades();
 
-    expect(atividadesService.default.listarRecentes).toHaveBeenCalledTimes(2);
+    expect(atividadesService.default.recentes).toHaveBeenCalledTimes(2);
   });
 
   it('deve tratar erro silenciosamente', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-    atividadesService.default.listarRecentes.mockRejectedValue(new Error('Erro ao carregar'));
+    atividadesService.default.recentes.mockRejectedValue(new Error('Erro ao carregar'));
 
     const { result } = renderHook(() => useDashboardActivities());
 
@@ -67,7 +67,7 @@ describe('useDashboardActivities', () => {
   });
 
   it('deve retornar array vazio quando não há dados', async () => {
-    atividadesService.default.listarRecentes.mockResolvedValue({ data: null });
+    atividadesService.default.recentes.mockResolvedValue([]);
 
     const { result } = renderHook(() => useDashboardActivities());
 

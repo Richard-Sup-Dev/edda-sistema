@@ -1,4 +1,4 @@
-// src/tests/components/LoadingSpinner.test.jsx
+import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';

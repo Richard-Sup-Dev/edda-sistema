@@ -1,4 +1,5 @@
 ﻿// frontend/src/tests/hooks/useWebSocket.test.js
+import React from 'react';
 import { describe, it, expect } from 'vitest';
 
 // Mock simplificado - WebSocket é muito complexo para testar em unit tests

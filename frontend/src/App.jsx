@@ -6,7 +6,7 @@ import Login from "@/pages/Login.jsx";
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 // Layout (crítico, carrega sempre)
-import DashboardLayout from '@/components/dashboard/DashboardLayoutRefactored';
+import DashboardLayoutNew from '@/components/layout/DashboardLayoutNew';
 
 // Páginas com lazy loading
 const Dashboard = lazy(() => import("@/pages/Dashboard.jsx"));
@@ -141,7 +141,7 @@ function App() {
           />
 
           {/* ========== DASHBOARD COM LAYOUT (rotas aninhadas) ========== */}
-          <Route path="/dashboard" element={<ProtectedRoute><DataProvider><DashboardLayout /></DataProvider></ProtectedRoute>}>
+          <Route path="/dashboard" element={<ProtectedRoute><DataProvider><DashboardLayoutNew /></DataProvider></ProtectedRoute>}>
             {/* Dashboard principal com gráficos */}
             <Route
               index
