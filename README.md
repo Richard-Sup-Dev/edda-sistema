@@ -80,116 +80,99 @@ Acesse: http://localhost:5173
 ## 🧪 Testes
 ```bash
 # Backend
-cd backend && npm test
-# Frontend
-cd frontend && npm run test
+# Sistema de Relatórios Técnicos
+
+Sistema web completo para gestão e geração de relatórios técnicos de manutenção industrial, com foco em **segurança, automação, escalabilidade e operação em produção**.
+
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Richard-Sup-Dev/edda-sistema/ci.yml?branch=main)](https://github.com/Richard-Sup-Dev/edda-sistema/actions)
+[![License](https://img.shields.io/github/license/Richard-Sup-Dev/edda-sistema)](LICENSE)
+
+---
+
+## 📌 Visão Geral
+
+Plataforma desenvolvida para empresas de manutenção industrial, permitindo o controle de clientes, relatórios técnicos, orçamentos e geração automática de PDFs profissionais com fotos e medições técnicas.
+
+---
+
+## ⚙️ Funcionalidades
+
+### 📄 Relatórios Técnicos
+- Relatórios com múltiplas fotos
+- Medições técnicas (resistência, batimento)
+- Geração automática de PDF
+- Histórico por cliente
+
+### 👥 Clientes e Orçamentos
+- Cadastro completo de clientes (CNPJ, contatos)
+- Catálogo de peças e serviços
+- Orçamentos com cálculo automático
+
+### 🔐 Segurança
+- Autenticação JWT com controle de permissões
+- Rate limiting
+- Validação de dados
+- Logs estruturados
+
+---
+
+## 🧠 Tecnologias
+
+**Backend**
+- Node.js 20, Express
+- PostgreSQL 14+
+- Sequelize ORM
+- JWT, Jest
+
+**Frontend**
+- React 19, Vite 7
+- Tailwind CSS 4
+- React Router, Axios
+- Vitest
+
+**DevOps**
+- Docker e Docker Compose
+- GitHub Actions (CI/CD)
+
+---
+
+## 🚀 Quick Start (Docker – Recomendado)
+
+```bash
+git clone https://github.com/Richard-Sup-Dev/edda-sistema.git
+cd edda-sistema
+docker-compose up -d
 ```
 
-## 📘 Documentação
+Acesse: http://localhost:5173
+
+📘 Instalação manual e configurações avançadas: QUICK_START.md
+
+📘 Documentação
 
 - Swagger API
 - Exemplos de uso: API_EXEMPLOS.md
-- Checklist de produção e deploy
+- Checklist de produção: CHECKLIST_PRODUCAO.md
 
-## 🗺️ Roadmap
+🗺️ Roadmap
+
 - Notificações em tempo real (WebSocket)
 - Assistente inteligente com IA
-- Busca avançada e filtros inteligentes
+- Busca avançada e filtros
 - Backup automatizado em nuvem
 
-## 🤝 Contribuição e Segurança
+🤝 Contribuição e Segurança
 
-- Diretrizes em CONTRIBUTING.md
-- Política de segurança em SECURITY.md
+- CONTRIBUTING.md
+- SECURITY.md
 
-## 📬 Contato
+📬 Contato
 
-Dúvidas ou sugestões? Abra uma issue ou entre em contato: richard@seudominio.com
-
-## 📄 Licença
-
-MIT
-
----
-
-## 🧠 Veredito final (sincero)
-- 📈 **Evolução absurda em poucos meses**
-- 🧑‍💻 Isso já é **portfólio sério**
-- 🏢 Pode ser mostrado sem medo
-- ❌ Não parece “projeto de curso”
-cd frontend
-npm install
-npm run dev
-```
-
-## Testes
-
-### Backend
-```bash
-cd backend
-npm test
-```
-
-### Frontend
-```bash
-cd frontend
-npm run test
-```
-
-## Documentação
-- [Swagger API](./backend/SWAGGER_DOCUMENTATION.md)
-- [Exemplos de uso da API](./API_EXEMPLOS.md)
-- [Checklist de backup/restore](./BACKUP_RESTORE_CHECKLIST.md)
-
-## Contribuição
-Consulte [CONTRIBUTING.md](CONTRIBUTING.md) para diretrizes de contribuição.
-
-## Segurança
-Consulte [SECURITY.md](SECURITY.md) para políticas de segurança e reporte de vulnerabilidades.
-
-## Checklist Profissional
-- [x] CI/CD (GitHub Actions)
-- [x] Testes automatizados
-- [x] Documentação de API
-- [x] Templates de issues e PRs
-- [x] Checklist de backup
-- [x] Segurança avançada
-- [x] Docker e deploy
-
-## Contato
 Dúvidas ou sugestões? Abra uma issue ou envie um e-mail para richard@seudominio.com
 
----
+📄 Licença
 
-<p align="center">
-	<img src="https://user-images.githubusercontent.com/your-demo-image.png" width="400" alt="Demonstração do sistema" />
-</p>
-**Frontend (.env.local)**
-```env
-VITE_API_URL=http://localhost:3001
-VITE_ENV=development
-```
-
-## Testes
-
-```bash
-# Backend
-cd backend
-npm test
-
-# Frontend
-cd frontend
-npm test
-```
-
-## Deploy
-
-Ver [CHECKLIST_PRODUCAO.md](CHECKLIST_PRODUCAO.md) para instruções detalhadas.
-
-### Backend (Render)
-1. Criar conta em render.com
-2. New Web Service → Connect GitHub
-3. Build: `cd backend && npm install`
+MIT
 4. Start: `cd backend && npm start`
 5. Adicionar variáveis de ambiente
 
