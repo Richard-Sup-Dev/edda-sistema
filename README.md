@@ -457,38 +457,79 @@ Sistema completo para gestão e geração de relatórios técnicos de manutenç�
 ## Visão Geral
 Sistema web para gestão de relatórios técnicos, clientes e orçamentos, com autenticação segura, geração de PDFs e painel administrativo.
 
-## Principais Funcionalidades
-- Gestão de relatórios técnicos (com fotos e medições)
-- Cadastro e histórico de clientes
-- Geração de orçamentos
-- Geração automática de PDF
-- Autenticação JWT, rate limiting, logs estruturados
-- Painel administrativo
+
+# Sistema de Relatórios Técnicos
+
+Sistema web completo para gestão e geração de relatórios técnicos de manutenção industrial, com foco em **segurança, automação, escalabilidade e operação em produção**.
+
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Richard-Sup-Dev/edda-sistema/ci.yml?branch=main)](https://github.com/Richard-Sup-Dev/edda-sistema/actions)
+[![License](https://img.shields.io/github/license/Richard-Sup-Dev/edda-sistema)](LICENSE)
+[![Issues](https://img.shields.io/github/issues/Richard-Sup-Dev/edda-sistema)](https://github.com/Richard-Sup-Dev/edda-sistema/issues)
+
+## Visão Geral
+
+Este sistema foi desenvolvido para atender empresas de manutenção industrial, permitindo o controle completo de clientes, relatórios técnicos, orçamentos e geração automática de PDFs profissionais com fotos e medições técnicas.
+
+---
+
+## Funcionalidades
+
+### 📄 Relatórios Técnicos
+- Criação de relatórios com múltiplas fotos
+- Registro de medições técnicas (resistência, batimento)
+- Geração automática de PDF formatado
+- Histórico completo por cliente
+
+### 👥 Clientes e Orçamentos
+- Cadastro de clientes com CNPJ, endereço e contatos
+- Upload de logo para personalização
+- Catálogo de peças e serviços
+- Geração de orçamentos integrados com cálculo automático
+
+### 🔐 Segurança
+- Autenticação JWT com roles
+- Rate limiting
+- Validação de dados
+- Logs estruturados
+
+---
 
 ## Tecnologias
-- Node.js, Express, PostgreSQL, Sequelize, JWT, Jest
-- React, Vite, Tailwind CSS, React Router, Axios, Vitest
 
-## Instalação e Uso
-
-### Pré-requisitos
-- Node.js 20+
+**Backend**
+- Node.js 20, Express
 - PostgreSQL 14+
-- npm ou yarn
+- Sequelize ORM
+- JWT, Jest
 
-### Passos Rápidos
+**Frontend**
+- React 19, Vite 7
+- Tailwind CSS 4
+- React Router, Axios
+- Vitest
+
+**DevOps**
+- Docker e Docker Compose
+- GitHub Actions (CI/CD)
+
+---
+
+## 🚀 Quick Start (Docker - Recomendado)
+
 ```bash
 git clone https://github.com/Richard-Sup-Dev/edda-sistema.git
 cd edda-sistema
-# Backend
-cd backend && npm install && cp .env.example .env
-# Configure as variáveis no .env
-npm run migrate && npm run seed && npm start
-# Frontend
-cd ../frontend && npm install && npm run dev
+docker-compose up -d
 ```
 
-Veja detalhes em [QUICK_START.md](QUICK_START.md)
+Acesse: http://localhost:5173
+
+---
+
+## Instalação Manual
+Veja o guia completo em [QUICK_START.md](QUICK_START.md)
+
+---
 
 ## Testes
 ```bash
@@ -498,22 +539,45 @@ cd backend && npm test
 cd frontend && npm run test
 ```
 
-## Deploy
-Guia completo: [DEPLOY.md](DEPLOY.md)
-Checklist: [CHECKLIST_PRODUCAO.md](CHECKLIST_PRODUCAO.md)
+---
 
-## Documentação
-- [Swagger API](./backend/SWAGGER_DOCUMENTATION.md)
-- [Exemplos de uso da API](./API_EXEMPLOS.md)
-- [Checklist de backup/restore](./BACKUP_RESTORE_CHECKLIST.md)
+## API
+A API REST expõe endpoints para autenticação, clientes, relatórios e orçamentos.
 
-## Variáveis de Ambiente
-Consulte os arquivos `.env.example` no backend e frontend.
+📘 Documentação completa disponível via [Swagger](./backend/SWAGGER_DOCUMENTATION.md).
+
+Exemplos de uso: [API_EXEMPLOS.md](./API_EXEMPLOS.md)
+
+---
+
+## Roadmap
+- Notificações em tempo real (WebSocket)
+- Assistente inteligente com IA
+- Busca avançada e filtros inteligentes
+- Backup automatizado em nuvem
+
+---
+
+## Checklist Profissional
+- CI/CD com GitHub Actions
+- Testes automatizados
+- Documentação de API
+- Segurança avançada
+- Docker e deploy
+- Backup e restore
+
+---
 
 ## Contribuição e Segurança
 - [Guia de contribuição](CONTRIBUTING.md)
 - [Política de segurança](SECURITY.md)
 
+---
+
+## Contato
+Dúvidas ou sugestões? Abra uma issue ou envie um e-mail para richard@seudominio.com
+
+---
+
 ## Licença
 MIT
-DB_PORT=5432
