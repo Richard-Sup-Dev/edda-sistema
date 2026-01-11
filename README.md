@@ -24,6 +24,71 @@ Sistema completo para gestão e geração de relatórios técnicos de manutenç�
 - Autenticação JWT com roles
 - Rate limiting
 - Validação de dados
+### Backend
+- Node.js 20+
+- Sequelize ORM
+- Jest para testes
+- Vite 7
+- Tailwind CSS 4
+## Instalação
+
+### Pré-requisitos
+- Node.js 20 ou superior
+cd backend
+npm install
+
+```bash
+cd frontend
+npm install
+```
+
+## Configuração
+
+### Variáveis de Ambiente
+
+**Backend (.env)**
+```env
+npm start
+NODE_ENV=development
+PORT=3001
+DATABASE_URL=postgresql://user:password@host:5432/database
+JWT_SECRET=sua_chave_secreta
+ALLOWED_ORIGINS=http://localhost:5173
+EMAIL_SERVICE=gmail
+EMAIL_USER=seu_email@gmail.com
+EMAIL_APP_PASS=senha_app
+```
+
+# Sistema de Relatórios Técnicos
+
+Sistema completo para gestão e geração de relatórios técnicos de manutenção industrial, desenvolvido com React, Node.js e PostgreSQL.
+
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Richard-Sup-Dev/edda-sistema/ci.yml?branch=main)](https://github.com/Richard-Sup-Dev/edda-sistema/actions)
+[![License](https://img.shields.io/github/license/Richard-Sup-Dev/edda-sistema)](LICENSE)
+[![Issues](https://img.shields.io/github/issues/Richard-Sup-Dev/edda-sistema)](https://github.com/Richard-Sup-Dev/edda-sistema/issues)
+
+## Funcionalidades
+
+### Gestão de Relatórios
+- Criação de relatórios técnicos com múltiplas fotos
+- Registro de medições técnicas (resistência, batimento)
+- Geração automática de PDF formatado
+- Histórico completo por cliente
+
+### Gestão de Clientes
+- Cadastro com CNPJ, endereço e contatos
+- Upload de logo para personalização
+- Histórico de atendimentos
+
+### Orçamentos
+- Catálogo de peças e serviços
+- Geração de orçamentos integrados
+- Cálculo automático de totais
+
+### Segurança
+- Autenticação JWT com roles
+- Rate limiting
+- Validação de dados
 - Logs estruturados
 
 ## Tecnologias
@@ -52,41 +117,65 @@ Sistema completo para gestão e geração de relatórios técnicos de manutenç�
 - npm ou yarn
 
 ### Backend
-
 ```bash
 cd backend
 npm install
 cp .env.example .env
 # Configurar variáveis no .env
+npm run migrate # Executa as migrações do banco
+npm run seed    # (Opcional) Popula dados de teste
 npm start
 ```
 
 ### Frontend
-
 ```bash
 cd frontend
 npm install
-cp .env.example .env.local
-# Configurar VITE_API_URL
 npm run dev
 ```
 
-## Configuração
+## Testes
 
-### Variáveis de Ambiente
-
-**Backend (.env)**
-```env
-NODE_ENV=development
-PORT=3001
-DATABASE_URL=postgresql://user:password@host:5432/database
-JWT_SECRET=sua_chave_secreta
-ALLOWED_ORIGINS=http://localhost:5173
-EMAIL_SERVICE=gmail
-EMAIL_USER=seu_email@gmail.com
-EMAIL_APP_PASS=senha_app
+### Backend
+```bash
+cd backend
+npm test
 ```
 
+### Frontend
+```bash
+cd frontend
+npm run test
+```
+
+## Documentação
+- [Swagger API](./backend/SWAGGER_DOCUMENTATION.md)
+- [Exemplos de uso da API](./API_EXEMPLOS.md)
+- [Checklist de backup/restore](./BACKUP_RESTORE_CHECKLIST.md)
+
+## Contribuição
+Consulte [CONTRIBUTING.md](CONTRIBUTING.md) para diretrizes de contribuição.
+
+## Segurança
+Consulte [SECURITY.md](SECURITY.md) para políticas de segurança e reporte de vulnerabilidades.
+
+## Checklist Profissional
+- [x] CI/CD (GitHub Actions)
+- [x] Testes automatizados
+- [x] Documentação de API
+- [x] Templates de issues e PRs
+- [x] Checklist de backup
+- [x] Segurança avançada
+- [x] Docker e deploy
+
+## Contato
+Dúvidas ou sugestões? Abra uma issue ou envie um e-mail para richard@seudominio.com
+
+---
+
+<p align="center">
+	<img src="https://user-images.githubusercontent.com/your-demo-image.png" width="400" alt="Demonstração do sistema" />
+</p>
 **Frontend (.env.local)**
 ```env
 VITE_API_URL=http://localhost:3001
