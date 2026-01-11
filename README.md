@@ -1,41 +1,16 @@
+
 # Sistema de Relatórios Técnicos
 
 Sistema web completo para gestão e geração de relatórios técnicos de manutenção industrial, com foco em **segurança, automação, escalabilidade e operação em produção**.
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/Richard-Sup-Dev/edda-sistema/ci.yml?branch=main)](https://github.com/Richard-Sup-Dev/edda-sistema/actions)
 [![License](https://img.shields.io/github/license/Richard-Sup-Dev/edda-sistema)](LICENSE)
-[![Issues](https://img.shields.io/github/issues/Richard-Sup-Dev/edda-sistema)](https://github.com/Richard-Sup-Dev/edda-sistema/issues)
-
-
-## 📌 Visão Geral
-
-Sistema desenvolvido para empresas de manutenção industrial, permitindo o controle completo de clientes, relatórios técnicos, orçamentos e geração automática de PDFs profissionais com fotos e medições técnicas.
 
 ---
 
-## ⚙️ Funcionalidades
-
-### 📄 Relatórios Técnicos
-- Criação de relatórios com múltiplas fotos
-- Registro de medições técnicas (resistência, batimento)
-- Geração automática de PDF formatado
-- Histórico completo por cliente
-
-### 👥 Clientes e Orçamentos
-- Cadastro de clientes com CNPJ, endereço e contatos
-- Upload de logo para personalização
-
-# Sistema de Relatórios Técnicos
-
-Sistema web completo para gestão e geração de relatórios técnicos de manutenção industrial, com foco em **segurança, automação, escalabilidade e operação em produção**.
-
-[![Build Status](https://img.shields.io/github/actions/workflow/status/Richard-Sup-Dev/edda-sistema/ci.yml?branch=main)](https://github.com/Richard-Sup-Dev/edda-sistema/actions)
-[![License](https://img.shields.io/github/license/Richard-Sup-Dev/edda-sistema)](LICENSE)
-
-
 ## 📌 Visão Geral
 
-Plataforma desenvolvida para empresas de manutenção industrial, permitindo o controle completo de **clientes, relatórios técnicos, orçamentos** e a **geração automática de PDFs profissionais** com fotos e medições técnicas.
+Plataforma desenvolvida para empresas de manutenção industrial que precisam organizar **clientes, relatórios técnicos e orçamentos**, com **geração automática de PDFs profissionais** contendo fotos e medições técnicas.
 
 ---
 
@@ -88,11 +63,35 @@ cd edda-sistema
 docker-compose up -d
 ```
 
+
 Acesse: http://localhost:5173
 
----
+📘 Documentação
 
-## 📘 Documentação
+Guia de início rápido: QUICK_START.md
+
+API: Swagger / API_EXEMPLOS.md
+
+Deploy: DEPLOY.md
+
+Checklist de produção: CHECKLIST_PRODUCAO.md
+
+Roadmap: ROADMAP.md
+
+🤝 Contribuição e Segurança
+
+Guia de contribuição: CONTRIBUTING.md
+
+Política de segurança: SECURITY.md
+
+📬 Contato
+
+Dúvidas ou sugestões?
+Abra uma issue ou envie um e-mail para natsunokill188@gmail.com
+
+📄 Licença
+
+MIT
 
 - Guia de início rápido: [QUICK_START.md](QUICK_START.md)
 - API: [Swagger](./backend/SWAGGER_DOCUMENTATION.md) / [API_EXEMPLOS.md](API_EXEMPLOS.md)
