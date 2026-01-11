@@ -27,41 +27,97 @@ Sistema desenvolvido para empresas de manutenção industrial, permitindo o cont
 
 # Sistema de Relatórios Técnicos
 
-Sistema web para gestão e geração de relatórios técnicos de manutenção industrial.
+Sistema web completo para gestão e geração de relatórios técnicos de manutenção industrial, com foco em **segurança, automação, escalabilidade e operação em produção**.
 
-## Para quem é?
-Empresas de manutenção industrial que precisam organizar clientes, relatórios, orçamentos e gerar PDFs profissionais.
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Richard-Sup-Dev/edda-sistema/ci.yml?branch=main)](https://github.com/Richard-Sup-Dev/edda-sistema/actions)
+[![License](https://img.shields.io/github/license/Richard-Sup-Dev/edda-sistema)](LICENSE)
 
-## O que faz?
-- Relatórios técnicos com fotos e medições
-- Cadastro de clientes e orçamentos
-- Geração automática de PDFs
-- Autenticação segura
 
-## Tecnologias
-Node.js, React, PostgreSQL, Docker
+## 📌 Visão Geral
 
-## Como rodar rápido?
+Plataforma desenvolvida para empresas de manutenção industrial, permitindo o controle completo de **clientes, relatórios técnicos, orçamentos** e a **geração automática de PDFs profissionais** com fotos e medições técnicas.
+
+---
+
+## ⚙️ Funcionalidades Principais
+
+### 📄 Relatórios Técnicos
+- Relatórios com múltiplas fotos
+- Medições técnicas (resistência, batimento)
+- Geração automática de PDF
+- Histórico por cliente
+
+### 👥 Clientes e Orçamentos
+- Cadastro de clientes (CNPJ, contatos)
+- Catálogo de peças e serviços
+- Orçamentos com cálculo automático
+
+### 🔐 Segurança
+- Autenticação JWT com controle de permissões
+- Rate limiting
+- Validação de dados
+- Logs estruturados
+
+---
+
+## 🧠 Tecnologias
+
+**Backend**
+- Node.js 20, Express
+- PostgreSQL 14+
+- Sequelize ORM
+- JWT, Jest
+
+**Frontend**
+- React 19, Vite 7
+- Tailwind CSS 4
+- React Router, Axios
+- Vitest
+
+**DevOps**
+- Docker e Docker Compose
+- GitHub Actions (CI/CD)
+
+---
+
+## 🚀 Quick Start (Docker – Recomendado)
+
 ```bash
 git clone https://github.com/Richard-Sup-Dev/edda-sistema.git
 cd edda-sistema
 docker-compose up -d
 ```
+
 Acesse: http://localhost:5173
 
-## 📘 Documentação completa
+---
+
+## 📘 Documentação
+
 - Guia de início rápido: [QUICK_START.md](QUICK_START.md)
 - API: [Swagger](./backend/SWAGGER_DOCUMENTATION.md) / [API_EXEMPLOS.md](API_EXEMPLOS.md)
 - Deploy: [DEPLOY.md](DEPLOY.md)
 - Checklist de produção: [CHECKLIST_PRODUCAO.md](CHECKLIST_PRODUCAO.md)
 - Roadmap: [ROADMAP.md](ROADMAP.md)
 
-## Contato
-Dúvidas ou sugestões? Abra uma issue ou envie e-mail para natsunokill188@gmail.com
+---
 
-## Licença
+## 🤝 Contribuição e Segurança
+
+- Guia de contribuição: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Política de segurança: [SECURITY.md](SECURITY.md)
+
+---
+
+## 📬 Contato
+
+Dúvidas ou sugestões? Abra uma issue ou envie um e-mail para natsunokill188@gmail.com
+
+---
+
+## 📄 Licença
+
 MIT
-
 ---
 
 ## 📌 Visão Geral
