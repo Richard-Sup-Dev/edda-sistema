@@ -1,21 +1,11 @@
 # Sistema de Relatórios Técnicos
 
-Sistema completo para gestão e geração de relatórios técnicos de manutenção industrial, desenvolvido com React, Node.js e PostgreSQL.
-
-## Funcionalidades
-
-### Gestão de Relatórios
-- Criação de relatórios técnicos com múltiplas fotos
-
-# Sistema de Relatórios Técnicos
-
 Sistema web completo para gestão e geração de relatórios técnicos de manutenção industrial, com foco em **segurança, automação, escalabilidade e operação em produção**.
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/Richard-Sup-Dev/edda-sistema/ci.yml?branch=main)](https://github.com/Richard-Sup-Dev/edda-sistema/actions)
 [![License](https://img.shields.io/github/license/Richard-Sup-Dev/edda-sistema)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/Richard-Sup-Dev/edda-sistema)](https://github.com/Richard-Sup-Dev/edda-sistema/issues)
 
----
 
 ## 📌 Visão Geral
 
@@ -59,6 +49,155 @@ Sistema desenvolvido para empresas de manutenção industrial, permitindo o cont
 - React Router, Axios
 - Vitest
 
+**DevOps**
+- Docker e Docker Compose
+- GitHub Actions (CI/CD)
+
+---
+
+## 📦 Instalação Rápida (Docker – Recomendado)
+
+```bash
+git clone https://github.com/Richard-Sup-Dev/edda-sistema.git
+cd edda-sistema
+docker-compose up -d
+```
+
+Acesse: http://localhost:5173
+
+Para instalação manual e configurações avançadas, consulte: [QUICK_START.md](QUICK_START.md)
+
+---
+
+## 🛠️ Instalação Manual
+
+### Pré-requisitos
+
+Certifique-se de ter instalado:
+- [Node.js](https://nodejs.org/) 20 ou superior
+- [PostgreSQL](https://www.postgresql.org/) 14 ou superior
+- [Git](https://git-scm.com/)
+
+### Backend
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Edite .env com suas credenciais
+npm run dev
+```
+O backend estará rodando em `http://localhost:3001`
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+O frontend estará disponível em `http://localhost:5173`
+
+---
+
+## 🚀 Uso
+
+### Primeiro Acesso
+1. Acesse o sistema em `http://localhost:5173`
+2. Faça login com as credenciais padrão (ou crie um usuário admin)
+3. Configure os catálogos de peças e serviços
+4. Cadastre seus clientes
+5. Comece a criar relatórios!
+
+### Criando um Relatório
+1. Vá em **"Criar Relatório"**
+2. Preencha os dados da ordem de serviço
+3. Busque e selecione o cliente (ou cadastre um novo)
+4. Escolha o tipo de relatório (Motor ou Bomba)
+5. Adicione fotos das seções obrigatórias
+6. Preencha as medições técnicas
+7. Adicione peças e serviços cotados (opcional)
+8. Clique em **"Gerar Relatório PDF"**
+
+O PDF será gerado automaticamente e aberto em uma nova aba!
+
+---
+
+## 🧪 Testes
+
+O projeto possui testes automatizados para garantir qualidade e confiabilidade.
+
+**Backend:**
+```bash
+cd backend
+npm test                    # Roda todos os testes
+npm run test:watch         # Modo watch
+npm run test:coverage      # Gera relatório de cobertura
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm run test
+```
+
+---
+
+## API Endpoints
+
+### Autenticação
+- POST /api/auth/login
+- POST /api/auth/register
+- POST /api/auth/forgot-password
+- POST /api/auth/reset-password
+
+### Relatórios
+- GET /api/relatorios
+- GET /api/relatorios/:id
+- POST /api/relatorios
+- PUT /api/relatorios/:id
+- DELETE /api/relatorios/:id
+- GET /api/relatorios/:id/pdf
+
+### Clientes
+- GET /api/clientes
+- POST /api/clientes
+- PUT /api/clientes/:id
+- DELETE /api/clientes/:id
+
+Documentação completa: [Swagger](./backend/SWAGGER_DOCUMENTATION.md) | Exemplos: [API_EXEMPLOS.md](./API_EXEMPLOS.md)
+
+---
+
+## 🗺️ Roadmap
+- Notificações em tempo real (WebSocket)
+- Assistente inteligente com IA
+- Busca avançada e filtros
+- Backup automatizado em nuvem
+
+---
+
+## ✅ Checklist Profissional
+- CI/CD com GitHub Actions
+- Testes automatizados
+- Documentação de API
+- Segurança avançada
+- Docker e deploy
+- Backup e restore
+
+---
+
+## 🤝 Contribuição e Segurança
+- [Guia de contribuição](CONTRIBUTING.md)
+- [Política de segurança](SECURITY.md)
+
+---
+
+## 📬 Contato
+Dúvidas ou sugestões? Abra uma issue ou envie um e-mail para natsunokill188@gmail.com
+
+---
+
+## 📄 Licença
+MIT
 **DevOps**
 - Docker e Docker Compose
 - GitHub Actions (CI/CD)
@@ -168,7 +307,7 @@ Acesse: http://localhost:5173
 
 📬 Contato
 
-Dúvidas ou sugestões? Abra uma issue ou envie um e-mail para richard@seudominio.com
+Dúvidas ou sugestões? Abra uma issue ou envie um e-mail para natsunokill188@gmail.com
 
 📄 Licença
 
