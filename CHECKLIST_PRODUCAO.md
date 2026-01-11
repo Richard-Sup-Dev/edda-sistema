@@ -1,63 +1,24 @@
+
 # Checklist de Produção
 
-> Última atualização: 09/01/2026
-
-## Status Atual
-
-- Backend: 318/318 testes passando (100%)
-- Frontend: 115/116 testes passando (99.1%)
-- Build: Sem erros
-- Segurança: JWT forte configurado
-- Email: Gmail configurado e funcional
+Checklist objetivo para garantir deploy seguro e funcional.
 
 ## Antes do Deploy
-
-### 1. Variáveis de Ambiente
-
-Verificar [backend/.env](backend/.env):
-- NODE_ENV=production
-- DATABASE_URL correto
-- ALLOWED_ORIGINS com domínio de produção
-- JWT_SECRET (gerado automaticamente)
-- EMAIL_APP_PASS configurado
-
-### 2. Teste Local
-
-```bash
-# Backend
-cd backend && npm start
-
-# Frontend
-cd frontend && npm run dev
-```
-
-Validar:
-- Login funciona
-- Criação de relatórios
-- Upload de arquivos
-- WebSocket conecta
+- [ ] Variáveis de ambiente revisadas ([backend/.env.example](backend/.env.example), [frontend/.env.example](frontend/.env.example))
+- [ ] Testes locais executados (backend e frontend)
+- [ ] Login, criação de relatórios, upload e WebSocket validados
+- [ ] E-mail e notificações funcionando
+- [ ] Backup automatizado testado ([BACKUP_RESTORE_CHECKLIST.md](BACKUP_RESTORE_CHECKLIST.md))
 
 ## Deploy
+- Siga o guia: [DEPLOY.md](DEPLOY.md)
+- Configure variáveis de ambiente conforme exemplos
+- Após deploy, valide endpoints principais e funcionalidades críticas
 
-### Frontend (Vercel)
-
-```bash
-npm i -g vercel
-cd frontend
-vercel --prod
-```
-
-Configurar variáveis:
-- VITE_API_URL=https://seu-backend.onrender.com
-- VITE_ENV=production
-
-### Backend (Render)
-
-1. Criar conta em render.com
-2. New Web Service → Connect GitHub
-3. Build: `cd backend && npm install`
-4. Start: `cd backend && npm start`
-5. Adicionar variáveis de ambiente
+## Pós-Deploy
+- [ ] Monitoramento ativo
+- [ ] Backup agendado e validado
+- [ ] Documentação entregue ao cliente ([README.md](README.md))
 
 ## Pós-Deploy
 

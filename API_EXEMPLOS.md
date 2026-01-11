@@ -1,7 +1,10 @@
+
 # Exemplos de Uso da API
 
-## Autenticação
+Exemplos práticos de requisições e respostas para os principais endpoints.
+Consulte a [documentação Swagger](./backend/SWAGGER_DOCUMENTATION.md) para detalhes completos.
 
+## Autenticação
 ### Login
 ```
 POST /api/auth/login
@@ -21,7 +24,7 @@ POST /api/auth/login
 ### Refresh Token
 ```
 POST /api/auth/refresh-token
-(Cookies HttpOnly são usados)
+# (Cookies HttpOnly são usados)
 ```
 **Resposta:**
 ```
@@ -31,11 +34,10 @@ POST /api/auth/refresh-token
 ```
 
 ## CRUD Clientes
-
 ### Listar clientes
 ```
 GET /api/clientes
-Headers: (autenticado)
+# Headers: (autenticado)
 ```
 **Resposta:**
 ```

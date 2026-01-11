@@ -1,11 +1,23 @@
+
 # 🚀 Deploy Guide - Sistema de Relatórios
 
-Guia completo para fazer deploy do sistema em produção.
+Guia de referência para deploy em produção.
+
+## Índice
+- [Checklist Pré-Deploy](#checklist-pré-deploy)
+- [Opções de Deploy](#opções-de-deploy)
+  - [VPS (DigitalOcean, AWS, etc.)](#vps-digitalocean-aws-etc)
+  - [Render (Backend)](#render-backend)
+  - [Vercel (Frontend)](#vercel-frontend)
+- [Configuração de Ambiente](#configuração-de-ambiente)
+- [Dicas e Troubleshooting](#dicas-e-troubleshooting)
+
+---
 
 ## 📋 Checklist Pré-Deploy
 
-- [ ] Testes passando (Frontend 99%+, Backend 60%+)
-- [ ] Variáveis de ambiente configuradas
+- [ ] Testes passando (Frontend e Backend)
+- [ ] Variáveis de ambiente configuradas ([.env.example](backend/.env.example), [frontend/.env.example](frontend/.env.example))
 - [ ] Banco de dados PostgreSQL provisionado
 - [ ] SSL/TLS configurado
 - [ ] Backups automáticos configurados
@@ -17,228 +29,38 @@ Guia completo para fazer deploy do sistema em produção.
 ## 🌐 Opções de Deploy
 
 ### 1. VPS (DigitalOcean, Linode, AWS EC2)
+Veja instruções detalhadas em [DEPLOY_VPS.md](DEPLOY_VPS.md) (crie este arquivo se quiser manter o passo a passo completo).
 
-#### a) Preparar Servidor
+### 2. Render (Backend)
+1. Crie conta em [render.com](https://render.com/)
+2. Novo Web Service → Conecte o repositório
+3. Root Directory: `backend`
+4. Build Command: `npm install`
+5. Start Command: `npm start`
+6. Configure variáveis de ambiente conforme `.env.example`
 
-```bash
-# Ubuntu 22.04 LTS
-sudo apt update
-sudo apt upgrade -y
+### 3. Vercel (Frontend)
+1. Crie conta em [vercel.com](https://vercel.com/)
+2. Novo Projeto → Import GitHub → `frontend`
+3. Build Command: `npm run build`
+4. Output Directory: `dist`
+5. Configure variáveis de ambiente conforme `frontend/.env.example`
 
-# Instalar Node.js 20
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
+---
 
-# Instalar PostgreSQL 14+
-sudo apt install -y postgresql postgresql-contrib
+## Configuração de Ambiente
+Consulte os arquivos `.env.example` no backend e frontend para todas as variáveis necessárias.
 
-# Instalar Redis (opcional)
-sudo apt install -y redis-server
+---
 
-# Instalar Nginx
-sudo apt install -y nginx
+## Dicas e Troubleshooting
+- Veja [CHECKLIST_PRODUCAO.md](CHECKLIST_PRODUCAO.md) para checklist de produção.
+- Consulte [README.md](README.md) e [QUICK_START.md](QUICK_START.md) para instruções rápidas.
+- Para configurações avançadas (Nginx, PM2, SSL), consulte exemplos no arquivo antigo ou peça um guia específico.
 
-# Instalar Certbot (SSL grátis)
-sudo apt install -y certbot python3-certbot-nginx
-```
+---
 
-#### b) Configurar PostgreSQL
-
-```bash
-sudo -u postgres psql
-
-CREATE DATABASE relatorios_prod;
-CREATE USER relatorios_user WITH ENCRYPTED PASSWORD 'senha_forte_aqui';
-GRANT ALL PRIVILEGES ON DATABASE relatorios_prod TO relatorios_user;
-\q
-```
-
-#### c) Deploy Backend
-
-```bash
-# Clone repositório
-cd /var/www
-sudo git clone https://github.com/seu-usuario/sistema-relatorios.git
-cd sistema-relatorios/backend
-
-# Instalar dependências
-npm ci --only=production
-
-# Configurar .env
-sudo nano .env
-```
-
-**.env Produção**:
-```env
-NODE_ENV=production
-PORT=3000
-
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=relatorios_prod
-DB_USER=relatorios_user
-DB_PASSWORD=senha_forte_aqui
-DB_SSL=true
-
-# JWT
-JWT_SECRET=chave_super_secreta_produção_2024
-JWT_EXPIRES_IN=24h
-
-# Email (Gmail, SendGrid, etc)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=seu-email@gmail.com
-EMAIL_PASSWORD=sua-senha-app
-
-# Redis (opcional)
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=senha_redis
-
-# URLs
-API_URL=https://api.seudominio.com
-FRONTEND_URL=https://app.seudominio.com
-
-# Rate Limiting
-RATE_LIMIT_MAX=100
-RATE_LIMIT_WINDOW_MS=900000
-
-# Sentry (opcional)
-SENTRY_DSN=https://...@sentry.io/...
-```
-
-```bash
-# Rodar migrations
-npm run migrate
-
-# Criar usuário admin
-node scripts/create-admin.js
-
-# Testar servidor
-npm start
-```
-
-#### d) Configurar PM2 (Process Manager)
-
-```bash
-# Instalar PM2 globalmente
-sudo npm install -g pm2
-
-# Iniciar aplicação
-pm2 start src/server.js --name "relatorios-backend"
-
-# Auto-restart on reboot
-pm2 startup
-pm2 save
-
-# Monitorar
-pm2 status
-pm2 logs relatorios-backend
-pm2 monit
-```
-
-#### e) Deploy Frontend
-
-```bash
-cd /var/www/sistema-relatorios/frontend
-
-# Instalar dependências
-npm ci
-
-# Configurar .env.production
-nano .env.production
-```
-
-**.env.production**:
-```env
-VITE_API_URL=https://api.seudominio.com/api
-VITE_APP_NAME=Sistema de Relatórios
-VITE_APP_VERSION=1.0.0
-```
-
-```bash
-# Build para produção
-npm run build
-
-# Arquivos gerados em dist/
-ls -la dist/
-```
-
-#### f) Configurar Nginx
-
-```bash
-sudo nano /etc/nginx/sites-available/relatorios
-```
-
-**Configuração Nginx**:
-```nginx
-# Backend API
-server {
-    listen 80;
-    server_name api.seudominio.com;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-        
-        # Timeout para uploads grandes
-        client_max_body_size 50M;
-        proxy_read_timeout 300s;
-        proxy_connect_timeout 75s;
-    }
-}
-
-# Frontend
-server {
-    listen 80;
-    server_name app.seudominio.com;
-
-    root /var/www/sistema-relatorios/frontend/dist;
-    index index.html;
-
-    # Gzip compression
-    gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # Cache static assets
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-}
-```
-
-```bash
-# Ativar site
-sudo ln -s /etc/nginx/sites-available/relatorios /etc/nginx/sites-enabled/
-
-# Testar configuração
-sudo nginx -t
-
-# Reiniciar Nginx
-sudo systemctl restart nginx
-```
-
-#### g) Configurar SSL (Let's Encrypt)
-
-```bash
-# SSL automático para ambos os domínios
-sudo certbot --nginx -d api.seudominio.com -d app.seudominio.com
-
-# Auto-renovação (já configurado)
-sudo certbot renew --dry-run
+**Dúvidas?** Abra uma issue ou consulte a documentação completa.
 ```
 
 #### h) Firewall

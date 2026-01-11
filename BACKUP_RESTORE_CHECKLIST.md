@@ -1,24 +1,24 @@
+
 # Checklist de Backup e Restore
 
 ## Backup
-- [ ] Validar script de backup automático do banco (ex: `backend/scripts/backup-postgres.sh`)
-- [ ] Testar backup manualmente semanalmente
-- [ ] Armazenar backups em local seguro (cloud, S3, Google Drive, etc)
-- [ ] Verificar logs de backup e alertas de falha
+- [ ] Script de backup automático validado (`backend/scripts/backup-postgres.sh`)
+- [ ] Backup manual testado semanalmente
+- [ ] Backups armazenados em local seguro (cloud, S3, etc)
+- [ ] Logs e alertas de falha revisados
 
 ## Restore
-- [ ] Testar restore em ambiente de homologação a cada sprint
-- [ ] Documentar passo a passo de restore
-- [ ] Validar integridade dos dados restaurados
+- [ ] Restore testado em ambiente de homologação
+- [ ] Passo a passo documentado
+- [ ] Integridade dos dados restaurados validada
 
 ## Checklist Rápido
 - [ ] Backup diário agendado
-- [ ] Notificação de falha de backup
+- [ ] Notificação de falha ativa
 - [ ] Backup criptografado
 - [ ] Restore testado e documentado
 
 ## Exemplo de Restore
 ```bash
-# Restaurar banco PostgreSQL
 gunzip < backup.sql.gz | psql -U usuario -d banco
 ```

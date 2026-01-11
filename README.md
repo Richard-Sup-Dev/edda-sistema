@@ -445,148 +445,75 @@ npm run test:coverage      # Gera relatório de cobertura
 
 **Frontend:**
 ```bash
-cd frontend
-npm test                    # Roda testes do frontend
-npm run test:coverage      # Cobertura de testes
+
+# Sistema de Relatórios Técnicos
+
+Sistema completo para gestão e geração de relatórios técnicos de manutenção industrial, desenvolvido com React, Node.js e PostgreSQL.
+
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Richard-Sup-Dev/edda-sistema/ci.yml?branch=main)](https://github.com/Richard-Sup-Dev/edda-sistema/actions)
+[![License](https://img.shields.io/github/license/Richard-Sup-Dev/edda-sistema)](LICENSE)
+[![Issues](https://img.shields.io/github/issues/Richard-Sup-Dev/edda-sistema)](https://github.com/Richard-Sup-Dev/edda-sistema/issues)
+
+## Visão Geral
+Sistema web para gestão de relatórios técnicos, clientes e orçamentos, com autenticação segura, geração de PDFs e painel administrativo.
+
+## Principais Funcionalidades
+- Gestão de relatórios técnicos (com fotos e medições)
+- Cadastro e histórico de clientes
+- Geração de orçamentos
+- Geração automática de PDF
+- Autenticação JWT, rate limiting, logs estruturados
+- Painel administrativo
+
+## Tecnologias
+- Node.js, Express, PostgreSQL, Sequelize, JWT, Jest
+- React, Vite, Tailwind CSS, React Router, Axios, Vitest
+
+## Instalação e Uso
+
+### Pré-requisitos
+- Node.js 20+
+- PostgreSQL 14+
+- npm ou yarn
+
+### Passos Rápidos
+```bash
+git clone https://github.com/Richard-Sup-Dev/edda-sistema.git
+cd edda-sistema
+# Backend
+cd backend && npm install && cp .env.example .env
+# Configure as variáveis no .env
+npm run migrate && npm run seed && npm start
+# Frontend
+cd ../frontend && npm install && npm run dev
 ```
 
-### Cobertura de Testes
+Veja detalhes em [QUICK_START.md](QUICK_START.md)
 
-- **Backend:** 85% de cobertura
-- **Frontend:** 75% de cobertura
-- **Total:** 80% de cobertura
-
-Os relatórios detalhados são gerados em `coverage/` após rodar `npm run test:coverage`.
-
-## 📚 Documentação da API
-
-A API REST possui documentação interativa via Swagger.
-
-### Acessando a Documentação
-
-Com o backend rodando, acesse:
-
-```
-http://localhost:3001/api-docs
+## Testes
+```bash
+# Backend
+cd backend && npm test
+# Frontend
+cd frontend && npm run test
 ```
 
-A documentação inclui:
-- Todos os endpoints disponíveis
-- Parâmetros de entrada e saída
-- Exemplos de requisições
-- Códigos de resposta
-- Teste interativo de endpoints
+## Deploy
+Guia completo: [DEPLOY.md](DEPLOY.md)
+Checklist: [CHECKLIST_PRODUCAO.md](CHECKLIST_PRODUCAO.md)
 
-## 📁 Estrutura do Projeto
+## Documentação
+- [Swagger API](./backend/SWAGGER_DOCUMENTATION.md)
+- [Exemplos de uso da API](./API_EXEMPLOS.md)
+- [Checklist de backup/restore](./BACKUP_RESTORE_CHECKLIST.md)
 
-```
-edda-sistema/
-├── backend/                 # API Node.js
-│   ├── src/
-│   │   ├── config/         # Configurações (DB, JWT, etc)
-│   │   ├── controllers/    # Controladores das rotas
-│   │   ├── models/         # Modelos Sequelize
-│   │   ├── routes/         # Definição de rotas
-│   │   ├── middlewares/    # Middlewares (auth, etc)
-│   │   ├── services/       # Lógica de negócio
-│   │   └── utils/          # Funções auxiliares
-│   ├── uploads/            # Arquivos enviados
-│   └── package.json
-├── frontend/               # App React
-│   ├── src/
-│   │   ├── components/     # Componentes reutilizáveis
-│   │   ├── pages/          # Páginas da aplicação
-│   │   ├── contexts/       # Context API
-│   │   ├── features/       # Features por módulo
-│   │   ├── services/       # Chamadas API
-│   │   └── styles/         # Estilos globais
-│   └── package.json
-├── docker-compose.yml      # Configuração Docker
-└── README.md
-```
+## Variáveis de Ambiente
+Consulte os arquivos `.env.example` no backend e frontend.
 
-## 🔧 Configuração Avançada
+## Contribuição e Segurança
+- [Guia de contribuição](CONTRIBUTING.md)
+- [Política de segurança](SECURITY.md)
 
-### Variáveis de Ambiente
-
-#### Backend (.env)
-```env
-# Banco de dados
-DB_NAME=nome_do_banco
-DB_USER=usuario
-DB_PASS=senha
-DB_HOST=localhost
+## Licença
+MIT
 DB_PORT=5432
-
-# Servidor
-PORT=3001
-NODE_ENV=development
-
-# Segurança
-JWT_SECRET=sua_chave_super_secreta_aqui
-JWT_EXPIRES_IN=24h
-
-# Email (opcional)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=seu_email@gmail.com
-SMTP_PASS=sua_senha
-```
-
-### Produção
-
-Para deploy em produção:
-
-1. Configure as variáveis de ambiente para produção
-2. Compile o frontend:
-```bash
-cd frontend
-npm run build
-```
-
-3. Configure um servidor web (Nginx) para servir os arquivos estáticos
-4. Configure o PM2 para gerenciar o processo Node.js:
-```bash
-npm install -g pm2
-pm2 start backend/src/server.js --name api-relatorios
-```
-
-## 📚 Documentação Adicional
-
-- **[PROXIMOS_PASSOS.md](PROXIMOS_PASSOS.md)** - Guia das últimas implementações
-- **[MELHORIAS_IMPLEMENTADAS.md](MELHORIAS_IMPLEMENTADAS.md)** - Detalhes de todas as melhorias
-- **[frontend/TESTING.md](frontend/TESTING.md)** - Guia completo de testes
-- **[CHANGELOG.md](CHANGELOG.md)** - Histórico de versões
-- **[QUICK_START.md](QUICK_START.md)** - Guia de início rápido (5 minutos)
-- **[DEPLOY.md](DEPLOY.md)** - Guia completo de deploy em produção
-- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Status atual e roadmap
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Como contribuir
-- **[SECURITY.md](SECURITY.md)** - Política de segurança
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Para contribuir:
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
-3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/MinhaFeature`)
-5. Abra um Pull Request
-
-## 📝 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
-## 👨‍💻 Autor
-
-Desenvolvido por Richard
-
-## 📧 Suporte
-
-Se encontrar problemas ou tiver sugestões:
-- Abra uma [issue](https://github.com/Richard-Sup-Dev/edda-sistema/issues)
-- Entre em contato via email: natsunokill188@gmail.com
-
----
-
-**Nota:** Este é um projeto em desenvolvimento ativo. Novas features estão sendo adicionadas regularmente.
