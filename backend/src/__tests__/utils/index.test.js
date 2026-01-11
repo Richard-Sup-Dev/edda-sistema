@@ -1,6 +1,6 @@
 // src/__tests__/utils/index.test.js
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 import { formatDate, textToHtmlList } from '../../utils/index.js';
 
 describe('Utils - formatDate', () => {

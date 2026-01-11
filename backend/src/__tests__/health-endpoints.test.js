@@ -1,6 +1,6 @@
 // backend/src/__tests__/health.test.js
 import request from 'supertest';
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 import express from 'express';
 import healthRoutes from '../routes/health.js';
 

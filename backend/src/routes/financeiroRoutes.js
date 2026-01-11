@@ -141,8 +141,8 @@ router.get(
       });
 
     } catch (error) {
-      logger.error('Erro ao gerar resumo financeiro:', error);
-      return res.status(500).json({ erro: 'Erro interno ao gerar resumo financeiro.' });
+      logger.error('Erro ao gerar resumo financeiro:', { error, stack: error.stack });
+      return res.status(500).json({ erro: 'Erro interno ao gerar resumo financeiro.', detalhes: error.message, stack: error.stack });
     }
   }
 );

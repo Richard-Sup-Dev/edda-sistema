@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { vi as jest } from 'vitest';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import express from 'express';

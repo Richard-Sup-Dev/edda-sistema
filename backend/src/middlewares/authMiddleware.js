@@ -5,11 +5,9 @@ import 'dotenv/config';
 import logger from '../config/logger.js';
 
 const authMiddleware = (req, res, next) => {
-  // Tenta pegar o token do cookie ou do header Authorization
+  // Aceita apenas o token JWT via header Authorization
   let token = null;
-  if (req.cookies && req.cookies.accessToken) {
-    token = req.cookies.accessToken;
-  } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
     token = req.headers.authorization.split(' ')[1];
   }
 

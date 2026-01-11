@@ -1,5 +1,5 @@
 import express from 'express';
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 
 describe('Basic Tests - Server Health', () => {
   let app;

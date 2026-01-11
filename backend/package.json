@@ -7,9 +7,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node src/server.js",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-    "test:watch": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch",
-    "test:coverage": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest run --coverage",
     "test:setup-db": "node setup-test-db.js",
     "lint": "echo 'Linting...'",
     "validate": "npm test && npm run lint"
@@ -29,10 +29,14 @@
   "dependencies": {
     "@sentry/node": "^7.96.0",
     "@sentry/profiling-node": "^7.96.0",
+    "@sentry/react": "^10.32.1",
+    "@sentry/tracing": "^7.120.4",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
+    "csurf": "^1.11.0",
     "dotenv": "^17.2.3",
     "express": "^4.18.2",
     "express-rate-limit": "^8.2.1",
@@ -62,12 +66,17 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.28.5",
+    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/ui": "^4.0.16",
+    "babel-jest": "^30.2.0",
     "cross-env": "^10.1.0",
     "husky": "^9.1.7",
     "jest": "^30.2.0",
     "lint-staged": "^16.2.7",
     "sequelize-cli": "^6.6.3",
-    "supertest": "^7.1.4"
+    "supertest": "^7.1.4",
+    "vitest": "^4.0.16"
   },
   "lint-staged": {
     "*.js": [

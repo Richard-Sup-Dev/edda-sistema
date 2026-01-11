@@ -1,5 +1,5 @@
 // src/__tests__/controllers/clientesController.test.js
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 import clientesRoutes from '../../routes/clientes.js';

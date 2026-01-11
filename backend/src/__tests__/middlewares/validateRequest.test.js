@@ -1,5 +1,5 @@
 // src/__tests__/middlewares/validateRequest.test.js
-import { describe, it, expect, jest } from '@jest/globals';
+import { describe, it, expect, vi as jest } from 'vitest';
 import { validateRequest } from '../../middlewares/validateRequest.js';
 import Joi from 'joi';
 

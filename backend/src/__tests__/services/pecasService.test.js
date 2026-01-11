@@ -1,5 +1,5 @@
 // src/__tests__/services/pecasService.test.js
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+import { vi as jest, describe, it, expect, beforeEach } from 'vitest';
 
 // Criar mocks manuais que funcionam com ESM
 const mockPecasRepository = {
@@ -17,7 +17,7 @@ const mockPecasRepository = {
 };
 
 // Mockar o módulo antes do import
-jest.unstable_mockModule('../../repositories/pecasRepository.js', () => ({
+vi.mock('../../repositories/pecasRepository.js', () => ({
   default: mockPecasRepository
 }));
 

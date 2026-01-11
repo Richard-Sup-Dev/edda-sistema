@@ -1,9 +1,9 @@
 // src/__tests__/middlewares/authMiddleware.test.js
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, vi as jest, beforeEach, afterEach } from 'vitest';
 import jwt from 'jsonwebtoken';
 
 // Mock do logger antes de importar o middleware
-jest.unstable_mockModule('../../config/logger.js', () => ({
+vi.mock('../../config/logger.js', () => ({
   default: {
     error: jest.fn(),
     info: jest.fn(),

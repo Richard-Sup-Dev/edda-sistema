@@ -1,5 +1,5 @@
 // backend/src/__tests__/services/redisService.test.js
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 import redisClient from '../../config/redis.js';
 
 describe('Redis Service', () => {

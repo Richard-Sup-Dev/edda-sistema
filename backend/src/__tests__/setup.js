@@ -1,8 +1,7 @@
 // backend/src/__tests__/setup.js
-import { jest } from '@jest/globals';
 
-// Configurar timeout global
-jest.setTimeout(30000);
+// Configurar timeout global para testes Vitest
+setTimeout(() => {}, 0); // No Vitest, use testTimeout no vitest.config.js
 
 // Mock de variáveis de ambiente para testes
 process.env.NODE_ENV = 'test';
@@ -15,12 +14,13 @@ process.env.DB_PASSWORD = 'edda_password';
 process.env.REDIS_HOST = 'localhost';
 process.env.REDIS_PORT = '6379';
 
+import { vi } from 'vitest';
 // Suprimir logs durante testes (opcional)
 global.console = {
   ...console,
-  log: jest.fn(),
-  debug: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
+  log: vi.fn(),
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
 };

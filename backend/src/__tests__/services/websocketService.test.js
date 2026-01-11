@@ -1,5 +1,5 @@
 // backend/src/__tests__/services/websocketService.test.js
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 import websocketService from '../../services/websocketService.js';
 
 describe('WebSocket Service', () => {

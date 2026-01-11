@@ -33,8 +33,8 @@ async function buscarRelatorios(req, res) {
     });
     return res.status(200).json(results);
   } catch (error) {
-    logger.error('Erro ao buscar relatórios', { error });
-    return res.status(500).json({ erro: 'Erro interno ao realizar a busca.' });
+    logger.error('Erro ao buscar relatórios', { error, stack: error.stack });
+    return res.status(500).json({ erro: 'Erro interno ao realizar a busca.', detalhes: error.message, stack: error.stack });
   }
 }
 
@@ -185,10 +185,11 @@ async function criarRelatorio(req, res) {
     });
 
   } catch (error) {
-    console.error('Erro crítico ao criar relatório:', error);
+    logger.error('Erro crítico ao criar relatório', { error, stack: error.stack });
     return res.status(500).json({
       sucesso: false,
-      erro: error.message || 'Erro interno do servidor ao criar relatório.'
+      erro: error.message || 'Erro interno do servidor ao criar relatório.',
+      stack: error.stack
     });
   }
 }
@@ -217,8 +218,8 @@ async function getRelatorioMeta(req, res) {
     if (error.code === 'ENOENT') {
       return res.status(404).json({ erro: 'Metadados do relatório não encontrados.' });
     }
-    logger.error('Erro ao buscar meta.json', { error });
-    return res.status(500).json({ erro: 'Erro interno ao buscar metadados.' });
+    logger.error('Erro ao buscar meta.json', { error, stack: error.stack });
+    return res.status(500).json({ erro: 'Erro interno ao buscar metadados.', detalhes: error.message, stack: error.stack });
   }
 }
 
@@ -235,8 +236,8 @@ async function salvarOrcamento(req, res) {
     await relatoriosService.salvarOrcamento(id, pecas_cotadas || [], servicos_cotados || []);
     return res.status(200).json({ mensagem: 'Orçamento salvo com sucesso!' });
   } catch (error) {
-    logger.error('Erro ao salvar orçamento', { error });
-    return res.status(500).json({ erro: error.message || 'Erro ao salvar orçamento.' });
+    logger.error('Erro ao salvar orçamento', { error, stack: error.stack });
+    return res.status(500).json({ erro: error.message || 'Erro ao salvar orçamento.', stack: error.stack });
   }
 }
 
@@ -255,8 +256,8 @@ async function buscarDetalhesCompletos(req, res) {
     }
     return res.status(200).json(detalhes);
   } catch (error) {
-    logger.error('Erro ao buscar detalhes completos', { error });
-    return res.status(500).json({ erro: 'Erro interno ao buscar detalhes do relatório.' });
+    logger.error('Erro ao buscar detalhes completos', { error, stack: error.stack });
+    return res.status(500).json({ erro: 'Erro interno ao buscar detalhes do relatório.', detalhes: error.message, stack: error.stack });
   }
 }
 

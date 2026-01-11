@@ -1,18 +1,35 @@
 // backend/src/__tests__/clientes.test.js
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import request from 'supertest';
 import express from 'express';
+
+// Mock do authMiddleware ANTES de importar as rotas
+vi.mock('../middlewares/authMiddleware.js', () => ({
+  __esModule: true,
+  default: (req, res, next) => {
+    if (req.headers.authorization) {
+      req.user = { id: 1, nome: 'Test', email: 'test@test.com', role: 'admin' };
+      return next();
+    }
+    return res.status(401).json({ erro: 'Token de acesso ausente ou inválido.' });
+  }
+}));
+
 import clientesRoutes from '../routes/clientes.js';
 
 // App de teste simplificado
 const app = express();
 app.use(express.json());
+
+
+
+
 app.use('/api/clientes', clientesRoutes);
 
 describe('Clientes API Integration', () => {
   it('deve retornar 401 sem autenticação', async () => {
     const response = await request(app).get('/api/clientes');
-    expect([401, 404, 500]).toContain(response.status);
+    expect(response.status).toBe(401);
   });
 
   it('deve retornar 401 ao tentar criar sem auth', async () => {
@@ -20,9 +37,16 @@ describe('Clientes API Integration', () => {
       .post('/api/clientes')
       .send({ nome_fantasia: 'Test', cnpj: '12345678901234' });
     
-    expect([401, 404, 500]).toContain(response.status);
+    expect(response.status).toBe(401);
   });
 
+  it('deve retornar 401 ao tentar criar sem auth e com dados inválidos', async () => {
+    const response = await request(app)
+      .post('/api/clientes')
+      .send({}); // corpo vazio, inválido
+    expect(response.status).toBe(401);
+    // Não há body.erro pois não chega na validação
+  });
 
   describe('Validação de dados de clientes', () => {
     const validToken = 'Bearer fake-token-admin'; // Simulação, ajuste conforme necessário
@@ -32,8 +56,8 @@ describe('Clientes API Integration', () => {
         .post('/api/clientes')
         .set('Authorization', validToken)
         .send({
-          cnpj: '123',
           nome_fantasia: 'Empresa Teste',
+          cnpj: '12345678901234',
           email: 'contato@empresa.com'
         });
       expect(response.status).toBe(400);
@@ -45,8 +69,8 @@ describe('Clientes API Integration', () => {
         .post('/api/clientes')
         .set('Authorization', validToken)
         .send({
-          cnpj: '12.345.678/0001-95',
           nome_fantasia: 'A',
+          cnpj: '12345678000195',
           email: 'contato@empresa.com'
         });
       expect(response.status).toBe(400);
@@ -58,8 +82,8 @@ describe('Clientes API Integration', () => {
         .post('/api/clientes')
         .set('Authorization', validToken)
         .send({
-          cnpj: '12.345.678/0001-95',
           nome_fantasia: 'Empresa Teste',
+          cnpj: '12345678000195',
           email: 'email-invalido'
         });
       expect(response.status).toBe(400);

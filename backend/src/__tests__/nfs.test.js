@@ -1,5 +1,5 @@
 // backend/src/__tests__/nfs.test.js
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 import nfsRoutes from '../routes/nfsRoutes.js';

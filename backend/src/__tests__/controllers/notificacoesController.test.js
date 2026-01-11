@@ -1,5 +1,5 @@
 // backend/src/__tests__/controllers/notificacoesController.test.js
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 import * as notificacoesController from '../../controllers/notificacoesController.js';
 
 describe('Notificações Controller', () => {

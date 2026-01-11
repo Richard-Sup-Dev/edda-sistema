@@ -1,10 +1,27 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import request from 'supertest';
 import express from 'express';
+
+// Mock do authMiddleware ANTES de importar as rotas
+vi.mock('../middlewares/authMiddleware.js', () => ({
+  __esModule: true,
+  default: (req, res, next) => {
+    if (req.headers.authorization) {
+      req.user = { id: 1, nome: 'Test', email: 'test@test.com', role: 'admin' };
+      return next();
+    }
+    return res.status(401).json({ erro: 'Token de acesso ausente ou inválido.' });
+  }
+}));
+
 import relatoriosRoutes from '../routes/relatoriosRoutes.js';
 
 const app = express();
 app.use(express.json());
+
+
+
+
 app.use('/api/relatorios', relatoriosRoutes);
 
 describe('Validação de dados de relatórios', () => {

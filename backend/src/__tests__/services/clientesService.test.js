@@ -1,5 +1,5 @@
 // src/__tests__/services/clientesService.test.js
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+import { vi as jest, describe, it, expect, beforeEach } from 'vitest';
 
 // Criar mocks manuais que funcionam com ESM
 const mockClientesRepository = {
@@ -16,7 +16,7 @@ const mockClientesRepository = {
 };
 
 // Mockar o módulo antes do import
-jest.unstable_mockModule('../../repositories/clientesRepository.js', () => ({
+vi.mock('../../repositories/clientesRepository.js', () => ({
   default: mockClientesRepository
 }));
 

@@ -24,9 +24,9 @@ router.post(
   '/',
   authMiddleware,
   roleMiddleware('admin', 'tecnico'),
+  validarDados(relatorioSchema),
   uploadFields,
   invalidateCache('relatorios'),
-  validarDados(relatorioSchema),
   relatoriosController.criarRelatorio
 );
 

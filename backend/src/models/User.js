@@ -25,16 +25,6 @@ const User = sequelize.define('User', {
     defaultValue: 'user',
     allowNull: false
   },
-  refreshToken: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    comment: 'Refresh token para autenticação segura'
-  },
-  refreshTokenExpires: {
-    type: DataTypes.DATE,
-    allowNull: true,
-    comment: 'Data de expiração do refresh token'
-  }
 }, {
   tableName: 'usuarios',
   timestamps: true,

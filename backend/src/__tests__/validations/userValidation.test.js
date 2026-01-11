@@ -1,6 +1,6 @@
 // src/__tests__/validations/userValidation.test.js
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 import { userSchema, userLoginSchema, userUpdateSchema, passwordResetSchema } from '../../validations/userValidation.js';
 
 describe('UserValidation', () => {

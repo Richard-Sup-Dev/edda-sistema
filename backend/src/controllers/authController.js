@@ -35,12 +35,7 @@ class AuthController {
         );
 
         // Atualiza cookie do access token
-        res.cookie('accessToken', accessToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          maxAge: 15 * 60 * 1000 // 15 minutos
-        });
+        // Não seta mais cookie de accessToken
 
         // Log de auditoria
         import('../config/logger.js').then(({ default: logger }) => {
@@ -114,18 +109,7 @@ class AuthController {
       await user.update({ refreshToken, refreshTokenExpires });
 
       // Envia access token em cookie HttpOnly e refresh token em cookie seguro
-      res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 15 * 60 * 1000 // 15 minutos
-      });
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dias
-      });
+      // Não seta mais cookies de accessToken nem refreshToken
 
       // Log de auditoria
       import('../config/logger.js').then(({ default: logger }) => {
@@ -134,6 +118,7 @@ class AuthController {
 
       return res.json({
         mensagem: 'Login realizado com sucesso!',
+        token: accessToken,
         user: { id: user.id, nome: user.nome, email: user.email, role: user.role }
       });
     } catch (error) {

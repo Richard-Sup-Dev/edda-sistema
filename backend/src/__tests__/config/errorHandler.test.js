@@ -1,5 +1,5 @@
 // src/__tests__/config/errorHandler.test.js
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, vi as jest, beforeEach } from 'vitest';
 import {
   AppError,
   ValidationError,

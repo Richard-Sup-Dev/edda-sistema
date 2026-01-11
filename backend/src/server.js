@@ -1,8 +1,6 @@
-// Endpoint para fornecer o CSRF token ao frontend
-app.get('/api/csrf-token', (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
+
 // src/server.js - Versão ESM (Otimizada)
+console.log('🟢 Início do server.js - imports concluídos');
 
 import 'dotenv/config';
 import { fileURLToPath } from 'url';
@@ -67,7 +65,19 @@ Sentry.init({
 });
 
 const app = express();
-// Sentry request handler (deve ser o primeiro middleware)
+
+// === CORS - DEVE VIR ANTES DE TUDO ===
+// allowedOrigins já declarado acima, não declarar novamente
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
+
+// Sentry request handler (deve ser o primeiro middleware depois do CORS)
 app.use(Sentry.Handlers.requestHandler());
 const port = process.env.PORT || 10000;
 // Endpoint de health para Render
@@ -78,51 +88,34 @@ app.get('/healthz', (req, res) => res.send('OK'));
 // === MIDDLEWARE PARA COOKIES ===
 app.use(cookieParser());
 
-// === PROTEÇÃO CSRF (apenas para rotas autenticadas e mutáveis) ===
-app.use(
-  csurf({
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000 // 1 dia
-    },
-    ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
-  })
-);
+const csrfProtection = csurf({
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 24 * 60 * 60 * 1000 // 1 dia
+  },
+  ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
+});
 
-// === CONFIGURAÇÃO DINÂMICA DE CORS ===
-// Suporta variantes com/sem porta (ex: http://localhost e http://localhost:80)
-const allowedOriginsRaw = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173')
-  .split(',')
-  .map(o => o.trim())
-  .filter(Boolean);
-
-// Normalize allowed origins: keep original and hostname-only variant
-const allowedOriginsSet = new Set();
-allowedOriginsRaw.forEach(o => {
-  allowedOriginsSet.add(o);
-  try {
-    const u = new URL(o);
-    allowedOriginsSet.add(`${u.protocol}//${u.hostname}`);
-  } catch (e) {
-    // ignore invalid URL parse
-  }
+// Rota para fornecer o CSRF token ao frontend (opcional, só se usar CSRF no frontend)
+app.get('/api/csrf-token', csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
 });
 
 // === CORS - DEVE VIR ANTES DE TUDO ===
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:3001'
+];
 app.use(cors({
-  origin: (origin, callback) => {
-    // Permitir requests sem origin (mobile apps, Postman, etc.)
-    if (!origin) return callback(null, true);
-    
-    // Sempre verifica lista de origens permitidas
-    if (allowedOriginsSet.has(origin)) {
-      callback(null, true);
-    } else {
-      logger.warn(`CORS blocked origin: ${origin}`);
-      callback(new Error('Origem não permitida pelo CORS'));
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // Permite requests sem origin (ex: mobile, Postman)
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -181,8 +174,8 @@ const limiterGeral = rateLimit({
 
 // Rate limiting mais restritivo para autenticação (previne brute force)
 const limiterAuth = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: process.env.NODE_ENV === 'production' ? 10 : 100, // 10 em prod, 100 em dev
+  windowMs: 5 * 60 * 1000, // 5 minutos
+  max: process.env.NODE_ENV === 'production' ? 10 : 500, // 10 em prod, 500 em dev
   message: 'Muitas tentativas de autenticação. Tente novamente em 15 minutos.',
   standardHeaders: true,
   skip: (req) => req.method !== 'POST'
@@ -190,8 +183,8 @@ const limiterAuth = rateLimit({
 
 // Rate limiting específico para login (ainda mais restritivo)
 const limiterLogin = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: process.env.NODE_ENV === 'production' ? 5 : 50, // 5 em prod, 50 em dev
+  windowMs: 5 * 60 * 1000, // 5 minutos
+  max: process.env.NODE_ENV === 'production' ? 5 : 1000, // 5 em prod, 1000 em dev
   message: 'Muitas tentativas de login. Tente novamente em 15 minutos.',
   standardHeaders: true,
   skipSuccessfulRequests: true // Não conta requisições bem-sucedidas
@@ -201,7 +194,7 @@ const limiterLogin = rateLimit({
 app.use(limiterGeral);
 
 // Aplicar rate limit restritivo para auth
-app.use('/api/auth', limiterAuth);
+
 
 // Capture raw body for debugging (verify) while still parsing JSON
 app.use(express.json({
@@ -255,8 +248,28 @@ if (swaggerUi && swaggerSpec) {
 app.use('/health', healthRoutes);
 
 app.use('/api/relatorios', relatoriosRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/auth/login', limiterLogin); // Rate limiter específico para login
+
+// --- REGISTRO MANUAL DAS ROTAS DE AUTENTICAÇÃO PARA CONTROLE FINO DO RATE LIMIT ---
+import authController from './controllers/authController.js';
+import authMiddleware from './middlewares/authMiddleware.js';
+import { roleMiddleware } from './middlewares/roleMiddleware.js';
+
+// Registro de novo usuário (público)
+app.post('/api/auth/register', authController.register);
+// Login (público) com rate limit
+app.post('/api/auth/login', limiterLogin, authController.login);
+// Solicitar recuperação de senha (público)
+app.post('/api/auth/forgot-password', authController.forgotPassword);
+// Redefinir senha usando token do email (público)
+app.post('/api/auth/reset-password/:token', authController.resetPassword);
+// Refresh token (público)
+app.post('/api/auth/refresh-token', authController.refreshToken);
+// Verificar dados do usuário logado
+app.get('/api/auth/me', authMiddleware, authController.me);
+// Alterar senha do usuário logado
+app.put('/api/auth/change-password', authMiddleware, authController.changePassword);
+// Criar admin (restrito)
+app.post('/api/auth/criar-admin', authMiddleware, roleMiddleware('admin'), authController.criarAdmin);
 app.use('/api/financeiro', financeiroRoutes);
 app.use('/api/pecas', pecasRoutes);
 app.use('/api/servicos', servicosRoutes);
@@ -348,8 +361,21 @@ app.use(errorHandler());
       console.log('🔵 [6.3] Admin já existe');
       logger.info('Usuário admin já existe');
     }
+      console.log('🟢 Passou do setupGlobalErrorHandlers');
+    
+      console.log('🟢 Passou do validateEnvironment');
+    
+      console.log('🟢 Passou do sequelize.authenticate');
+    
+      console.log('🟢 Passou do sequelize.sync');
+    
+      console.log('🟢 Passou do User.findOne');
+    
+      console.log('🟢 Passou do bloco admin');
 
     console.log('🔵 [7] Iniciando servidor HTTP...');
+    // Log extra para depuração
+    console.log('🟢 Chegou antes do app.listen!');
     // Iniciar servidor HTTP
     const server = app.listen(port, '0.0.0.0', () => {
       console.log('🔵 [8] Servidor HTTP iniciado!');

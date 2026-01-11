@@ -1,6 +1,6 @@
 // src/__tests__/validations/servicoValidation.test.js
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 import { servicoSchema, servicoUpdateSchema } from '../../validations/servicoValidation.js';
 
 describe('ServicoValidation', () => {

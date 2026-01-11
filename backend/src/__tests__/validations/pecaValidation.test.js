@@ -1,6 +1,6 @@
 // src/__tests__/validations/pecaValidation.test.js
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 import { pecaSchema, pecaUpdateSchema } from '../../validations/pecaValidation.js';
 
 describe('PecaValidation', () => {

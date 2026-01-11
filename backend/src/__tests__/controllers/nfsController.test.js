@@ -1,5 +1,5 @@
 // backend/src/__tests__/controllers/nfsController.test.js
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 import nfsController from '../../controllers/nfsController.js';
 
 describe('NFs Controller', () => {

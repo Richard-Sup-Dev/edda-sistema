@@ -201,10 +201,7 @@ async function buscarRelatoriosAvancado(query, page, limit, userId = null, isAdm
     }
     
     // Filtro por usuário (se não for admin)
-    if (!isAdmin && userId) {
-        const userParam = hasFilter ? '$4' : '$3';
-        whereConditions.push(`r.criador_id = ${userParam}`);
-    }
+    // Removido: coluna criador_id não existe no banco
 
     const whereClause = whereConditions.length > 0 
         ? `WHERE ${whereConditions.join(' AND ')}`
@@ -218,8 +215,7 @@ async function buscarRelatoriosAvancado(query, page, limit, userId = null, isAdm
             r.titulo_relatorio, 
             r.data_emissao,
             COALESCE(c.nome_fantasia, r.cliente_nome) as cliente_nome_final,
-            r.tipo_relatorio,
-            r.criador_id
+            r.tipo_relatorio
         FROM 
             relatorios r
         LEFT JOIN 
@@ -274,13 +270,13 @@ async function salvarRelatorioPecas(relatorioId, pecasCotadas, dbInstance) {
     if (!pecasCotadas || pecasCotadas.length === 0) return;
 
     const sql = `
-        INSERT INTO relatorio_pecas (relatorio_id, peca_id, quantidade, valor_cobrado)
+        INSERT INTO relatorio_pecas (relatorio_id, peca_id, quantidade, valor_unitario)
         VALUES ($1, $2, $3, $4)
     `;
 
     for (const peca of pecasCotadas) {
-        // Assegura que valor_cobrado é um número decimal
-        const valorNumerico = parseFloat(String(peca.valor_cobrado).replace(',', '.'));
+        // Assegura que valor_unitario é um número decimal
+        const valorNumerico = parseFloat(String(peca.valor_unitario ?? peca.valor_cobrado).replace(',', '.'));
         const quantidadeNumerica = parseFloat(String(peca.quantidade).replace(',', '.'));
 
         if (!isNaN(valorNumerico) && !isNaN(quantidadeNumerica) && peca.peca_id) {
@@ -293,12 +289,12 @@ async function salvarRelatorioServicos(relatorioId, servicosCotados, dbInstance)
     if (!servicosCotados || servicosCotados.length === 0) return;
 
     const sql = `
-        INSERT INTO relatorio_servicos (relatorio_id, servico_id, quantidade, valor_cobrado)
+        INSERT INTO relatorio_servicos (relatorio_id, servico_id, quantidade, valor_unitario)
         VALUES ($1, $2, $3, $4)
     `;
 
     for (const servico of servicosCotados) {
-        const valorNumerico = parseFloat(String(servico.valor_cobrado).replace(',', '.'));
+        const valorNumerico = parseFloat(String(servico.valor_unitario ?? servico.valor_cobrado).replace(',', '.'));
         const quantidadeNumerica = parseFloat(String(servico.quantidade).replace(',', '.'));
 
         if (!isNaN(valorNumerico) && !isNaN(quantidadeNumerica) && servico.servico_id) {
@@ -313,8 +309,8 @@ async function salvarRelatorioServicos(relatorioId, servicosCotados, dbInstance)
 async function getTotalPendente() {
     const query = `
         SELECT COALESCE(SUM(
-            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_cobrado, 0) +
-            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_cobrado, 0)
+            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_unitario, 0) +
+            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_unitario, 0)
         ), 0) AS total
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
@@ -329,8 +325,8 @@ async function getTotalPendente() {
 async function getTotalConcluidoMesAtual() {
     const query = `
         SELECT COALESCE(SUM(
-            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_cobrado, 0) +
-            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_cobrado, 0)
+            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_unitario, 0) +
+            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_unitario, 0)
         ), 0) AS total
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
@@ -347,8 +343,8 @@ async function getTotalConcluidoMesAtual() {
 async function getTotalFaturadoMesAtual() {
     const query = `
         SELECT COALESCE(SUM(
-            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_cobrado, 0) +
-            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_cobrado, 0)
+            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_unitario, 0) +
+            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_unitario, 0)
         ), 0) AS total
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
@@ -368,8 +364,8 @@ async function getEvolucaoMensal() {
             TO_CHAR(r.data_fim_servico, 'Mon') AS mes,
             EXTRACT(YEAR FROM r.data_fim_servico) AS ano,
             COALESCE(SUM(
-                COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_cobrado, 0) +
-                COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_cobrado, 0)
+                COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_unitario, 0) +
+                COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_unitario, 0)
             ), 0) AS valor
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
@@ -413,8 +409,8 @@ async function getContadores() {
 async function getTotalFaturadoPorAno(ano) {
     const query = `
         SELECT COALESCE(SUM(
-            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_cobrado, 0) +
-            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_cobrado, 0)
+            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_unitario, 0) +
+            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_unitario, 0)
         ), 0) AS total
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
@@ -439,8 +435,8 @@ async function getTotalFaturadoPorAno(ano) {
 async function getTotalPendenteMesAnterior() {
     const query = `
         SELECT COALESCE(SUM(
-            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_cobrado, 0) +
-            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_cobrado, 0)
+            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_unitario, 0) +
+            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_unitario, 0)
         ), 0) AS total
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
@@ -457,8 +453,8 @@ async function getTotalPendenteMesAnterior() {
 async function getTotalConcluidoMesAnterior() {
     const query = `
         SELECT COALESCE(SUM(
-            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_cobrado, 0) +
-            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_cobrado, 0)
+            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_unitario, 0) +
+            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_unitario, 0)
         ), 0) AS total
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id
@@ -475,8 +471,8 @@ async function getTotalConcluidoMesAnterior() {
 async function getTotalFaturadoMesAnterior() {
     const query = `
         SELECT COALESCE(SUM(
-            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_cobrado, 0) +
-            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_cobrado, 0)
+            COALESCE(rp.quantidade, 0) * COALESCE(rp.valor_unitario, 0) +
+            COALESCE(rs.quantidade, 0) * COALESCE(rs.valor_unitario, 0)
         ), 0) AS total
         FROM relatorios r
         LEFT JOIN relatorio_pecas rp ON r.id = rp.relatorio_id

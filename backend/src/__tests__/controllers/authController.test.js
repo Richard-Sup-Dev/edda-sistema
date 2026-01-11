@@ -1,5 +1,5 @@
 // src/__tests__/controllers/authController.test.js
-import { describe, it, expect, beforeAll, afterAll, jest } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll, vi as jest } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 import authRoutes from '../../routes/auth.js';

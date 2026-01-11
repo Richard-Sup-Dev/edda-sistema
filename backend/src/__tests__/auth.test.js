@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import models from '../models/index.js';
 import express from 'express';
 import cors from 'cors';

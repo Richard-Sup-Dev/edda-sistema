@@ -3,7 +3,7 @@ import express from 'express';
 import Joi from 'joi';
 import jwt from 'jsonwebtoken';
 import bcryptjs from 'bcryptjs';
-import { describe, it, test, expect } from '@jest/globals';
+import { describe, it, test, expect } from 'vitest';
 
 describe('Health Check', () => {
   test('Environment is correctly configured', () => {

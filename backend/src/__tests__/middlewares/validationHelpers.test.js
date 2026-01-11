@@ -1,6 +1,6 @@
 // src/__tests__/middlewares/validationHelpers.test.js
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 
 // Reimplementando as funções de validação para testar
 const validarCNPJ = (cnpj) => {

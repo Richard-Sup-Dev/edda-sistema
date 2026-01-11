@@ -1,5 +1,5 @@
 // backend/src/__tests__/middlewares/cacheMiddleware.test.js
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, vi as jest, beforeEach, afterEach } from 'vitest';
 
 // Mock do redisClient ANTES de importar o middleware
 const mockRedisClient = {
@@ -8,7 +8,7 @@ const mockRedisClient = {
   isConnected: false // Simula Redis offline para testes
 };
 
-jest.unstable_mockModule('../../config/redis.js', () => ({
+vi.mock('../../config/redis.js', () => ({
   default: mockRedisClient
 }));
 

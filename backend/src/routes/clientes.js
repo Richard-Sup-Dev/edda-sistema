@@ -17,12 +17,12 @@ router.get('/', authMiddleware, cacheStrategies.medium, clientesController.lista
 // ====================== CRIAR NOVO CLIENTE ======================
 // Apenas admin pode criar clientes manualmente
 // Invalida cache após criação
-router.post('/', authMiddleware, roleMiddleware('admin'), invalidateCache('clientes'), validarDados(clienteSchema), clientesController.criarCliente);
+router.post('/', authMiddleware, roleMiddleware('admin'), validarDados(clienteSchema), invalidateCache('clientes'), clientesController.criarCliente);
 
 // ====================== ATUALIZAR CLIENTE ======================
 // Apenas admin pode editar
 // Invalida cache após atualização
-router.put('/:id', authMiddleware, roleMiddleware('admin'), invalidateCache('clientes'), validarDados(clienteSchema), clientesController.atualizarCliente);
+router.put('/:id', validarDados(clienteSchema), authMiddleware, roleMiddleware('admin'), invalidateCache('clientes'), clientesController.atualizarCliente);
 
 // ====================== EXCLUIR CLIENTE (OPCIONAL) ======================
 // Apenas admin — com cuidado, pois clientes podem estar em relatórios/NFs
