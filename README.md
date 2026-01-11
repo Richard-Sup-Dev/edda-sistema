@@ -6,129 +6,117 @@ Sistema completo para gestão e geração de relatórios técnicos de manutenç�
 
 ### Gestão de Relatórios
 - Criação de relatórios técnicos com múltiplas fotos
-- Registro de medições técnicas (resistência, batimento)
-- Geração automática de PDF formatado
-- Histórico completo por cliente
-
-### Gestão de Clientes
-- Cadastro com CNPJ, endereço e contatos
-- Upload de logo para personalização
-- Histórico de atendimentos
-
-### Orçamentos
-- Catálogo de peças e serviços
-- Geração de orçamentos integrados
-- Cálculo automático de totais
-
-### Segurança
-- Autenticação JWT com roles
-- Rate limiting
-- Validação de dados
-### Backend
-- Node.js 20+
-- Sequelize ORM
-- Jest para testes
-- Vite 7
-- Tailwind CSS 4
-## Instalação
-
-### Pré-requisitos
-- Node.js 20 ou superior
-cd backend
-npm install
-
-```bash
-cd frontend
-npm install
-```
-
-## Configuração
-
-### Variáveis de Ambiente
-
-**Backend (.env)**
-```env
-npm start
-NODE_ENV=development
-PORT=3001
-DATABASE_URL=postgresql://user:password@host:5432/database
-JWT_SECRET=sua_chave_secreta
-ALLOWED_ORIGINS=http://localhost:5173
-EMAIL_SERVICE=gmail
-EMAIL_USER=seu_email@gmail.com
-EMAIL_APP_PASS=senha_app
-```
 
 # Sistema de Relatórios Técnicos
 
-Sistema completo para gestão e geração de relatórios técnicos de manutenção industrial, desenvolvido com React, Node.js e PostgreSQL.
+Sistema web completo para gestão e geração de relatórios técnicos de manutenção industrial, com foco em **segurança, automação, escalabilidade e operação em produção**.
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/Richard-Sup-Dev/edda-sistema/ci.yml?branch=main)](https://github.com/Richard-Sup-Dev/edda-sistema/actions)
 [![License](https://img.shields.io/github/license/Richard-Sup-Dev/edda-sistema)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/Richard-Sup-Dev/edda-sistema)](https://github.com/Richard-Sup-Dev/edda-sistema/issues)
 
-## Funcionalidades
+---
 
-### Gestão de Relatórios
-- Criação de relatórios técnicos com múltiplas fotos
+## 📌 Visão Geral
+
+Sistema desenvolvido para empresas de manutenção industrial, permitindo o controle completo de clientes, relatórios técnicos, orçamentos e geração automática de PDFs profissionais com fotos e medições técnicas.
+
+---
+
+## ⚙️ Funcionalidades
+
+### 📄 Relatórios Técnicos
+- Criação de relatórios com múltiplas fotos
 - Registro de medições técnicas (resistência, batimento)
 - Geração automática de PDF formatado
 - Histórico completo por cliente
 
-### Gestão de Clientes
-- Cadastro com CNPJ, endereço e contatos
+### 👥 Clientes e Orçamentos
+- Cadastro de clientes com CNPJ, endereço e contatos
 - Upload de logo para personalização
-- Histórico de atendimentos
-
-### Orçamentos
 - Catálogo de peças e serviços
-- Geração de orçamentos integrados
-- Cálculo automático de totais
+- Geração de orçamentos com cálculo automático
 
-### Segurança
-- Autenticação JWT com roles
+### 🔐 Segurança
+- Autenticação JWT com controle de permissões (roles)
 - Rate limiting
 - Validação de dados
 - Logs estruturados
 
-## Tecnologias
+---
 
-### Backend
-- Node.js 20+
-- Express 4.18
+## 🧠 Tecnologias
+
+**Backend**
+- Node.js 20, Express
 - PostgreSQL 14+
-- JWT para autenticação
 - Sequelize ORM
-- Jest para testes
+- JWT, Jest
 
-### Frontend
-- React 19
-- Vite 7
+**Frontend**
+- React 19, Vite 7
 - Tailwind CSS 4
-- React Router 7
-- Axios
-- Vitest para testes
+- React Router, Axios
+- Vitest
 
-## Instalação
+**DevOps**
+- Docker e Docker Compose
+- GitHub Actions (CI/CD)
 
-### Pré-requisitos
-- Node.js 20 ou superior
-- PostgreSQL 14 ou superior
-- npm ou yarn
+---
 
-### Backend
+## 🚀 Quick Start (Docker – Recomendado)
+
 ```bash
-cd backend
-npm install
-cp .env.example .env
-# Configurar variáveis no .env
-npm run migrate # Executa as migrações do banco
-npm run seed    # (Opcional) Popula dados de teste
-npm start
+git clone https://github.com/Richard-Sup-Dev/edda-sistema.git
+cd edda-sistema
+docker-compose up -d
 ```
 
-### Frontend
+Acesse: http://localhost:5173
+
+📘 Para instalação manual e configurações avançadas, consulte: QUICK_START.md
+
+## 🧪 Testes
 ```bash
+# Backend
+cd backend && npm test
+# Frontend
+cd frontend && npm run test
+```
+
+## 📘 Documentação
+
+- Swagger API
+- Exemplos de uso: API_EXEMPLOS.md
+- Checklist de produção e deploy
+
+## 🗺️ Roadmap
+- Notificações em tempo real (WebSocket)
+- Assistente inteligente com IA
+- Busca avançada e filtros inteligentes
+- Backup automatizado em nuvem
+
+## 🤝 Contribuição e Segurança
+
+- Diretrizes em CONTRIBUTING.md
+- Política de segurança em SECURITY.md
+
+## 📬 Contato
+
+Dúvidas ou sugestões? Abra uma issue ou entre em contato: richard@seudominio.com
+
+## 📄 Licença
+
+MIT
+
+---
+
+## 🧠 Veredito final (sincero)
+- 📈 **Evolução absurda em poucos meses**
+- 🧑‍💻 Isso já é **portfólio sério**
+- 🏢 Pode ser mostrado sem medo
+- ❌ Não parece “projeto de curso”
 cd frontend
 npm install
 npm run dev
