@@ -1,5 +1,6 @@
 // src/controllers/clientesController.js
 import clientesService from '../services/clientesService.js';
+import logger from '../config/logger.js';
 
 // ==================== LISTAR TODOS OS CLIENTES ====================
 async function listarClientes(req, res) {
@@ -7,7 +8,7 @@ async function listarClientes(req, res) {
     const clientes = await clientesService.listarClientes();
     return res.status(200).json(clientes);
   } catch (error) {
-    console.error('Erro ao listar clientes:', error);
+    logger.error('Erro ao listar clientes', { error });
     return res.status(500).json({ erro: 'Erro interno ao listar clientes.' });
   }
 }
@@ -28,7 +29,7 @@ async function buscarClientePorId(req, res) {
     }
     return res.status(200).json(cliente);
   } catch (error) {
-    console.error('Erro ao buscar cliente por ID:', error);
+    logger.error('Erro ao buscar cliente por ID', { error });
     return res.status(500).json({ erro: 'Erro interno ao buscar cliente.' });
   }
 }
@@ -49,13 +50,11 @@ async function criarCliente(req, res) {
       mensagem: 'Cliente criado com sucesso!'
     });
   } catch (error) {
-    console.error('Erro ao criar cliente:', error);
-
+    logger.error('Erro ao criar cliente', { error });
     // Erros conhecidos (validação, duplicidade, etc.) retornam 400
     if (error.name === 'SequelizeUniqueConstraintError' || error.name === 'ValidationError') {
       return res.status(400).json({ erro: error.message || 'Dados inválidos ou já existentes (ex: CNPJ duplicado).' });
     }
-
     // Outros erros inesperados
     return res.status(500).json({ erro: 'Erro interno ao criar cliente.' });
   }
@@ -77,19 +76,15 @@ async function atualizarCliente(req, res) {
 
   try {
     const rowCount = await clientesService.atualizarCliente(Number(id), clienteData);
-
     if (rowCount === 0) {
       return res.status(404).json({ erro: 'Cliente não encontrado.' });
     }
-
     return res.status(200).json({ mensagem: 'Cliente atualizado com sucesso.' });
   } catch (error) {
-    console.error('Erro ao atualizar cliente:', error);
-
+    logger.error('Erro ao atualizar cliente', { error });
     if (error.name === 'SequelizeUniqueConstraintError' || error.name === 'ValidationError') {
       return res.status(400).json({ erro: error.message || 'Dados inválidos ou já existentes (ex: CNPJ duplicado).' });
     }
-
     return res.status(500).json({ erro: 'Erro interno ao atualizar cliente.' });
   }
 }
@@ -104,14 +99,12 @@ async function excluirCliente(req, res) {
 
   try {
     const rowCount = await clientesService.excluirCliente(Number(id));
-
     if (rowCount === 0) {
       return res.status(404).json({ erro: 'Cliente não encontrado.' });
     }
-
     return res.status(200).json({ mensagem: 'Cliente excluído com sucesso.' });
   } catch (error) {
-    console.error('Erro ao excluir cliente:', error);
+    logger.error('Erro ao excluir cliente', { error });
     return res.status(500).json({ erro: 'Erro interno ao excluir cliente.' });
   }
 }

@@ -20,8 +20,12 @@ router.post('/login', authController.login);
 // Solicitar recuperação de senha (envia email com token) - público
 router.post('/forgot-password', authController.forgotPassword);
 
+
 // Redefinir senha usando token do email - público
 router.post('/reset-password/:token', authController.resetPassword);
+
+// ==================== REFRESH TOKEN (público, mas seguro via cookie) ====================
+router.post('/refresh-token', authController.refreshToken);
 
 // ============================================
 // ROTAS PROTEGIDAS (precisam de autenticação)

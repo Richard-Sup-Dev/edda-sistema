@@ -15,19 +15,7 @@ export const AuthProvider = ({ children }) => {
 
   // Verifica token ao carregar a página
   useEffect(() => {
-    // Primeiro verifica a versão do token
-    const versaoValida = verificarVersaoToken();
-    
-    const token = localStorage.getItem('token');
-
-    // Se não tem versão válida ou token, resetar
-    if (!versaoValida || !token) {
-      setLoading(false);
-      setUser(null);
-      return;
-    }
-
-    // Valida o token com /api/auth/me
+    // Não usa mais localStorage para token, apenas para user (opcional)
     apiClient.get('/auth/me')
       .then((response) => {
         const userData = response.data.user || response.data;
@@ -36,14 +24,8 @@ export const AuthProvider = ({ children }) => {
       })
       .catch((error) => {
         logger.error('Token validation failed:', error.response?.data || error.message);
-        // Limpar dados inválidos
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
         setUser(null);
-        
-        // Se não estiver na página de login, redirecionar
         if (!window.location.pathname.includes('/login')) {
-          console.warn('🔒 Token inválido detectado. Redirecionando para login...');
           window.location.href = '/login';
         }
       })
@@ -59,13 +41,9 @@ export const AuthProvider = ({ children }) => {
         email,
         senha
       });
-
-      const { token, user: userData } = response.data;
-
-      localStorage.setItem('token', token);
+      const userData = response.data.user;
       setUser(userData);
-      marcarVersaoToken(); // Marca versão do token como válida
-
+      marcarVersaoToken();
       return { success: true };
     } catch (error) {
       const mensagem = error.response?.data?.erro || 'Erro ao fazer login';
@@ -74,10 +52,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Função de logout
-  const logout = () => {
-    localStorage.removeItem('token');
+  const logout = async () => {
+    // Opcional: pode criar endpoint /auth/logout para limpar cookies no backend
     setUser(null);
-    window.location.href = '/login'; // redireciona para login
+    window.location.href = '/login';
   };
 
   // Verifica se é admin

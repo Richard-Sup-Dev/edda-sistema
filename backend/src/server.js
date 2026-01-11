@@ -1,11 +1,18 @@
+// Endpoint para fornecer o CSRF token ao frontend
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 // src/server.js - Versão ESM (Otimizada)
 
 import 'dotenv/config';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import express from 'express';
+import * as Sentry from '@sentry/node';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
+import csurf from 'csurf';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import bcrypt from 'bcryptjs';
@@ -52,12 +59,37 @@ import websocketService from './services/websocketService.js';
 // Importar Redis client
 import redisClient from './config/redis.js';
 
+// === SENTRY ===
+Sentry.init({
+  dsn: process.env.SENTRY_DSN || '',
+  environment: process.env.NODE_ENV || 'development',
+  tracesSampleRate: 1.0,
+});
+
 const app = express();
+// Sentry request handler (deve ser o primeiro middleware)
+app.use(Sentry.Handlers.requestHandler());
 const port = process.env.PORT || 10000;
 // Endpoint de health para Render
 app.get('/health', (req, res) => res.send('OK'));
 // Endpoint extra para Render (compatível com /healthz)
 app.get('/healthz', (req, res) => res.send('OK'));
+
+// === MIDDLEWARE PARA COOKIES ===
+app.use(cookieParser());
+
+// === PROTEÇÃO CSRF (apenas para rotas autenticadas e mutáveis) ===
+app.use(
+  csurf({
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000 // 1 dia
+    },
+    ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
+  })
+);
 
 // === CONFIGURAÇÃO DINÂMICA DE CORS ===
 // Suporta variantes com/sem porta (ex: http://localhost e http://localhost:80)
@@ -84,12 +116,7 @@ app.use(cors({
     // Permitir requests sem origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
     
-    // Em desenvolvimento, aceita tudo
-    if (process.env.NODE_ENV === 'development') {
-      return callback(null, true);
-    }
-    
-    // Em produção, verifica lista de origens permitidas
+    // Sempre verifica lista de origens permitidas
     if (allowedOriginsSet.has(origin)) {
       callback(null, true);
     } else {
@@ -107,7 +134,37 @@ app.use(cors({
 app.use(requestIdMiddleware());
 
 // Security headers com Helmet
-app.use(helmet());
+app.use(
+  helmet({
+    hsts: {
+      maxAge: 31536000, // 1 ano
+      includeSubDomains: true,
+      preload: true
+    },
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "default-src": ["'self'"],
+        "img-src": ["'self'", 'data:', 'https:'],
+        "script-src": ["'self'", 'https:'],
+        "style-src": ["'self'", 'https:', "'unsafe-inline'"],
+        "object-src": ["'none'"],
+        "frame-ancestors": ["'none'"],
+      }
+    },
+    frameguard: { action: 'deny' },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    xssFilter: true,
+    noSniff: true,
+    permittedCrossDomainPolicies: { permittedPolicies: 'none' },
+  })
+);
+
+// Permissions-Policy header (ex-Feature-Policy)
+app.use((req, res, next) => {
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  next();
+});
 
 // === RATE LIMITING ===
 // Proteção contra ataques de força bruta e DDoS
@@ -223,6 +280,9 @@ app.get('/api/test', (req, res) => {
 app.use('*', (req, res) => {
   res.status(404).json({ erro: 'Rota não encontrada.' });
 });
+
+// Sentry error handler (deve ser antes do errorHandler customizado)
+app.use(Sentry.Handlers.errorHandler());
 
 // === ERROR HANDLER GLOBAL (deve ser o último middleware) ===
 app.use(errorHandler());

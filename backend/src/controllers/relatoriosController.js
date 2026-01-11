@@ -6,6 +6,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { Buffer } from 'buffer';
 import { fileURLToPath } from 'url';
+import logger from '../config/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,16 +25,15 @@ async function buscarRelatorios(req, res) {
 
   try {
     const results = await relatoriosService.buscarRelatorios({
-      query: q?.trim() || '', // Se não tiver q, busca todos
+      query: q?.trim() || '',
       page: Number(page),
       limit: Number(limit),
       userId,
       isAdmin
     });
-
     return res.status(200).json(results);
   } catch (error) {
-    console.error('Erro ao buscar relatórios:', error);
+    logger.error('Erro ao buscar relatórios', { error });
     return res.status(500).json({ erro: 'Erro interno ao realizar a busca.' });
   }
 }
@@ -58,22 +58,20 @@ async function criarRelatorio(req, res) {
     const clienteLogoFile = req.files?.cliente_logo?.[0];
     const fotosFiles = req.files?.photos || [];
     const fotosBase64Payload = req.body.fotos_base64 ? JSON.parse(req.body.fotos_base64) : [];
-
-    let body = { ...req.body };
-    body.data_inicio = body.data_inicio || '';
-    body.data_fim = body.data_fim || '';
-    body.numero_rte = body.numero_rte || '';
-
-    // Logo do cliente
-    if (clienteLogoFile) {
-      body.cliente_logo = clienteLogoFile.filename;
-    }
-
-    // Processamento de fotos
-    let fotosComCaminho = [];
-    const fotosMetadados = body.photo_metadata ? JSON.parse(body.photo_metadata) : [];
-
-    // Prioridade 1: Fotos via Base64 (mobile)
+  try {
+    // ...existing code...
+    return res.status(201).json({
+      sucesso: true,
+      id: relatorioId,
+      pdfUrl
+    });
+  } catch (error) {
+    logger.error('Erro crítico ao criar relatório', { error });
+    return res.status(500).json({
+      sucesso: false,
+      erro: error.message || 'Erro interno do servidor ao criar relatório.'
+    });
+  }
     if (fotosBase64Payload.length > 0) {
       for (const foto of fotosBase64Payload) {
         if (!foto.base64) continue;
@@ -208,22 +206,18 @@ async function getRelatorioMeta(req, res) {
     if (!relatorio) {
       return res.status(404).json({ erro: 'Relatório não encontrado.' });
     }
-
     const dataRef = relatorio.data_inicio_servico ? new Date(relatorio.data_inicio_servico) : new Date();
     const ano = dataRef.getFullYear();
     const mes = String(dataRef.getMonth() + 1).padStart(2, '0');
-
     const metaPath = path.join(uploadDir, String(ano), mes, String(id), 'meta.json');
-
     const metaContent = await fs.readFile(metaPath, 'utf8');
     const metaData = JSON.parse(metaContent);
-
     return res.status(200).json(metaData);
   } catch (error) {
     if (error.code === 'ENOENT') {
       return res.status(404).json({ erro: 'Metadados do relatório não encontrados.' });
     }
-    console.error('Erro ao buscar meta.json:', error);
+    logger.error('Erro ao buscar meta.json', { error });
     return res.status(500).json({ erro: 'Erro interno ao buscar metadados.' });
   }
 }
@@ -241,7 +235,7 @@ async function salvarOrcamento(req, res) {
     await relatoriosService.salvarOrcamento(id, pecas_cotadas || [], servicos_cotados || []);
     return res.status(200).json({ mensagem: 'Orçamento salvo com sucesso!' });
   } catch (error) {
-    console.error('Erro ao salvar orçamento:', error);
+    logger.error('Erro ao salvar orçamento', { error });
     return res.status(500).json({ erro: error.message || 'Erro ao salvar orçamento.' });
   }
 }
@@ -259,10 +253,9 @@ async function buscarDetalhesCompletos(req, res) {
     if (!detalhes) {
       return res.status(404).json({ erro: 'Relatório não encontrado.' });
     }
-
     return res.status(200).json(detalhes);
   } catch (error) {
-    console.error('Erro ao buscar detalhes completos:', error);
+    logger.error('Erro ao buscar detalhes completos', { error });
     return res.status(500).json({ erro: 'Erro interno ao buscar detalhes do relatório.' });
   }
 }

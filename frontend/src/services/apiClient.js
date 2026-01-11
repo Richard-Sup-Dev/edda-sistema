@@ -1,42 +1,57 @@
+// Utilitário para obter CSRF token
+let csrfToken = null;
+export async function getCsrfToken() {
+  if (!csrfToken) {
+    const res = await apiClient.get('/csrf-token');
+    csrfToken = res.data.csrfToken;
+  }
+  return csrfToken;
+}
+
+// Adiciona CSRF token em requisições mutáveis
+apiClient.interceptors.request.use(async (config) => {
+  const mutatingMethods = ['post', 'put', 'patch', 'delete'];
+  if (mutatingMethods.includes(config.method)) {
+    if (!csrfToken) {
+      await getCsrfToken();
+    }
+    config.headers['X-CSRF-Token'] = csrfToken;
+  }
+  return config;
+});
 // src/services/apiClient.js
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 // Criar instância do axios
+
 const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true // Permite envio de cookies
 });
 
-// Interceptor para adicionar token em todas as requisições
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+// Não é mais necessário adicionar token manualmente, pois será enviado via cookie HttpOnly
 
 // Interceptor para tratar erros de resposta
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // Se o token expirou ou é inválido, redirecionar para login
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      
-      // Evitar loop infinito de redirecionamento
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
+  async (error) => {
+    // Se o access token expirou, tenta renovar automaticamente
+    if (error.response?.status === 401 && !error.config._retry) {
+      error.config._retry = true;
+      try {
+        await apiClient.post('/auth/refresh-token');
+        // Tenta novamente a requisição original
+        return apiClient(error.config);
+      } catch (refreshError) {
+        // Se falhar, redireciona para login
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);

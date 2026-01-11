@@ -5,14 +5,17 @@ import 'dotenv/config';
 import logger from '../config/logger.js';
 
 const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  // Verifica se o header existe e está no formato Bearer
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ erro: 'Token de acesso ausente ou inválido.' });
+  // Tenta pegar o token do cookie ou do header Authorization
+  let token = null;
+  if (req.cookies && req.cookies.accessToken) {
+    token = req.cookies.accessToken;
+  } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    token = req.headers.authorization.split(' ')[1];
   }
 
-  const token = authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ erro: 'Token de acesso ausente ou inválido.' });
+  }
 
   // Garante que o JWT_SECRET esteja configurado
   if (!process.env.JWT_SECRET) {

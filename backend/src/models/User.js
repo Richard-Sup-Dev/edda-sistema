@@ -24,6 +24,16 @@ const User = sequelize.define('User', {
     type: DataTypes.ENUM('user', 'admin', 'tecnico', 'emissor'),
     defaultValue: 'user',
     allowNull: false
+  },
+  refreshToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    comment: 'Refresh token para autenticação segura'
+  },
+  refreshTokenExpires: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Data de expiração do refresh token'
   }
 }, {
   tableName: 'usuarios',

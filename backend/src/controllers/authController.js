@@ -7,6 +7,52 @@ import User from '../models/User.js';
 import { sendResetPasswordEmail } from '../utils/email.js';
 
 class AuthController {
+    // ==================== RENOVAR ACCESS TOKEN COM REFRESH TOKEN ====================
+    async refreshToken(req, res) {
+      try {
+        const refreshToken = req.cookies?.refreshToken;
+        if (!refreshToken) {
+          return res.status(401).json({ erro: 'Refresh token ausente.' });
+        }
+
+        // Busca usuário com esse refresh token válido
+        const user = await User.findOne({
+          where: {
+            refreshToken,
+            refreshTokenExpires: { [Op.gt]: new Date() }
+          }
+        });
+
+        if (!user) {
+          return res.status(401).json({ erro: 'Refresh token inválido ou expirado.' });
+        }
+
+        // Gera novo access token
+        const accessToken = jwt.sign(
+          { id: user.id, nome: user.nome, email: user.email, role: user.role },
+          process.env.JWT_SECRET,
+          { expiresIn: '15m' }
+        );
+
+        // Atualiza cookie do access token
+        res.cookie('accessToken', accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 15 * 60 * 1000 // 15 minutos
+        });
+
+        // Log de auditoria
+        import('../config/logger.js').then(({ default: logger }) => {
+          logger.info('Token renovado', { userId: user.id, email: user.email, ip: req.ip });
+        });
+
+        return res.json({ mensagem: 'Token renovado com sucesso.' });
+      } catch (error) {
+        console.error('Erro ao renovar token:', error);
+        return res.status(500).json({ erro: 'Erro ao renovar token.' });
+      }
+    }
   // ==================== LOGIN (COM PROTEÇÃO BRUTE FORCE) ====================
   async login(req, res) {
     const { email, senha } = req.body;
@@ -54,15 +100,40 @@ class AuthController {
         lockUntil: null
       });
 
-      const token = jwt.sign(
+      // Geração do access token (curta duração)
+      const accessToken = jwt.sign(
         { id: user.id, nome: user.nome, email: user.email, role: user.role },
         process.env.JWT_SECRET,
-        { expiresIn: '8h' }
+        { expiresIn: '15m' }
       );
+
+      // Geração do refresh token (longa duração)
+      const refreshToken = crypto.randomBytes(64).toString('hex');
+      const refreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
+
+      await user.update({ refreshToken, refreshTokenExpires });
+
+      // Envia access token em cookie HttpOnly e refresh token em cookie seguro
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000 // 15 minutos
+      });
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dias
+      });
+
+      // Log de auditoria
+      import('../config/logger.js').then(({ default: logger }) => {
+        logger.info('Login realizado', { userId: user.id, email: user.email, ip: req.ip });
+      });
 
       return res.json({
         mensagem: 'Login realizado com sucesso!',
-        token,
         user: { id: user.id, nome: user.nome, email: user.email, role: user.role }
       });
     } catch (error) {
@@ -203,6 +274,10 @@ class AuthController {
         lockUntil: null
       });
 
+      // Log de auditoria
+      import('../config/logger.js').then(({ default: logger }) => {
+        logger.info('Senha alterada', { userId: user.id, email: user.email, ip: req.ip });
+      });
       return res.json({ 
         sucesso: 'Senha alterada com sucesso!' 
       });
