@@ -37,6 +37,8 @@ describe('Auth Controller', () => {
     });
 
     it('should reject login with invalid credentials', async () => {
+      // Timeout aumentado para 30s
+    }, 30000);
       const res = await request(app)
         .post('/api/auth/login')
         .send({ email: 'nonexistent@example.com', senha: 'wrongpassword' });

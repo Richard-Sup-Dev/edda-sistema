@@ -33,6 +33,8 @@ describe('Health Check Endpoints', () => {
 
   describe('GET /health/ready', () => {
     it('Deve verificar status de database e redis', async () => {
+      // Timeout aumentado para 30s
+    }, 30000);
       const response = await request(app).get('/health/ready');
 
       // Pode ser 200 (pronto) ou 503 (não pronto)

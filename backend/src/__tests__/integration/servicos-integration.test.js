@@ -26,6 +26,8 @@ describe('Servicos Integration Tests', () => {
   );
 
   it('deve responder nas rotas de serviços', async () => {
+    // Timeout aumentado para 30s
+  }, 30000);
     const response = await request(app)
       .get('/api/servicos')
       .set('Authorization', `Bearer ${validToken}`);

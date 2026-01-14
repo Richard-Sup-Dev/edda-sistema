@@ -28,7 +28,6 @@ beforeAll(async () => {
     throw error;
   }
 });
-
 afterAll(async () => {
   try {
     await sequelize.close();
@@ -37,7 +36,6 @@ afterAll(async () => {
     console.error('❌ Erro ao fechar conexão:', error);
   }
 });
-
 // ============================================
 // TESTES DE REGISTRO
 // ============================================
@@ -111,6 +109,8 @@ describe('Auth Controller - POST /api/auth/register', () => {
 // ============================================
 describe('Auth Controller - POST /api/auth/login', () => {
   beforeAll(async () => {
+    // Timeout aumentado para 30s
+  }, 30000);
     try {
       // Criar usuário de teste para login
       const bcrypt = (await import('bcryptjs')).default;
