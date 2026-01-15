@@ -1,5 +1,5 @@
 /* src/components/CreateNF.css */
-.nf-container { padding: 20px; color: #ccc; }
+.orcamento-container { padding: 20px; color: #ccc; }
 .header { margin-bottom: 30px; }
 .header h1 { color: #e67e22; margin: 0 0 8px 0; }
 .header p { color: #999; font-size: 0.95em; }
@@ -81,7 +81,7 @@
   width: 70px;
 }
 
-.total-nf {
+.total-orcamento {
   text-align: right;
   font-size: 1.4em;
   margin: 25px 0;

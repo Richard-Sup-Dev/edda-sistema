@@ -1,8 +1,8 @@
-// src/components/NFPreviewHTML.jsx
+// src/components/OrcamentoPreviewHTML.jsx
 import logoEdda from '../assets/edda-logo.png';
 import React from 'react';
 
-const NFPreviewHTML = ({
+const OrcamentoPreviewHTML = ({
   cliente = {},
   itens = [],
   total = 0,
@@ -98,14 +98,14 @@ const NFPreviewHTML = ({
         <table>
           <tbody>
             <tr>
-              <td colSpan={6} className="header-title">NOTA FISCAL DE SERVIÇOS</td>
+              <td colSpan={6} className="header-title">ORÇAMENTO DE SERVIÇOS</td>
             </tr>
             <tr>
               <td colSpan={2} rowSpan={2} className="logo">
                 <img src={logoEdda} alt="Logo EDDA" />
               </td>
               <td colSpan={4} className="light-blue text-center bold">
-                NOTA FISCAL DE SERVIÇOS Nº {numeroNF.padStart(6, '0')}
+                ORÇAMENTO Nº {numeroNF.padStart(6, '0')}
               </td>
             </tr>
             <tr>
@@ -212,10 +212,10 @@ const NFPreviewHTML = ({
           <tbody>
             <tr className="light-blue bold">
               <td colSpan={3} className="text-center">
-                RECEBEMOS DE <strong>{nomeFantasia.toUpperCase()}</strong> OS SERVIÇOS CONSTANTES DA NOTA FISCAL INDICADA AO LADO
+                RECEBEMOS DE <strong>{nomeFantasia.toUpperCase()}</strong> OS SERVIÇOS CONSTANTES DO ORÇAMENTO INDICADO AO LADO
               </td>
               <td rowSpan={3} className="text-center bold" style={{ borderLeft: '3px double #000' }}>
-                NOTA FISCAL<br />
+                ORÇAMENTO<br />
                 Nº {numeroNF.padStart(6, '0')}
               </td>
             </tr>
@@ -250,4 +250,4 @@ const NFPreviewHTML = ({
   );
 };
 
-export default NFPreviewHTML;
+export default OrcamentoPreviewHTML;

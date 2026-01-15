@@ -116,7 +116,7 @@ function CreateNF() {
 
     // DADOS PARA O BACKEND
     const nfData = {
-      // *NOTA: Idealmente, o número da NF deve vir do backend (ex: buscando o próximo ID)
+      // *NOTA: Idealmente, o número do orçamento deve vir do backend (ex: buscando o próximo ID)
       numeroNF: 99999,
       cliente: cliente,
       itens: itens,
@@ -126,7 +126,7 @@ function CreateNF() {
       baseISS: total,
       valorISS: total * 0.05,
       aliquota: 5,
-      informacoesComplementares: `NF gerada para a O.S. ${cliente.os_numero || 'Não informada'}.`,
+      informacoesComplementares: `Orçamento gerado para a O.S. ${cliente.os_numero || 'Não informada'}.`,
       osNumero: cliente.os_numero || ''
     };
 
@@ -138,7 +138,7 @@ function CreateNF() {
 
       const { numero, caminho_salvo, url_acesso } = response.data;
 
-      notifySuccess(`SUCESSO! NF Nº ${numero} salva.`);
+      notifySuccess(`SUCESSO! Orçamento Nº ${numero} salvo.`);
 
       // 🚨 AÇÃO CRÍTICA: Abrir a URL do PDF em uma nova aba
       const fullUrl = `${UPLOAD_BASE_URL}${url_acesso}`;
@@ -150,12 +150,12 @@ function CreateNF() {
       setItens([]);
 
     } catch (error) {
-      logger.error('Erro ao gerar NF no Backend:', error.response?.data || error.message);
+      logger.error('Erro ao gerar Orçamento no Backend:', error.response?.data || error.message);
 
       if (error.response?.status === 401) {
         notifyError("ERRO 401: Sua sessão expirou. Faça login novamente.");
       } else {
-        notifyError(`Falha na geração da NF. Detalhes: ${error.response?.data?.error || error.message}`);
+        notifyError(`Falha na geração do Orçamento. Detalhes: ${error.response?.data?.error || error.message}`);
       }
     } finally {
       setLoading(false); // Desativa o loading
@@ -398,7 +398,7 @@ function CreateNF() {
         {itens.length > 0 && (
           <div className="bg-linear-to-br from-green-50 to-green-100 border-t-2 border-green-200 px-6 py-6">
             <div className="flex justify-between items-center">
-              <span className="text-lg font-bold text-gray-700">Valor Total da Nota Fiscal</span>
+              <span className="text-lg font-bold text-gray-700">Valor Total do Orçamento</span>
               <span className="text-3xl font-black text-green-600">
                 R$ {total.toFixed(2)}
               </span>
@@ -407,7 +407,7 @@ function CreateNF() {
         )}
       </div>
 
-      {/* Botão Gerar NF */}
+      {/* Botão Gerar Orçamento */}
       {cliente && itens.length > 0 && (
         <div className="flex justify-center pt-4">
           <button
@@ -419,7 +419,7 @@ function CreateNF() {
                 : 'bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-500/50'
             } text-white`}
           >
-            {loading ? 'GERANDO NOTA FISCAL...' : 'GERAR NOTA FISCAL'}
+            {loading ? 'GERANDO ORÇAMENTO...' : 'GERAR ORÇAMENTO'}
           </button>
         </div>
       )}

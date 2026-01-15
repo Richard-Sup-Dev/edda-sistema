@@ -1,5 +1,5 @@
-// src/components/NFItemRow.jsx
-export default function NFItemRow({ item, onQuantidadeChange, onRemove }) {
+// src/components/OrcamentoItemRow.jsx
+export default function OrcamentoItemRow({ item, onQuantidadeChange, onRemove }) {
   return (
     <tr>
       <td>{item.tipo === 'peca' ? 'Peça' : 'Serviço'}</td>

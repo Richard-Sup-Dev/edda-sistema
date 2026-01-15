@@ -2,7 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FileText, CheckCircle, AlertCircle } from 'lucide-react';
-import CreateNF from '@/features/nf/components/CreateNF';
+import CreateOrcamento from '@/features/nf/components/CreateOrcamento';
 
 export default function NovaNotaFiscal() {
   const navigate = useNavigate();
@@ -20,9 +20,9 @@ export default function NovaNotaFiscal() {
             <div className="w-12 h-12 bg-linear-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
               <FileText className="w-6 h-6 text-white" />
             </div>
-            Emissão de Nota Fiscal
+            Emissão de Orçamento
           </h1>
-          <p className="text-gray-600 mt-2">Crie e emita notas fiscais de forma rápida</p>
+          <p className="text-gray-600 mt-2">Crie e emita orçamentos de forma rápida</p>
         </div>
 
         {/* Badge de Status */}
@@ -59,7 +59,7 @@ export default function NovaNotaFiscal() {
             <span className="text-xs font-bold text-orange-600 uppercase tracking-wide bg-orange-100 px-3 py-1 rounded-full">Passo 2</span>
           </div>
           <h3 className="font-bold text-gray-900 mb-2">Adicione os Itens</h3>
-          <p className="text-sm text-gray-600">Inclua peças e serviços na nota fiscal</p>
+          <p className="text-sm text-gray-600">Inclua peças e serviços no orçamento</p>
         </div>
 
         {/* Card 3 */}
@@ -70,8 +70,8 @@ export default function NovaNotaFiscal() {
             </div>
             <span className="text-xs font-bold text-green-600 uppercase tracking-wide bg-green-100 px-3 py-1 rounded-full">Passo 3</span>
           </div>
-          <h3 className="font-bold text-gray-900 mb-2">Gere a NF</h3>
-          <p className="text-sm text-gray-600">Confirme e gere o documento fiscal</p>
+          <h3 className="font-bold text-gray-900 mb-2">Gere o Orçamento</h3>
+          <p className="text-sm text-gray-600">Confirme e gere o orçamento</p>
         </div>
       </div>
 
@@ -86,7 +86,7 @@ export default function NovaNotaFiscal() {
         <div>
           <h4 className="font-bold text-blue-900 mb-1">Informação Importante</h4>
           <p className="text-sm text-blue-700">
-            Certifique-se de que todos os dados do cliente estão corretos antes de gerar a nota fiscal. 
+            Certifique-se de que todos os dados do cliente estão corretos antes de gerar o orçamento. 
             O documento será gerado em PDF e estará disponível para download.
           </p>
         </div>
@@ -99,7 +99,7 @@ export default function NovaNotaFiscal() {
         transition={{ delay: 0.2 }}
         className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden"
       >
-        <CreateNF />
+        <CreateOrcamento />
       </motion.div>
     </div>
   );
